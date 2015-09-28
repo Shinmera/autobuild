@@ -11,14 +11,18 @@
 (defclass project (repository)
   ((build-type :initarg :build-type :accessor build-type)
    (builds :initform () :accessor builds)
-   (name :initform :name :accessor name)
-   (branch :initform :branch :accessor branch)
-   (remote :initform :remote :accessor remote))
+   (name :initarg :name :accessor name)
+   (branch :initarg :branch :accessor branch)
+   (remote :initarg :remote :accessor remote))
   (:default-initargs
-   :build-type 'build
+   :build-type 'invalid-build
    :name NIL
    :branch NIL
    :remote NIL))
+
+(defmethod print-object ((project project) stream)
+  (print-unreadable-object (project stream :type T)
+    (format stream "~s ~s ~s ~s" :name (name project) :branch (branch project))))
 
 (defmethod initialize-instance :after ((project project) &key)
   (cond ((and (not (name project))
@@ -30,7 +34,7 @@
          (unless (remote project)
            (setf (remote project) (remote-url project)))
          (unless (name project)
-           (setf (name project) (car (last (pathname-directory (location project)))))))
+           (setf (name project) (parse-directory-name (location project)))))
         ((and (remote project) (name project))
          (setf (location project) (relative-dir *base-project-folder* (name project)))
          (init project :if-does-not-exist :clone :remote (remote project) :branch (branch project)))
@@ -45,8 +49,25 @@
     (setf (branch project) (current-branch project)))
   (setf (builds project) (scan-for-builds project)))
 
+(defun make-project (&rest args)
+  (apply #'make-instance 'project args))
+
+(defun parse-directory-name (pathname)
+  (car (last (pathname-directory pathname))))
+
 (defun parse-remote-name (name)
-  )
+  (let ((colon-pos (position #\: name :from-end T))
+        (slash-pos (position #\/ name :from-end T)))
+    (cond ((and (not colon-pos) (not slash-pos))
+           name)
+          ((not colon-pos)
+           (subseq name (1+ slash-pos)))
+          ((not slash-pos)
+           (subseq name (1+ colon-pos)))
+          ((< colon-pos slash-pos)
+           (subseq name (1+ slash-pos)))
+          ((< slash-pos colon-pos)
+           (subseq name (1+ colon-pos))))))
 
 (defgeneric scan-for-builds (project)
   (:method ((project project))
@@ -57,9 +78,17 @@
   (:method ((project project))
     (relative-dir (location project) ".autobuild" (current-commit project))))
 
+(defgeneric coerce-build (thing &rest args)
+  (:method ((name symbol) &rest args)
+    (apply #'make-instance name args))
+  (:method ((build build) &rest args)
+    (declare (ignore args))
+    build))
+
 (defmethod perform-build ((project project))
   (let ((dir (build-dir project)))
     (clone project dir)
-    (let ((build (make-instance 'build :location dir)))
+    (let ((build (coerce-build (build-type project) :location dir :project project)))
       (push build (builds project))
-      (perform-build build))))
+      (perform-build build)
+      build)))
