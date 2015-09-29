@@ -96,3 +96,7 @@
                     "--eval"
                     (format NIL "(sb-ext:exit)"))
        :output T :error T))
+
+(defgeneric log-contents ((build build))
+  (when (probe-file (logfile build))
+    (alexandria:read-file-into-string (logfile build))))

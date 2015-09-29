@@ -49,9 +49,6 @@
     (setf (branch project) (current-branch project)))
   (setf (builds project) (scan-for-builds project)))
 
-(defun make-project (&rest args)
-  (apply #'make-instance 'project args))
-
 (defun parse-directory-name (pathname)
   (car (last (pathname-directory pathname))))
 
@@ -89,9 +86,13 @@
   (let ((dir (build-dir project)))
     (clone project dir)
     (let ((build (coerce-build (build-type project) :location dir :project project)))
-      (push build (builds project))
+      (push (cons (current-commit build) build) (builds project))
       (perform-build build)
       build)))
+
+(defgeneric build (id project)
+  (:method (id (project project))
+    (cdr (assoc id (builds project) :test #'equalp))))
 
 (defgeneric status (project)
   (:method ((project project))
@@ -100,12 +101,16 @@
       :location ,(location project))))
 
 (defgeneric watch-project (project function &key interval change-fun &allow-other-keys)
+  (:method :around (project function &key interval change-fun)
+    (declare (ignore project function interval change-fun))
+    (with-simple-restart (abort "Stop watching ~a" project)
+      (call-next-method)))
   (:method ((project project) function &key (interval 10) (change-fun #'pull))
     (loop for prev = NIL then status
           for status = (status project)
-          do (when prev
-               (loop for (key val) on status by #'cddr
-                     do (unless (equal val (getf prev key))
-                          (funcall function key val))))
+          do (when (and prev (loop for (key val) on status by #'cddr
+                                   thereis (not (equal val (getf prev key)))))
+               (with-simple-restart (continue "Continue watching, skipping the current call.")
+                 (funcall function status)))
              (sleep interval)
              (funcall change-fun project))))

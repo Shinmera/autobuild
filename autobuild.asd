@@ -15,9 +15,13 @@
   :serial T
   :components ((:file "package")
                (:file "toolkit")
+               (:file "redirect-stream")
                (:file "build")
                (:file "project")
                (:file "autobuild"))
-  :depends-on (:dissect
-               :external-program
-               :legit))
+  :depends-on (:alexandria
+               :dissect
+               :verbose
+               :legit
+               :bordeaux-threads
+               :trivial-gray-streams))
