@@ -34,16 +34,16 @@
 
 (defclass watcher ()
   ((project :initarg :project :reader project)
-   (output :initform (make-redirect-output-stream) :reader watcher-output)
+   (stream :initform (redirect-stream:make-redirect-stream) :reader watcher-stream)
    (thread :initform NIL :accessor thread))
   (:default-initargs
    :project (error "PROJECT required.")))
 
 (defmethod output ((watcher watcher))
-  (output-stream (watcher-output watcher)))
+  (output-stream (watcher-stream watcher)))
 
 (defmethod (setf output) (stream (watcher watcher))
-  (setf (output-stream (watcher-output watcher)) stream))
+  (setf (output-stream (watcher-stream watcher)) stream))
 
 (defmethod initialize-instance :after ((watcher watcher) &key)
   (setf (watcher (project watcher)) watcher)
@@ -56,8 +56,8 @@
               (declare (ignore status))
               (perform-build (project watcher)))))
          :name (format NIL "~a watcher" (name (project watcher)))
-         :initial-bindings `((*standard-output* . ,(watcher-output watcher))
-                             (*error-output* . ,(watcher-output watcher))))))
+         :initial-bindings `((*standard-output* . ,(watcher-stream watcher))
+                             (*error-output* . ,(watcher-stream watcher))))))
 
 (defun watcher (project)
   (gethash (project project) *watchers*))

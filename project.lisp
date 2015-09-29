@@ -6,7 +6,7 @@
 
 (in-package #:org.shirakumo.autobuild)
 
-(defvar *base-project-folder* (relative-dir (user-homedir-pathname) ".cache" "shirakumo" "autobuild"))
+(defvar *base-project-dir* (relative-dir (user-homedir-pathname) ".cache" "shirakumo" "autobuild"))
 
 (defclass project (repository)
   ((build-type :initarg :build-type :accessor build-type)
@@ -36,14 +36,14 @@
          (unless (name project)
            (setf (name project) (parse-directory-name (location project)))))
         ((and (remote project) (name project))
-         (setf (location project) (relative-dir *base-project-folder* (name project)))
+         (setf (location project) (relative-dir *base-project-dir* (name project)))
          (init project :if-does-not-exist :clone :remote (remote project) :branch (branch project)))
         ((remote project)
          (setf (name project) (parse-remote-name (remote project)))
-         (setf (location project) (relative-dir *base-project-folder* (name project)))
+         (setf (location project) (relative-dir *base-project-dir* (name project)))
          (init project :if-does-not-exist :clone :remote (remote project)  :branch (branch project)))
         ((name project)
-         (setf (location project) (relative-dir *base-project-folder* (name project)))
+         (setf (location project) (relative-dir *base-project-dir* (name project)))
          (init project :if-does-not-exist :create :branch (branch project))))
   (unless (branch project)
     (setf (branch project) (current-branch project)))

@@ -15,7 +15,6 @@
   :serial T
   :components ((:file "package")
                (:file "toolkit")
-               (:file "redirect-stream")
                (:file "build")
                (:file "project")
                (:file "autobuild"))
@@ -24,4 +23,5 @@
                :verbose
                :legit
                :bordeaux-threads
-               :trivial-gray-streams))
+               :trivial-gray-streams
+               :redirect-stream))
