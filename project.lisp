@@ -107,5 +107,5 @@
                (loop for (key val) on status by #'cddr
                      do (unless (equal val (getf prev key))
                           (funcall function key val))))
-             (funcall change-fun project)
-             (sleep interval))))
+             (sleep interval)
+             (funcall change-fun project))))
