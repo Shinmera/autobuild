@@ -44,7 +44,7 @@
           (finish-output log-out)
           (multiple-value-prog1
               (handler-bind ((error (lambda (err)
-                                      (format log-out "~&~%~%;; !! ERROR DURING BUILD:~%")
+                                      (format log-out "~&~%~%;; !! ERROR DURING BUILD~%")
                                       (dissect:present err log-out)
                                       (format log-out "~&~%~%")
                                       (finish-output log-out)
@@ -74,7 +74,8 @@
   ())
 
 (defmethod perform-build ((build make-build))
-  (run "make" () :output *build-output* :error *build-output*))
+  (run "make" ()
+       :output *build-output* :error *build-output* :on-non-zero-exit :error))
 
 (defclass asdf-build (build)
   ((system :initarg :system :accessor system))
@@ -95,7 +96,7 @@
                     (format NIL "(asdf:load-system ~s :verbose T)" (system build))
                     "--eval"
                     (format NIL "(sb-ext:exit)"))
-       :output T :error T))
+       :output T :error T :on-non-zero-exit :error))
 
 (defgeneric log-contents ((build build))
   (when (probe-file (logfile build))
