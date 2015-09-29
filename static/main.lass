@@ -1,0 +1,74 @@
+(:import (url "wf/stylesheet.css"))
+
+(:let ((border (hex 7F2BC4))
+       (header (hex 151515))
+       (headert (hex EEEEEE))
+       (headerl (hex 7F2BC4)))
+  (html
+   :font-family concourse sans-serif
+   (body
+    :margin 0
+    :background (hex 000000)
+    (>header
+     :border-bottom 3px solid (hex 7F2BC4)
+     (h1
+      :margin 0))
+    (>main
+     (article.repo
+      :margin 20px 0 0 0
+      :border-left 3px solid #(border)
+      (header
+       :display flex
+       :align-items center
+       (h2
+        :margin 0
+        :display inline-block)
+       (.link
+        :flex-grow 1
+        :padding 0 10px 0 10px)
+       (.branch
+        :text-align right))
+      (section.commits
+       :background (hex EEEEEE)
+       (table
+        :width 100%
+        :border-collapse collapse
+        (thead
+         :background (hex 333333)
+         :color white)
+        ((:or th td) :padding 2px 3px 2px 3px)
+        (.status :width 50px :text-align center)
+        (.hash :width 100px :text-align center)
+        (.message
+         :text-align left
+         (p
+          :margin 0
+          :white-space nowrap
+          :overflow hidden
+          :text-overflow ellipsis))
+        (.duration :width 100px :text-align right)
+        (.start :width 200px :text-align right)))))
+    (>footer)))
+
+  (header
+   :background #(header)
+   :color #(headert)
+   :padding 5px
+   (a :color #(headerl)))
+
+  (.repo
+   (.name)
+   (.link)
+   (.branch))
+
+  (.commit
+   (.status
+    :font-size 1.2em
+    (.fa-check-circle :color green)
+    (.fa-exclamation-triangle :color red)
+    (.fa-cog :color (hex 333333)))
+   (.hash :font-family triplicate monospace
+          (a :text-decoration none))
+   (.message)
+   (.duration :font-family triplicate monospace)
+   (.start :font-family triplicate monospace)))
