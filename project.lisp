@@ -92,3 +92,20 @@
       (push build (builds project))
       (perform-build build)
       build)))
+
+(defgeneric status (project)
+  (:method ((project project))
+    `(:commit ,(current-commit project)
+      :branch ,(current-branch project)
+      :location ,(location project))))
+
+(defgeneric watch-project (project function &key interval change-fun &allow-other-keys)
+  (:method ((project project) function &key (interval 10) (change-fun #'pull))
+    (loop for prev = NIL then status
+          for status = (status project)
+          do (when prev
+               (loop for (key val) on status by #'cddr
+                     do (unless (equal val (getf prev key))
+                          (funcall function key val))))
+             (funcall change-fun project)
+             (sleep interval))))
