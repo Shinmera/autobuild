@@ -37,7 +37,6 @@
               project))
           (uiop:subdirectories dir)))
 
-
 (defclass builder (queued-runner)
   ((output-stream :initform (redirect-stream:make-redirect-stream) :accessor output-stream)))
 
@@ -54,3 +53,6 @@
 
 (defvar *builder* (make-instance 'builder))
 (defvar *builder-thread* (make-runner-thread *builder*))
+
+(eval-when (:load-toplevel :execute)
+  (setf *projects* (scan-for-projects)))
