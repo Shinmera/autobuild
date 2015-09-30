@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8"/>
+    <title><c:splice lquery="(text commit)">Commit</c:splice> - Autobuild</title>
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content="Autobuild reports" />
+    <meta name="robots" content="index, follow" />
+    <link rel="stylesheet" type="text/css" @href="/static/autobuild-server/main.css" href="../static/main.css" />
+    <link rel="stylesheet" type="text/css" @href="/static/autobuild-server/prism.css" href="../static/prismmain.css" />
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+  </head>
+  <body>
+    <header>
+      <a @href="/" href="#"><h1>Autobuild</h1></a>
+    </header>
+    <main>
+      <article class="build">
+        <header>
+          <a class="link" href="#" lquery="(attr :href remote)">
+            <h2 class="commit" lquery="(text commit)">Commit</h2>
+          </a>
+          <nav>
+            <a href="#" title="Start build" @href='(#?"/api/autobuild/project/build/start?project={0}&build={1}" (name project) commit)'><i class="fa fa-arrow-circle-right"></i></a>
+            <a href="#" title="Stop build" @href='(#?"/api/autobuild/project/build/stop?project={0}&build={1}" (name project) commit)'><i class="fa fa-times-circle"></i></a>
+          </nav>
+        </header>
+        <section class="message long">
+          <h3>Commit Message</h3>
+          <pre lquery="(text message)">
+Message
+          </pre>
+        </section>
+        <section class="log">
+          <h3>Build Log</h3>
+          <pre class="line-numbers" id="log"><code class="language-none" lquery="(text log-contents)"></code></pre>
+        </section>
+      </article>
+    </main>
+    <footer>
+      &copy; Shirakumo
+    </footer>
+    <script type="text/javascript" src="../static/prism.js" @src="/static/autobuild-server/prism.js"></script>
+  </body>
+</html>

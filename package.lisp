@@ -7,21 +7,19 @@
 (in-package #:cl-user)
 (defpackage #:autobuild
   (:nicknames #:org.shirakumo.autobuild)
-  (:use #:cl #:legit)
+  (:use #:cl #:legit #:simple-tasks)
   ;; autobuild.lisp
   (:export
+   #:*projects*
    #:project
    #:remove-project
    #:make-build-project
-   #:projects
+   #:scan-for-projects
    #:watcher
    #:project
-   #:watcher-stream
-   #:thread
-   #:watcher
-   #:remove-watcher
-   #:start-watcher
-   #:stop-watcher)
+   #:builder
+   #:output
+   #:*builder*)
   ;; build.lisp
   (:export
    #:build
@@ -45,11 +43,20 @@
    #:name
    #:branch
    #:remote
+   #:watch
    #:scan-for-builds
    #:build-dir
    #:coerce-build
+   #:ensure-current-build
    #:build
    #:status
-   #:watch-project)
+   #:watch-project
+   ;; Reexport repository API
+   #:clone
+   #:pull
+   #:current-commit
+   #:current-branch
+   #:current-message
+   #:remote-url)
   ;; toolkit.lisp
   (:export))

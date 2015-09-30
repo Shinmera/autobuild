@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8"/>
+    <title>Autobuild</title>
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content="Autobuild reports" />
+    <meta name="robots" content="index, follow" />
+    <link rel="stylesheet" type="text/css" @href="/static/autobuild-server/main.css" href="../static/main.css" />
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+  </head>
+  <body>
+    <header>
+      <a @href="/" href="#"><h1>Autobuild</h1></a>
+    </header>
+    <main iterate="projects">
+      <article class="project">
+        <header>
+          <h2 class="name" lquery="(text name)">Some Repo</h2>
+          <a class="link" href="#" lquery="(text remote) (attr :href remote)">online.com</a>
+          <span class="branch" lquery="(text branch)">Branch</span>
+          <nav>
+            <a href="#" title="Pull" @href='(#?"/api/autobuild/project/pull?project={0}" name)'><i class="fa fa-arrow-circle-down"></i></a>
+            <a href="#" title="Start/Stop Watch" @href='(#?"/api/autobuild/project/toggle-watch?project={0}" name)'>
+              <i class="fa fa-circle" lquery='(add-class (if watch "watching" "not-watching"))'></i>
+            </a>
+          </nav>
+        </header>
+        <section class="builds">
+          <table>
+            <thead>
+              <tr>
+                <th class="status">Status</th>
+                <th class="hash">Commit</th>
+                <th class="message">Message</th>
+                <th class="duration">Duration</th>
+                <th class="start">Start Date</th>
+              </tr>
+            </thead>
+            <tbody iterate="builds">
+              <tr class="build">
+                <td class="status"><a href="#" @href='(#?"/project/{0}/build/{1}" (name project) commit)'><i class="fa" lquery="(add-class status)"></i></a></td>
+                <td class="hash"><a href="#" lquery="(text short-commit) (attr :href remote)">c0mm1t</a></td>
+                <td class="message short"><p lquery="(text short-message)">Something Descriptive</p></td>
+                <td class="duration"><time lquery="(text duration)">2:00:14</time></td>
+                <td class="start"><time lquery="(text start) (attr :datetime start)">2015.09.27 13:19:38</time></td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+      </article>
+    </main>
+    <footer>
+      &copy; Shirakumo
+    </footer>
+  </body>
+</html>

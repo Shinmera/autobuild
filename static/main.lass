@@ -1,35 +1,50 @@
 (:import (url "wf/stylesheet.css"))
 
-(:let ((border (hex 7F2BC4))
+(:let ((border (hex 0088EE))
        (header (hex 151515))
        (headert (hex EEEEEE))
-       (headerl (hex 7F2BC4)))
+       (link (hex 0088EE))
+       (hover (hex 55AAEE))
+       (created (hex AAAAAA))
+       (running (hex 333333))
+       (completed (hex 00EE00))
+       (errored (hex EE0000)))
   (html
    :font-family concourse sans-serif
    (body
     :margin 0
     :background (hex 000000)
     (>header
-     :border-bottom 3px solid (hex 7F2BC4)
+     :border-bottom 3px solid #(border)
      (h1
       :margin 0))
     (>main
-     (article.repo
+     :margin 0 10px 0 10px
+     
+     (article
       :margin 20px 0 0 0
-      :border-left 3px solid #(border)
       (header
        :display flex
        :align-items center
+       :border-left 5px solid #(border)
        (h2
         :margin 0
-        :display inline-block)
+        :display inline-block
+        :min-width 200px)
+       (nav
+        (.watching :color #(completed))
+        (.not-watching :color #(created))))
+      (section
+       :background (hex EEEEEE)))
+     
+     (article.project
+      (header
        (.link
         :flex-grow 1
         :padding 0 10px 0 10px)
        (.branch
         :text-align right))
-      (section.commits
-       :background (hex EEEEEE)
+      (section.builds
        (table
         :width 100%
         :border-collapse collapse
@@ -47,26 +62,50 @@
           :overflow hidden
           :text-overflow ellipsis))
         (.duration :width 100px :text-align right)
-        (.start :width 200px :text-align right)))))
+        (.start :width 200px :text-align right))))
+     
+     (article.build
+      (header
+       :justify-content space-between)
+      (section
+       :padding 5px
+       (h3 :margin 0)
+       (pre))))
     (>footer)))
 
   (header
    :background #(header)
    :color #(headert)
    :padding 5px
-   (a :color #(headerl)))
+   (a :color #(link)
+      :text-decoration none
+      ((:or h1 h2) :color #(headert)))
+   (nav
+    :font-size 1.2em
+    :margin 0 5px 0 5px
+    (a
+     :margin 5px
+     :color #(headert))
+    ((:and a :hover)
+     :color #(hover))))
 
-  (.repo
+  (a :color #(link))
+  ((:and a :hover)
+   :color #(hover)
+   :text-decoration underline !important)
+
+  (.project
    (.name)
    (.link)
    (.branch))
 
-  (.commit
+  (.build
    (.status
     :font-size 1.2em
-    (.fa-check-circle :color green)
-    (.fa-exclamation-triangle :color red)
-    (.fa-cog :color (hex 333333)))
+    (.fa-circle-o :color #(created))
+    (.fa-check-circle :color #(completed))
+    (.fa-exclamation-triangle :color #(errored))
+    (.fa-cog :color #(running)))
    (.hash :font-family triplicate monospace
           (a :text-decoration none))
    (.message)
