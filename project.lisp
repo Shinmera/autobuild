@@ -86,13 +86,13 @@
   (let ((dir (build-dir project)))
     (clone project dir)
     (let ((build (coerce-build (build-type project) :location dir :project project)))
-      (push (cons (current-commit build) build) (builds project))
+      (push build (builds project))
       (perform-build build)
       build)))
 
 (defgeneric build (id project)
   (:method (id (project project))
-    (cdr (assoc id (builds project) :test #'equalp))))
+    (find id (builds project) :key #'commit)))
 
 (defgeneric status (project)
   (:method ((project project))
