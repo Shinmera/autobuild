@@ -37,6 +37,9 @@
               project))
           (uiop:subdirectories dir)))
 
+(eval-when (:load-toplevel :execute)
+  (setf *projects* (scan-for-projects)))
+
 (defclass builder (queued-runner)
   ((output-stream :initform (redirect-stream:make-redirect-stream) :accessor output-stream)))
 
@@ -53,6 +56,25 @@
 
 (defvar *builder* (make-instance 'builder))
 (defvar *builder-thread* (make-runner-thread *builder*))
+(defvar *watcher* (make-instance 'builder))
+(defvar *watcher-thread* (make-runner-thread *watcher*))
 
-(eval-when (:load-toplevel :execute)
-  (setf *projects* (scan-for-projects)))
+(defclass watch-task (task)
+  ((timeout :initarg :timeout :accessor timeout))
+  (:default-initargs
+   :timeout 10))
+
+(defmethod run-task ((task watch-task))
+  (dolist (project *projects*)
+    (when (watch project)
+      (v:info :watcher "Watching project ~a for changes." project)
+      (let ((old-commit (current-commit project))
+            (new-commit (progn (pull project) (current-commit project))))
+        (when (string/= old-commit new-commit)
+          (v:info :watcher "~a has changed. Performing build." project)
+          (perform-build project)))))
+  ;; Done, reschedule self in a moment.
+  (bt:make-thread
+   (lambda ()
+     (sleep (timeout task))
+     (schedule-task (make-instance 'watch-task :timeout (timeout task)) *watcher*))))
