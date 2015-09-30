@@ -30,6 +30,9 @@
   (let ((project (make-instance 'project :name name :remote remote :branch branch :build-type build-type)))
     (setf (project NIL) project)))
 
+(defun projects ()
+  (copy-list *projects*))
+
 (defvar *watchers* (make-hash-table :test 'eq))
 
 (defclass watcher ()

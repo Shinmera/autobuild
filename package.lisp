@@ -13,6 +13,7 @@
    #:project
    #:remove-project
    #:make-build-project
+   #:projects
    #:watcher
    #:project
    #:watcher-stream
