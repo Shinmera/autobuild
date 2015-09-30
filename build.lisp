@@ -44,9 +44,9 @@
   (with-simple-restart (abort "Abort the build of ~a" build)
     (with-chdir (build)
       (uiop:delete-file-if-exists (logfile build))
-      (with-open-file (log-out (logfile build)
-                               :direction :output
-                               :if-does-not-exist :create)
+      (with-open-file-no-remove (log-out (logfile build)
+                                         :direction :output
+                                         :if-does-not-exist :create)
         (let ((*build-output* (make-broadcast-stream *standard-output* log-out))
               (start-time (get-universal-time)))
           (setf (start build) start-time)
