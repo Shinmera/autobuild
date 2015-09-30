@@ -39,8 +39,8 @@
             </thead>
             <tbody iterate="builds">
               <tr class="build">
-                <td class="status"><a href="#" @href='(#?"/project/{0}/build/{1}" (name project) commit)'><i class="fa" lquery="(add-class status)"></i></a></td>
-                <td class="hash"><a href="#" lquery="(text short-commit) (attr :href remote)">c0mm1t</a></td>
+                <td class="status"><a href="#" @href='(#?"/project/{0}/build/{1}" (name project) commit)'><i class="fa" lquery="(add-class status-icon)"></i></a></td>
+                <td class="hash"><a href="#" @href='(#?"/project/{0}/build/{1}" (name project) commit)' lquery="(text short-commit)">c0mm1t</a></td>
                 <td class="message short"><p lquery="(text short-message)">Something Descriptive</p></td>
                 <td class="duration"><time lquery="(text duration)">2:00:14</time></td>
                 <td class="start"><time lquery="(text start) (attr :datetime start)">2015.09.27 13:19:38</time></td>

@@ -17,4 +17,6 @@
   :components ((:file "module")
                (:file "front"))
   :depends-on ((:interface :admin)
-               :autobuild))
+               :i-json
+               :autobuild
+               :system-load))

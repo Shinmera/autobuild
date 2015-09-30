@@ -8,6 +8,7 @@
        (created (hex AAAAAA))
        (running (hex 333333))
        (completed (hex 00EE00))
+       (stopped (hex 880000))
        (errored (hex EE0000)))
   (html
    :font-family concourse sans-serif
@@ -61,12 +62,14 @@
           :white-space nowrap
           :overflow hidden
           :text-overflow ellipsis))
-        (.duration :width 100px :text-align right)
-        (.start :width 200px :text-align right))))
+        (.duration :text-align right :font-size 11pt)
+        (.start :width 200px :text-align right :font-size 11pt))))
      
      (article.build
       (header
-       :justify-content space-between)
+       (.status
+        :flex-grow 1
+        :text-align right))
       (section
        :padding 5px
        (h3 :margin 0)
@@ -104,6 +107,7 @@
     :font-size 1.2em
     (.fa-circle-o :color #(created))
     (.fa-check-circle :color #(completed))
+    (.fa-times :color #(stopped))
     (.fa-exclamation-triangle :color #(errored))
     (.fa-cog :color #(running)))
    (.hash :font-family triplicate monospace

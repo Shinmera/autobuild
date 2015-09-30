@@ -19,7 +19,8 @@
   (redirect (referer)))
 
 (define-api autobuild/project/build/log (project build) ()
-  )
+  (api-output
+   (log-contents (build build project))))
 
 (define-api autobuild/project/pull (project) ()
   (let ((project (project project)))
@@ -32,6 +33,13 @@
     (setf (watch project) (not (watch project))))
   (redirect (referer)))
 
+(define-api autobuild/system/load () ()
+  (api-output
+   `(:cpu-usage ,(system-load:cpu-usage)
+     :mem-usage ,(system-load:mem-usage)
+     :mem-total ,(system-load:mem-total)
+     :mem-free ,(system-load:mem-free))))
+
 (defmethod clip:clip ((project project) field)
   (ecase field
     (name (name project))
@@ -43,6 +51,8 @@
 (defmethod clip:clip ((build build) field)
   (ecase field
     (status
+     (status build))
+    (status-icon
      (case (status build)
        (:created "fa-circle-o")
        (:running "fa-cog")
