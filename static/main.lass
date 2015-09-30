@@ -69,7 +69,9 @@
       (header
        (.status
         :flex-grow 1
-        :text-align right))
+        :text-align right
+        ((:and i :before)
+         :padding 0 10px 0 0)))
       (section
        :padding 5px
        (h3 :margin 0)
@@ -113,5 +115,7 @@
    (.hash :font-family triplicate monospace
           (a :text-decoration none))
    (.message)
-   (.duration :font-family triplicate monospace)
-   (.start :font-family triplicate monospace)))
+   (.duration :font-family triplicate monospace
+              :white-space nowrap)
+   (.start :font-family triplicate monospace
+           :white-space nowrap)))

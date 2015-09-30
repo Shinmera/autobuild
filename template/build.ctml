@@ -17,15 +17,14 @@
     <main>
       <article class="build">
         <header>
-          <a class="link" href="#" lquery="(attr :href remote)">
-            <h2 class="commit" lquery="(text commit)">Commit</h2>
-          </a>
+          <h2 class="commit" lquery="(text commit)">Commit</h2>
           <span class="status">
             <i class="fa" lquery="(text status) (add-class status-icon)"></i>
           </span>
           <nav>
             <a href="#" title="Start build" @href='(#?"/api/autobuild/project/build/start?project={0}&build={1}" (name project) commit)'><i class="fa fa-arrow-circle-right"></i></a>
             <a href="#" title="Stop build" @href='(#?"/api/autobuild/project/build/stop?project={0}&build={1}" (name project) commit)'><i class="fa fa-times-circle"></i></a>
+            <a href="#" title="View on GitHub" lquery="(attr :href remote)"><i class="fa fa-github"></i></a>
           </nav>
         </header>
         <section class="message long">
