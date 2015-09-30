@@ -62,7 +62,7 @@
 (defclass watch-task (task)
   ((timeout :initarg :timeout :accessor timeout))
   (:default-initargs
-   :timeout 10))
+   :timeout 30))
 
 (defmethod run-task ((task watch-task))
   (dolist (project *projects*)
@@ -77,4 +77,7 @@
   (bt:make-thread
    (lambda ()
      (sleep (timeout task))
-     (schedule-task (make-instance 'watch-task :timeout (timeout task)) *watcher*))))
+     (schedule-task (make-instance 'watch-task) *watcher*))))
+
+(eval-when (:load-toplevel :execute)
+  (schedule-task (make-instance 'watch-task) *watcher*))
