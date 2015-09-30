@@ -13,14 +13,16 @@
    (status :initform :none :accessor status)
    (project :initarg :project :accessor project)
    (start :initform NIL :accessor start)
-   (end :initform NIL :accessor end))
+   (end :initform NIL :accessor end)
+   (commit :initform NIL :accessor commit))
   (:default-initargs
    :logfile "autobuild.log"
    :project NIL))
 
 (defmethod initialize-instance :after ((build build) &key)
   (when (and (project build) (not (location build)))
-    (setf (location build) (location (project build)))))
+    (setf (location build) (location (project build))))
+  (setf (commit build) (current-commit build)))
 
 (defmethod print-object ((build build) stream)
   (print-unreadable-object (build stream :type T)
@@ -98,6 +100,7 @@
                     (format NIL "(sb-ext:exit)"))
        :output T :error T :on-non-zero-exit :error))
 
-(defgeneric log-contents ((build build))
-  (when (probe-file (logfile build))
-    (alexandria:read-file-into-string (logfile build))))
+(defgeneric log-contents (build)
+  (:method ((build build))
+    (when (probe-file (logfile build))
+      (alexandria:read-file-into-string (logfile build)))))
