@@ -23,5 +23,6 @@
                :verbose
                :legit
                :bordeaux-threads
+               :simple-tasks
                :trivial-gray-streams
                :redirect-stream))

@@ -30,55 +30,27 @@
   (let ((project (make-instance 'project :name name :remote remote :branch branch :build-type build-type)))
     (setf (project NIL) project)))
 
-(defun projects ()
-  (copy-list *projects*))
+(defun scan-for-projects (&optional (dir *base-project-dir*))
+  (mapcar (lambda (dir)
+            (let ((project (restore (make-instance 'project :location dir))))
+              (setf (builds project) (scan-for-builds project))
+              project))
+          (uiop:subdirectories dir)))
 
-(defvar *watchers* (make-hash-table :test 'eq))
 
-(defclass watcher ()
-  ((project :initarg :project :reader project)
-   (stream :initform (redirect-stream:make-redirect-stream) :reader watcher-stream)
-   (thread :initform NIL :accessor thread))
-  (:default-initargs
-   :project (error "PROJECT required.")))
+(defclass builder (queued-runner)
+  ((output-stream :initform (redirect-stream:make-redirect-stream) :accessor output-stream)))
 
-(defmethod output ((watcher watcher))
-  (output-stream (watcher-stream watcher)))
+(defmethod output ((builder builder))
+  (redirect-stream:stream (output-stream builder)))
 
-(defmethod (setf output) (stream (watcher watcher))
-  (setf (output-stream (watcher-stream watcher)) stream))
+(defmethod (setf output) (stream (builder builder))
+  (setf (redirect-stream:stream (output-stream builder)) stream))
 
-(defmethod initialize-instance :after ((watcher watcher) &key)
-  (setf (watcher (project watcher)) watcher)
-  (setf (thread watcher)
-        (bt:make-thread
-         (lambda ()
-           (watch-project
-            (project watcher)
-            (lambda (status)
-              (declare (ignore status))
-              (perform-build (project watcher)))))
-         :name (format NIL "~a watcher" (name (project watcher)))
-         :initial-bindings `((*standard-output* . ,(watcher-stream watcher))
-                             (*error-output* . ,(watcher-stream watcher))))))
+(defmethod start-runner :around ((builder builder))
+  (let ((*standard-output* (output-stream builder))
+        (*error-output* (output-stream builder)))
+    (call-next-method)))
 
-(defun watcher (project)
-  (gethash (project project) *watchers*))
-
-(defun (setf watcher) (watcher project)
-  (setf (gethash (project project) *watchers*) watcher))
-
-(defun remove-watcher (project)
-  (remhash (project project) *watchers*))
-
-(defun start-watcher (project)
-  (when (watcher project)
-    (cerror "Project ~a already has a watcher ~a." project (watcher project)))
-  (make-instance 'watcher :project project))
-
-(defun stop-watcher (project)
-  (unless (watcher project)
-    (error "Project ~a does not have a watcher." project))
-  (let ((watcher (watcher project)))
-    (bt:interrupt-thread watcher (lambda () (invoke-restart 'abort)))
-    (remove-watcher project)))
+(defvar *builder* (make-instance 'builder))
+(defvar *builder-thread* (make-runner-thread *builder*))
