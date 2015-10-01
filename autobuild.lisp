@@ -30,6 +30,9 @@
   (let ((project (make-instance 'project :name name :remote remote :branch branch :build-type build-type)))
     (setf (project NIL) project)))
 
+(defmethod destroy :after ((project project))
+  (setf *projects* (delete project *projects*)))
+
 (defun scan-for-projects (&optional (dir *base-project-dir*))
   (mapcar (lambda (dir)
             (let ((project (restore (make-instance 'project :location dir))))
