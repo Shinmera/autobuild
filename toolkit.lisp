@@ -23,3 +23,11 @@
      (unwind-protect
           ,@body
        (close ,stream))))
+
+(defgeneric destroy (repository)
+  (:method ((repository repository))
+    (when (location repository)
+      (uiop:delete-directory-tree
+       (location repository)
+       :validate (lambda (pathname)
+                   (uiop:subpathp pathname (location repository)))))))
