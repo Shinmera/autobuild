@@ -69,6 +69,11 @@
           ((< slash-pos colon-pos)
            (subseq name (1+ colon-pos))))))
 
+(defmethod (setf builds) (builds (project project))
+  ;; Ensure things are sorted by date.
+  (setf (slot-value project 'builds)
+        (sort builds #'> :key #'current-age)))
+
 (defgeneric project-config-file (project)
   (:method ((project project))
     (make-pathname :name ".autobuild" :type "lisp" :defaults (location project))))
@@ -113,9 +118,9 @@
     (mapcar (lambda (dir) (coerce-build (build-type project) :location dir :project project))
             (uiop:subdirectories (relative-dir (location project) ".autobuild")))))
 
-(defgeneric build-dir (project)
-  (:method ((project project))
-    (relative-dir (location project) ".autobuild" (current-commit project))))
+(defgeneric build-dir (project &optional commit)
+  (:method ((project project) &optional (commit (current-commit project)))
+    (relative-dir (location project) ".autobuild" commit)))
 
 (defgeneric coerce-build (thing &rest args)
   (:method ((name symbol) &rest args)
@@ -124,14 +129,21 @@
     (declare (ignore args))
     build))
 
-(defgeneric ensure-current-build (project)
-  (:method ((project project))
-    (or (build (current-commit project) project)
-        (let ((dir (build-dir project)))
+(defgeneric ensure-build (project commit)
+  (:method ((project project) commit)
+    (or (build commit project)
+        (let ((dir (build-dir project commit)))
+          (v:debug :autobuild.project "Creating build for ~a ~s" project commit)
           (clone project dir)
           (let ((build (coerce-build (build-type project) :location dir :project project)))
+            (checkout build commit)
+            (reset build :hard T)
             (push build (builds project))
             build)))))
+
+(defgeneric ensure-current-build (project)
+  (:method ((project project))
+    (ensure-build project (current-commit project))))
 
 (defmethod perform-build ((project project))
   (perform-build (ensure-current-build project)))
@@ -141,24 +153,3 @@
     (find id (builds project) :key #'current-commit :test #'equalp))
   (:method (id (name T))
     (build id (project name))))
-
-(defgeneric status (project)
-  (:method ((project project))
-    `(:commit ,(current-commit project)
-      :branch ,(current-branch project)
-      :location ,(location project))))
-
-(defgeneric watch-project (project function &key interval change-fun &allow-other-keys)
-  (:method :around (project function &key interval change-fun)
-    (declare (ignore project function interval change-fun))
-    (with-simple-restart (abort "Stop watching ~a" project)
-      (call-next-method)))
-  (:method ((project project) function &key (interval 10) (change-fun #'pull))
-    (loop for prev = NIL then status
-          for status = (status project)
-          do (when (and prev (loop for (key val) on status by #'cddr
-                                   thereis (not (equal val (getf prev key)))))
-               (with-simple-restart (continue "Continue watching, skipping the current call.")
-                 (funcall function status)))
-             (sleep interval)
-             (funcall change-fun project))))
