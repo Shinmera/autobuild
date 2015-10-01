@@ -47,16 +47,20 @@
    #:scan-for-builds
    #:build-dir
    #:coerce-build
+   #:ensure-build
    #:ensure-current-build
    #:build
    #:status
-   #:watch-project
    ;; Reexport repository API
    #:clone
    #:pull
+   #:checkout
+   #:reset
+   #:commits
    #:current-commit
    #:current-branch
    #:current-message
    #:remote-url)
   ;; toolkit.lisp
-  (:export))
+  (:export
+   #:destroy))

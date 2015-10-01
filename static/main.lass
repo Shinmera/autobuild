@@ -3,6 +3,7 @@
 (:let ((border (hex 0088EE))
        (header (hex 151515))
        (headert (hex EEEEEE))
+       (header2 (hex 333333))
        (link (hex 0088EE))
        (hover (hex 55AAEE))
        (created (hex AAAAAA))
@@ -16,9 +17,28 @@
     :margin 0
     :background (hex 000000)
     (>header
+     :display flex
+     :align-items center
      :border-bottom 3px solid #(border)
-     (h1
-      :margin 0))
+     (a 
+      :flex-grow 1
+      (h1 :margin 0))
+     (form
+      ((:or input button)
+       :font-size 12pt
+       :border none
+       :color #(headert)
+       :background #(header2))
+      ("[type=submit]"
+       :font-size 14pt
+       :background none
+       :cursor pointer)
+      ((:and "[type=submit]" :hover)
+       :color #(hover)))
+     ("#add-project"
+      ("[name=remote]" :width 300px)
+      ("[name=branch]" :width 100px)
+      ("[name=build-type]" :width 100px)))
     (>main
      :margin 0 10px 0 10px
      
@@ -36,7 +56,21 @@
         (.watching :color #(completed))
         (.not-watching :color #(created))))
       (section
-       :background (hex EEEEEE)))
+       :background (hex EEEEEE)
+
+       (form
+        :padding 3px
+        ((:or input button)
+         :font-size 12pt
+         :border none
+         :color (hex 151515))
+        ("[type=submit]"
+         :font-size 14pt
+         :background none
+         :color (hex AAAAAA)
+         :cursor pointer)
+        ((:and "[type=submit]" :hover)
+         :color #(hover)))))
      
      (article.project
       (header
@@ -50,7 +84,7 @@
         :width 100%
         :border-collapse collapse
         (thead
-         :background (hex 333333)
+         :background #(header2)
          :color white)
         ((:or th td) :padding 2px 3px 2px 3px)
         (.status :width 50px :text-align center)
@@ -63,7 +97,19 @@
           :overflow hidden
           :text-overflow ellipsis))
         (.duration :text-align right :font-size 11pt)
-        (.start :width 200px :text-align right :font-size 11pt))))
+        (.start :width 200px :text-align right :font-size 11pt)
+        (.actions
+         :width 1px
+         :text-align right
+         :font-size 12pt
+         :white-space nowrap
+         (a :color #(header2))
+         ((:and a :hover) :color #(hover)))))
+      ("#add-build"
+       :display flex
+       ("[type=text]"
+        :flex-grow 1
+        :box-sizing border-box)))
      
      (article.build
       (header

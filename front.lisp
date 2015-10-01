@@ -6,6 +6,11 @@
 
 (in-package #:autobuild-server)
 
+(define-api autobuild/project/build/add (project commit) ()
+  (let ((project (project project)))
+    (ensure-build project commit))
+  (redirect (referer)))
+
 (define-api autobuild/project/build/start (project build) ()
   (let ((build (build build project)))
     (when (simple-tasks:task-ready-p build)
@@ -18,6 +23,11 @@
       (simple-tasks:interrupt-task build NIL)))
   (redirect (referer)))
 
+(define-api autobuild/project/build/delete (project build) ()
+  (let ((build (build build project)))
+    (destroy build))
+  (redirect #@"/"))
+
 (define-api autobuild/project/build/log (project build) ()
   (api-output
    (log-contents (build build project))))
@@ -28,9 +38,33 @@
     (ensure-current-build project))
   (redirect (referer)))
 
+(define-api autobuild/project/delete (project) ()
+  (let ((project (project project)))
+    (destroy project))
+  (redirect (referer)))
+
+(define-api autobuild/project/populate (project) ()
+  (let ((project (project project)))
+    (dolist (commit (commits project))
+      (ensure-build project commit)))
+  (redirect (referer)))
+
+(define-api autobuild/project/clean (project) ()
+  (let ((project (project project))))
+  (redirect (referer)))
+
 (define-api autobuild/project/toggle-watch (project) ()
   (let ((project (project project)))
     (setf (watch project) (not (watch project))))
+  (redirect (referer)))
+
+(define-api autobuild/project/add (remote &optional build-type branch) ()
+  (make-build-project
+   (or (when (and build-type (string/= build-type ""))
+         (find-symbol (string-upcase build-type) :autobuild))
+       'asdf-build)
+   (autobuild::parse-remote-name remote)
+   remote :branch (or* branch "master"))
   (redirect (referer)))
 
 (define-api autobuild/system/load () ()
@@ -71,7 +105,11 @@
     (message
      (current-message build))
     (short-message
-     (current-message build))
+     (let* ((message (current-message build))
+            (cutoff (min 80 (or (position #\Newline message) 80))))
+       (cond ((< cutoff (length message))
+              (format NIL "~a..." (subseq message 0 cutoff)))
+             (T message))))
     (duration
      (if (duration build)
          (autobuild::format-time (duration build))
