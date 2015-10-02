@@ -32,6 +32,19 @@
   (api-output
    (log-contents (build build project))))
 
+(define-api autobuild/project/build (project build[]) ()
+  (api-output
+   (alexandria:alist-hash-table
+    (loop for commit in build[]
+          for build = (build commit project)
+          collect (cons (current-commit build)
+                        (alexandria:plist-hash-table
+                         `(:status ,(status build)
+                           :message ,(current-message build)
+                           :start ,(start build)
+                           :end ,(end build)
+                           :duration ,(duration build))))))))
+
 (define-api autobuild/project/pull (project) ()
   (let ((project (project project)))
     (pull project)
@@ -68,10 +81,10 @@
    remote :branch (or* branch "master"))
   (redirect (referer)))
 
-(define-api autobuild/system/load () ()
+(define-api autobuild/system/load (&optional sample) ()
   (api-output
    (alexandria:plist-hash-table
-    `(:cpu-usage ,(system-load:cpu-usage)
+    `(:cpu-usage ,(cdr (assoc :cpu (system-load:cpu-usages :sample (parse-integer (or* sample "1")))))
       :ram-usage ,(system-load:ram-usage)
       :mem-usage ,(system-load:mem-usage)
       :mem-total ,(system-load:mem-total)
