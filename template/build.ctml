@@ -13,6 +13,12 @@
   <body>
     <header>
       <a @href="/" href="#"><h1>Autobuild</h1></a>
+      
+      <div id="system-load">
+        <div class="cpu"><label>CPU</label><span class="percentage">0</span><div class="bar"><div style="width:50%"></div></div></div>
+        <div class="ram"><label>RAM</label><span class="percentage">0</span><div class="bar"><div style="width:50%"></div></div></div>
+        <div class="mem"><label>MEM</label><span class="percentage">0</span><div class="bar"><div style="width:50%"></div></div></div>
+      </div>
     </header>
     <main>
       <article class="build">
@@ -44,5 +50,7 @@ Message
       &copy; Shirakumo
     </footer>
     <script type="text/javascript" src="../static/prism.js" @src="/static/autobuild-server/prism.js"></script>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script type="text/javascript" src="../static/main.js" @src="/static/autobuild-server/main.js"></script>
   </body>
 </html>

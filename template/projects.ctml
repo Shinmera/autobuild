@@ -12,6 +12,13 @@
   <body>
     <header>
       <a @href="/" href="#"><h1>Autobuild</h1></a>
+      
+      <div id="system-load">
+        <div class="cpu"><label>CPU</label><span class="percentage">0</span><div class="bar"><div style="width:50%"></div></div></div>
+        <div class="ram"><label>RAM</label><span class="percentage">0</span><div class="bar"><div style="width:50%"></div></div></div>
+        <div class="mem"><label>MEM</label><span class="percentage">0</span><div class="bar"><div style="width:50%"></div></div></div>
+      </div>
+      
       <form @action="/api/autobuild/project/add" id="add-project" method="post">
         <input name="remote" type="url" placeholder="https://github.com/..." title="Remote" required />
         <input name="branch" type="text" placeholder="master" title="Branch" />
@@ -20,7 +27,7 @@
       </form>
     </header>
     <main iterate="projects">
-      <article class="project">
+      <article class="project" lquery="(data :name name)">
         <header>
           <h2 class="name" lquery="(text name)">Some Repo</h2>
           <a class="link" href="#" lquery="(text remote) (attr :href remote)">online.com</a>
@@ -48,7 +55,7 @@
               </tr>
             </thead>
             <tbody iterate="builds">
-              <tr class="build">
+              <tr class="build" lquery="(data :commit commit)">
                 <td class="status"><a href="#" @href='(#?"/project/{0}/build/{1}" (name project) commit)'><i class="fa" lquery="(add-class status-icon)"></i></a></td>
                 <td class="hash"><a href="#" @href='(#?"/project/{0}/build/{1}" (name project) commit)' lquery="(text short-commit)">c0mm1t</a></td>
                 <td class="message short"><p lquery="(text short-message)">Something Descriptive</p></td>
@@ -76,11 +83,6 @@
     <footer>
       &copy; Shirakumo
     </footer>
-    <div id="system-load">
-      <div class="cpu"><label>CPU</label><span class="percentage">0</span><div class="bar"><div style="width:50%"></div></div></div>
-      <div class="ram"><label>RAM</label><span class="percentage">0</span><div class="bar"><div style="width:50%"></div></div></div>
-      <div class="mem"><label>MEM</label><span class="percentage">0</span><div class="bar"><div style="width:50%"></div></div></div>
-    </div>
     <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
     <script type="text/javascript" src="../main.js" @src="/static/autobuild-server/main.js"></script>
   </body>

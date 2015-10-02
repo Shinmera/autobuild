@@ -20,9 +20,7 @@
      :display flex
      :align-items center
      :border-bottom 3px solid #(border)
-     (a 
-      :flex-grow 1
-      (h1 :margin 0))
+     (a (h1 :margin 0))
      (form
       ((:or input button)
        :font-size 12pt
@@ -36,6 +34,7 @@
       ((:and "[type=submit]" :hover)
        :color #(hover)))
      ("#add-project"
+      :white-space nowrap
       ("[name=remote]" :width 300px)
       ("[name=branch]" :width 100px)
       ("[name=build-type]" :width 100px)))
@@ -149,9 +148,12 @@
    :text-decoration underline !important)
 
   ("#system-load"
+   :flex-grow 1
+   :display flex
+   :flex-wrap wrap
    :position :absolute
    :bottom 0 :left 0
-   :width 200px
+   :font-size 10pt
    :background #(header)
    (>div
     :margin 3px
@@ -160,15 +162,17 @@
     (* :display inline-block
        :padding 1px 3px 1px 3px)
     (label
-     :width 50px)
+     :width 30px)
     (.percentage
      :text-align right
      :width 50px)
     ((:and .percentage :after)
      :content "'%'")
     (.bar
+     :min-width 100px
      :flex-grow 1
      :position relative
+     :background #(header2)
      (div :background #(headert)
           :position absolute
           :top 0

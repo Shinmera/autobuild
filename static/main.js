@@ -20,10 +20,73 @@ $(function(){
                 $("#system-load .ram .bar div").css("width",data.ramUsage+"%");
                 $("#system-load .mem .percentage").text(Number(data.memUsage.toFixed(2))+"");
                 $("#system-load .mem .bar div").css("width",data.memUsage+"%");
-            },
+            }
         });
     }
 
+    var statusIcon = function(status){
+        return (status === "created")? "fa-circle-o":
+            (status === "running")? "fa-cog":
+            (status === "stopping")? "fa-times":
+            (status === "stopped")? "fa-times":
+            (status === "completed")? "fa-check-circle":
+            (status === "errored")? "fa-exclamation-triangle":
+            "fa-question";
+    }
+
+    var formatDuration = function(duration){
+        if(duration === null)
+            return "-";
+        else{
+            var s = duration % 60;
+            var m = Math.floor((duration/60)%60);
+            var h = Math.floor(duration/(60*60));
+            return ((h==0)?"":h+"hours")+((m==0)?"":" "+m+" minutes")+((s==0)?"":" "+s+" seconds");
+        }
+    }
+
+    var formatDate = function(time){
+        if(time === null)
+            return "-";
+        else{
+            var z = function(date){return ("0" + date).slice(-2);}
+            // Convert from universal to unix and make it ms based.
+            var date = new Date((time-2208988800)*1000);
+            return date.getFullYear()+"."+(date.getMonth()+1)+"."+date.getDate()+" "+z(date.getHours())+":"+z(date.getMinutes())+":"+z(date.getSeconds());
+        }
+    }
+
+    var updateBuildStatus = function(project, hashes){
+        $.ajax({
+            url: "/api/autobuild/project/build",
+            data: {"project": project, "build[]": hashes},
+            dataType: "json",
+            success: function(data){
+                data = data.data;
+                $.each(data, function(commit, data){
+                    var build = $(".build[data-commit="+commit+"]");
+                    $(".start time", build).text(formatDate(data.start));
+                    $(".duration time", build).text(formatDuration(data.duration));
+                    $(".status i", build).attr("class","fa "+statusIcon(data.status));
+                });
+            }
+        });
+    }
+
+    var updateAllStatus = function(){
+        $(".project").each(function(){
+            var commits = []
+            $(".build",this).each(function(){commits.push($(this).data("commit"));});
+            updateBuildStatus($(this).data("name"), commits);
+        });
+    }
+
+    var update = function(){
+        updateLoadInfo();
+        updateAllStatus();
+    }
+
     updateLoadInfo();
-    setInterval(updateLoadInfo, 5000);
+    // Takes a second to measure, so interval every 4 gives a total of 5.
+    setInterval(update, 4000);
 })
