@@ -74,6 +74,10 @@
   (setf (slot-value project 'builds)
         (sort builds #'> :key #'current-age)))
 
+(defmethod (setf name) :after (type (project project)) (offload project))
+(defmethod (setf build-type) :after (type (project project)) (offload project))
+(defmethod (setf watch) :after (type (project project)) (offload project))
+
 (defgeneric project-config-file (project)
   (:method ((project project))
     (make-pathname :name ".autobuild" :type "lisp" :defaults (location project))))
