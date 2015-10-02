@@ -50,7 +50,8 @@
   (redirect (referer)))
 
 (define-api autobuild/project/clean (project) ()
-  (let ((project (project project))))
+  (let ((project (project project)))
+    (clean project))
   (redirect (referer)))
 
 (define-api autobuild/project/toggle-watch (project) ()

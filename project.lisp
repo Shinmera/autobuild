@@ -153,3 +153,8 @@
     (find id (builds project) :key #'current-commit :test #'equalp))
   (:method (id (name T))
     (build id (project name))))
+
+(defgeneric clean (project)
+  (:method ((project project))
+    (dolist (build (copy-list (nthcdr 5 (builds project))))
+      (destroy build))))

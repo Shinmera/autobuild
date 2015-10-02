@@ -51,6 +51,7 @@
    #:ensure-current-build
    #:build
    #:status
+   #:clean
    ;; Reexport repository API
    #:clone
    #:pull
