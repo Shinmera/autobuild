@@ -29,28 +29,29 @@
             :build-type (build-type project))))
 
 (defmethod initialize-instance :after ((project project) &key)
-  (cond ((and (not (name project))
-              (not (remote project))
-              (not (location project)))
-         (error "At least one of NAME, REMOTE, or LOCATION must be given."))
-        ((location project)
-         (init project :if-does-not-exist :create :branch (branch project))
-         (unless (remote project)
-           (setf (remote project) (remote-url project)))
-         (unless (name project)
-           (setf (name project) (parse-directory-name (location project)))))
-        ((and (remote project) (name project))
-         (setf (location project) (relative-dir *base-project-dir* (name project)))
-         (init project :if-does-not-exist :clone :remote (remote project) :branch (branch project)))
-        ((remote project)
-         (setf (name project) (parse-remote-name (remote project)))
-         (setf (location project) (relative-dir *base-project-dir* (name project)))
-         (init project :if-does-not-exist :clone :remote (remote project)  :branch (branch project)))
-        ((name project)
-         (setf (location project) (relative-dir *base-project-dir* (name project)))
-         (init project :if-does-not-exist :create :branch (branch project))))
-  (unless (branch project)
-    (setf (branch project) (current-branch project))))
+  (with-slots (name branch remote location) project
+    (cond ((and (not name)
+                (not remote)
+                (not location))
+           (error "At least one of NAME, REMOTE, or LOCATION must be given."))
+          (location
+           (init project :if-does-not-exist :create :branch branch)
+           (unless remote
+             (setf remote (remote-url project)))
+           (unless name
+             (setf name (parse-directory-name location))))
+          ((and remote name)
+           (setf location (relative-dir *base-project-dir* name))
+           (init project :if-does-not-exist :clone :remote remote :branch branch))
+          (remote
+           (setf name (parse-remote-name remote))
+           (setf location (relative-dir *base-project-dir* name))
+           (init project :if-does-not-exist :clone :remote remote  :branch branch))
+          (name
+           (setf location (relative-dir *base-project-dir* name))
+           (init project :if-does-not-exist :create :branch branch)))
+    (unless branch
+      (setf branch (current-branch project)))))
 
 (defun parse-directory-name (pathname)
   (car (last (pathname-directory pathname))))
