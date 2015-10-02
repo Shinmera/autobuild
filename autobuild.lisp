@@ -55,7 +55,11 @@
 (defmethod start-runner :around ((builder builder))
   (let ((*standard-output* (output-stream builder))
         (*error-output* (output-stream builder)))
-    (call-next-method)))
+    (handler-bind ((error (lambda (err)
+                            (declare (ignore err))
+                            (when (find-restart 'skip)
+                              (invoke-restart 'skip)))))
+      (call-next-method))))
 
 (defvar *builder* (make-instance 'builder))
 (defvar *builder-thread* (make-runner-thread *builder*))
