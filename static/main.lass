@@ -122,7 +122,10 @@
        :padding 5px
        (h3 :margin 0)
        (pre))))
-    (>footer)))
+    (>footer
+     :margin-top 10px
+     :text-align center
+     :color (hex 555555))))
 
   (header
    :background #(header)
@@ -144,6 +147,32 @@
   ((:and a :hover)
    :color #(hover)
    :text-decoration underline !important)
+
+  ("#system-load"
+   :position :absolute
+   :bottom 0 :left 0
+   :width 200px
+   :background #(header)
+   (>div
+    :margin 3px
+    :color #(headert)
+    :display flex
+    (* :display inline-block
+       :padding 1px 3px 1px 3px)
+    (label
+     :width 50px)
+    (.percentage
+     :text-align right
+     :width 50px)
+    ((:and .percentage :after)
+     :content "'%'")
+    (.bar
+     :flex-grow 1
+     :position relative
+     (div :background #(headert)
+          :position absolute
+          :top 0
+          :bottom 0))))
 
   (.project
    (.name)

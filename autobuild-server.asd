@@ -19,4 +19,5 @@
   :depends-on (:i-json
                :r-clip
                :autobuild
-               :system-load))
+               :system-load
+               :alexandria))

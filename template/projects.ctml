@@ -28,9 +28,9 @@
           <nav>
             <a href="#" title="Pull" @href='(#?"/api/autobuild/project/pull?project={0}" name)'><i class="fa fa-arrow-circle-down"></i></a>
             <a href="#" title="Populate builds" class="confirm" @href='(#?"/api/autobuild/project/populate?project={0}" name)'><i class="fa fa-repeat"></i></a>
-            <a href="#" title="Clean out old builds" class="confirm" @href='(#?"/api/autobuild/project/clean?project={0}" name)'><i class="fa fa-times-circle"></i></a>
+            <a href="#" title="Clean out old builds (delete all but the most recent 5)" class="confirm" @href='(#?"/api/autobuild/project/clean?project={0}" name)'><i class="fa fa-times-circle"></i></a>
             <a href="#" title="Delete this project" class="confirm" @href='(#?"/api/autobuild/project/delete?project={0}" name)'><i class="fa fa-times"></i></a>
-            <a href="#" title="Start/Stop Watch" @href='(#?"/api/autobuild/project/toggle-watch?project={0}" name)'>
+            <a href="#" title="Start/stop automatic building" @href='(#?"/api/autobuild/project/toggle-watch?project={0}" name)'>
               <i class="fa fa-circle" lquery='(add-class (if watch "watching" "not-watching"))'></i>
             </a>
           </nav>
@@ -76,6 +76,11 @@
     <footer>
       &copy; Shirakumo
     </footer>
+    <div id="system-load">
+      <div class="cpu"><label>CPU</label><span class="percentage">0</span><div class="bar"><div style="width:50%"></div></div></div>
+      <div class="ram"><label>RAM</label><span class="percentage">0</span><div class="bar"><div style="width:50%"></div></div></div>
+      <div class="mem"><label>MEM</label><span class="percentage">0</span><div class="bar"><div style="width:50%"></div></div></div>
+    </div>
     <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
     <script type="text/javascript" src="../main.js" @src="/static/autobuild-server/main.js"></script>
   </body>

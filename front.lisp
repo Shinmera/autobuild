@@ -70,10 +70,12 @@
 
 (define-api autobuild/system/load () ()
   (api-output
-   `(:cpu-usage ,(system-load:cpu-usage)
-     :mem-usage ,(system-load:mem-usage)
-     :mem-total ,(system-load:mem-total)
-     :mem-free ,(system-load:mem-free))))
+   (alexandria:plist-hash-table
+    `(:cpu-usage ,(system-load:cpu-usage)
+      :ram-usage ,(system-load:ram-usage)
+      :mem-usage ,(system-load:mem-usage)
+      :mem-total ,(system-load:mem-total)
+      :mem-free ,(system-load:mem-free)))))
 
 (defmethod clip:clip ((project project) field)
   (ecase field
