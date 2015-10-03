@@ -34,6 +34,8 @@
                    (uiop:subpathp pathname (location repository)))))))
 
 (defgeneric coerce-function (func)
+  (:method ((func null))
+    (lambda ()))
   (:method ((func symbol))
     func)
   (:method ((func function))
