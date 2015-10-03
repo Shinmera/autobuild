@@ -12,16 +12,25 @@
   ((logfile :initarg :logfile :accessor logfile)
    (project :initarg :project :accessor project)
    (start :initform NIL :accessor start)
-   (end :initform NIL :accessor end))
+   (end :initform NIL :accessor end)
+   (pre-build-func :initarg :pre-build :accessor pre-build-func)
+   (build-func :initarg :build :accessor build-func)
+   (post-build-func :initarg :post-build :accessor post-build-func))
   (:default-initargs
    :logfile "autobuild.log"
-   :project NIL))
+   :project NIL
+   :pre-build NIL
+   :build NIL
+   :post-build NIL))
 
 (defmethod initialize-instance :after ((build build) &key)
   (when (and (project build) (not (location build)))
     (setf (location build) (location (project build))))
   (setf (logfile build) (merge-pathnames (logfile build) (location build)))
-  (setf (status build) (discover-status-from-logfile (logfile build))))
+  (setf (status build) (discover-status-from-logfile (logfile build)))
+  (setf (pre-build-func build) (coerce-function (pre-build-func build)))
+  (setf (build-func build) (coerce-function (build-func build)))
+  (setf (post-build-func build) (coerce-function (post-build-func build))))
 
 (defmethod print-object ((build build) stream)
   (print-unreadable-object (build stream :type T)
@@ -88,6 +97,15 @@
                 (setf (end build) end-time)
                 (v:info :autobuild "Build for ~a finished." build)))))))))
 
+(defmethod perform-build :before ((build build))
+  (funcall (pre-build-func build)))
+
+(defmethod perform-build ((build build))
+  (funcall (build-func build)))
+
+(defmethod perform-build :after ((build build))
+  (funcall (post-build-func build)))
+
 (defgeneric duration (build)
   (:method ((build build))
     (when (start build)
@@ -149,3 +167,15 @@
 
 (defmethod perform-build ((build function-build))
   (funcall (func build) build))
+
+(defgeneric coerce-build (thing &rest args)
+  (:method ((script list) &rest args)
+    (let ((script (copy-list script))
+          (type (or (getf script :type) 'build)))
+      (remf script :type)
+      (apply #'make-instance type (append args script))))
+  (:method ((name symbol) &rest args)
+    (apply #'make-instance name args))
+  (:method ((build build) &rest args)
+    (declare (ignore args))
+    build))

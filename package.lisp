@@ -22,6 +22,7 @@
    #:*builder*)
   ;; build.lisp
   (:export
+   #:*build-output*
    #:build
    #:logfile
    #:status
@@ -65,3 +66,18 @@
   ;; toolkit.lisp
   (:export
    #:destroy))
+
+(defpackage #:autobuild-script
+  (:nicknames #:org.shirakumo.autobuild.script)
+  (:use #:cl #:autobuild #:legit)
+  (:export
+   #:$
+   #:->
+   #:>>
+   #:s/r
+   #:read-script
+   #:read-script-file))
+
+(defpackage #:autobuild-script-user
+  (:nicknames #:org.shirakumo.autobuild.script.user #:as-user)
+  (:use #:cl #:legit #:autobuild #:autobuild-script))

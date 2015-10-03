@@ -94,8 +94,8 @@
                             :if-does-not-exist :create)
       (let ((*package* (find-package :org.shirakumo.autobuild)))
         (write `(:name ,(name project)
-                 :build-type ,(build-type project)
-                 :watch ,(watch project))
+                 :watch ,(watch project)
+                 :build ,(build-type project))
                :stream stream
                :readably T
                :pretty T
@@ -106,17 +106,12 @@
     (call-next-method)
     project)
   (:method ((project project))
-    (with-open-file (stream (project-config-file project)
-                            :direction :input
-                            :if-does-not-exist NIL)
-      (when stream
-        (let* ((*package* (find-package :org.shirakumo.autobuild))
-               (data (read stream)))
-          (macrolet ((fsetf (field accessor)
-                       `(when (getf data ,field) (setf (,accessor project) (getf data ,field)))))
-            (fsetf :name name)
-            (fsetf :build-type build-type)
-            (fsetf :watch watch)))))))
+    (let ((script (autobuild-script:read-script-file (project-config-file project))))
+      (macrolet ((fsetf (field accessor)
+                   `(when (getf data ,field) (setf (,accessor project) (getf data ,field)))))
+        (fsetf :name name)
+        (fsetf :build build-type)
+        (fsetf :watch watch)))))
 
 (defgeneric scan-for-builds (project)
   (:method ((project project))
@@ -126,13 +121,6 @@
 (defgeneric build-dir (project &optional commit)
   (:method ((project project) &optional (commit (current-commit project)))
     (relative-dir (location project) ".autobuild" commit)))
-
-(defgeneric coerce-build (thing &rest args)
-  (:method ((name symbol) &rest args)
-    (apply #'make-instance name args))
-  (:method ((build build) &rest args)
-    (declare (ignore args))
-    build))
 
 (defgeneric ensure-build (project commit)
   (:method ((project project) commit)

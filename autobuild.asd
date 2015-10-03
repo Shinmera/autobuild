@@ -16,6 +16,7 @@
   :components ((:file "package")
                (:file "toolkit")
                (:file "build")
+               (:file "script")
                (:file "project")
                (:file "autobuild"))
   :depends-on (:alexandria
