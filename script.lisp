@@ -16,7 +16,8 @@
                           :direction :output
                           :if-exists :supersede
                           :if-does-not-exist :create)
-    (write-string contents stream)))
+    (write-string contents stream)
+    (terpri stream)))
 
 (defun >> (file contents)
   (with-open-file (stream (merge-pathnames file (uiop:getcwd))
