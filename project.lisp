@@ -76,7 +76,8 @@
     (call-next-method)
     project)
   (:method ((project project))
-    (setf (build-type project) (autobuild-script:read-script-file (project-config-file project)))))
+    (setf (build-type project) (or (autobuild-script:read-script-file (project-config-file project))
+                                   (build-type project)))))
 
 (defgeneric scan-for-builds (project)
   (:method ((project project))
