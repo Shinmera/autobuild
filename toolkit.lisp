@@ -31,3 +31,11 @@
        (location repository)
        :validate (lambda (pathname)
                    (uiop:subpathp pathname (location repository)))))))
+
+(defgeneric coerce-function (func)
+  (:method ((func symbol))
+    func)
+  (:method ((func function))
+    func)
+  (:method ((func list))
+    (compile NIL `(lambda () ,func))))
