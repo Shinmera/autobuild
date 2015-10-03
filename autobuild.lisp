@@ -85,6 +85,8 @@
 
 (defun initialize-autobuild ()
   (setf *projects* (scan-for-projects))
-  (setf *builder-thread* (make-runner-thread *builder*))
-  (setf *watcher-thread* (make-runner-thread *watcher*))
-  (schedule-task (make-instance 'watch-task) *watcher*))
+  (unless (eql (status *builder*) :running)
+    (setf *builder-thread* (make-runner-thread *builder*)))
+  (unless (eql (status *builder*) :running)
+    (setf *watcher-thread* (make-runner-thread *watcher*))
+    (schedule-task (make-instance 'watch-task) *watcher*)))
