@@ -78,7 +78,9 @@
    #:>>
    #:s/r
    #:read-script
-   #:read-script-file))
+   #:read-script-file
+   #:write-script
+   #:write-script-file))
 
 (defpackage #:autobuild-script-user
   (:nicknames #:org.shirakumo.autobuild.script.user #:as-user)

@@ -67,43 +67,16 @@
   (setf (slot-value project 'builds)
         (sort builds #'> :key #'current-age)))
 
-(defmethod (setf name) :after (type (project project)) (offload project))
-(defmethod (setf build-type) :after (type (project project)) (offload project))
-(defmethod (setf watch) :after (type (project project)) (offload project))
-
 (defgeneric project-config-file (project)
   (:method ((project project))
     (make-pathname :name ".autobuild" :type "lisp" :defaults (location project))))
-
-(defgeneric offload (project)
-  (:method :around ((project project))
-    (call-next-method)
-    project)
-  (:method ((project project))
-    (with-open-file (stream (project-config-file project)
-                            :direction :output
-                            :if-exists :supersede
-                            :if-does-not-exist :create)
-      (let ((*package* (find-package :org.shirakumo.autobuild)))
-        (write `(:name ,(name project)
-                 :watch ,(watch project)
-                 :build ,(build-type project))
-               :stream stream
-               :readably T
-               :pretty T
-               :circle T)))))
 
 (defgeneric restore (project)
   (:method :around ((project project))
     (call-next-method)
     project)
   (:method ((project project))
-    (let ((script (autobuild-script:read-script-file (project-config-file project))))
-      (macrolet ((fsetf (field accessor)
-                   `(when (getf script ,field) (setf (,accessor project) (getf script ,field)))))
-        (fsetf :name name)
-        (fsetf :build build-type)
-        (fsetf :watch watch)))))
+    (setf (build-type project) (autobuild-script:read-script-file (project-config-file project)))))
 
 (defgeneric scan-for-builds (project)
   (:method ((project project))

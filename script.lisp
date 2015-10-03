@@ -23,8 +23,8 @@
                           :direction :output
                           :if-exists :append
                           :if-does-not-exist :create)
-    (fresh-line stream)
-    (write-string contents stream)))
+    (write-string contents stream)
+    (terpri stream)))
 
 (defun s/r (file search replace &key (all T) case-insensitive single-line multi-line)
   (with-open-file (stream (merge-pathnames file (uiop:getcwd))
@@ -118,3 +118,19 @@
   (with-open-file (stream file :direction :input
                                :if-does-not-exist if-does-not-exist)
     (when stream (read-script stream))))
+
+(defun write-script (script stream)
+  (let ((*package* (find-package :org.shirakumo.autobuild.script.user)))
+    (write script
+           :stream stream
+           :readably T
+           :pretty T
+           :circle T
+           :case :downcase)))
+
+(defun write-script-file (script file &key (if-exists :supersede))
+  (with-open-file (stream (project-config-file project)
+                          :direction :output
+                          :if-exists if-exists
+                          :if-does-not-exist :create)
+    (write-script script stream)))
