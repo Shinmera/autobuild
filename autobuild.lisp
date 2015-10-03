@@ -76,7 +76,8 @@
             (new-commit (progn (pull project) (current-commit project))))
         (when (string/= old-commit new-commit)
           (v:info :watcher "~a has changed. Performing build." project)
-          (perform-build project)))))
+          (let ((build (ensure-build project new-commit)))
+            (simple-tasks:schedule-task build *builder*))))))
   ;; Done, reschedule self in a moment.
   (bt:make-thread
    (lambda ()
