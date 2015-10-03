@@ -26,4 +26,5 @@
                :bordeaux-threads
                :simple-tasks
                :trivial-gray-streams
-               :redirect-stream))
+               :redirect-stream
+               :cl-ppcre))
