@@ -22,6 +22,7 @@
   `(let ((,stream (open ,pathname ,@options)))
      (unwind-protect
           ,@body
+       (finish-output ,stream)
        (close ,stream))))
 
 (defgeneric destroy (repository)
