@@ -4,5 +4,5 @@
   :LOGGER "-i-verbose",
   :SERVER "-i-hunchentoot"},
 :SERVER {EQL
-  :DOMAINS ("-localhost" "-linuz.com" "-radiance.test"),
+:DOMAINS ("-localhost"),
   :INSTANCES ({EQL :PORT 2015})}}
