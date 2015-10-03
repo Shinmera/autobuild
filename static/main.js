@@ -67,8 +67,22 @@ $(function(){
                     var build = $(".build[data-commit="+commit+"]");
                     $(".start time", build).text(formatDate(data.start));
                     $(".duration time", build).text(formatDuration(data.duration));
-                    $(".status i", build).attr("class","fa "+statusIcon(data.status));
+                    $(".status i", build).attr("class","fa "+statusIcon(data.status))
+                        .text(data.status.toUpperCase());
                 });
+            }
+        });
+    }
+
+    var updateLog = function(project, commit){
+        $.ajax({
+            url: "/api/autobuild/project/build/log",
+            data: {"project": project, "build": commit},
+            dataType: "json",
+            success: function(data){
+                data = data.data;
+                $(".build[data-commit="+commit+"] #log code").text(data);
+                Prism.highlightAll();
             }
         });
     }
@@ -78,6 +92,10 @@ $(function(){
             var commits = []
             $(".build",this).each(function(){commits.push($(this).data("commit"));});
             updateBuildStatus($(this).data("name"), commits);
+        });
+        $("article.build").each(function(){
+            updateBuildStatus($(this).data("project"), [$(this).data("commit")]);
+            updateLog($(this).data("project"), $(this).data("commit"));
         });
     }
 

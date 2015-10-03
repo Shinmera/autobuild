@@ -86,7 +86,10 @@
          :background #(header2)
          :color white)
         ((:or th td) :padding 2px 3px 2px 3px)
-        (.status :width 50px :text-align center)
+        (.status :width 50px :text-align center
+                 (i :font-size 0)
+                 ((:and i :before)
+                  :font-size 14pt))
         (.hash :width 100px :text-align center)
         (.message
          :text-align left
