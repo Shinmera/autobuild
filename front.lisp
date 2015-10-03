@@ -94,7 +94,7 @@
   (ecase field
     (name (name project))
     (remote (remote-url project))
-    (branch (branch project))
+    (branch (current-branch project))
     (watch (watch project))
     (builds (builds project))))
 

@@ -46,8 +46,6 @@
    #:build-type
    #:builds
    #:name
-   #:branch
-   #:remote
    #:watch
    #:scan-for-builds
    #:build-dir

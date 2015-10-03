@@ -12,32 +12,27 @@
   ((build-type :initarg :build-type :accessor build-type)
    (builds :initform () :accessor builds)
    (name :initarg :name :accessor name)
-   (branch :initarg :branch :accessor branch)
-   (remote :initarg :remote :accessor remote)
    (watch :initarg :watch :accessor watch))
   (:default-initargs
    :build-type 'invalid-build
    :name NIL
    :branch NIL
-   :remote NIL
    :watch NIL))
 
 (defmethod print-object ((project project) stream)
   (print-unreadable-object (project stream :type T)
     (format stream "~s ~s ~s ~s ~s ~s"
-            :name (name project) :branch (branch project)
-            :build-type (build-type project))))
+            :name (name project) :branch (current-branch project)
+            :commit (current-commit project))))
 
-(defmethod initialize-instance :after ((project project) &key)
-  (with-slots (name branch remote location) project
+(defmethod initialize-instance :after ((project project) &key branch remote)
+  (with-slots (name location) project
     (cond ((and (not name)
                 (not remote)
                 (not location))
            (error "At least one of NAME, REMOTE, or LOCATION must be given."))
           (location
            (init project :if-does-not-exist :create :branch branch)
-           (unless remote
-             (setf remote (remote-url project)))
            (unless name
              (setf name (parse-directory-name location))))
           ((and remote name)
@@ -49,9 +44,7 @@
            (init project :if-does-not-exist :clone :remote remote  :branch branch))
           (name
            (setf location (relative-dir *base-project-dir* name))
-           (init project :if-does-not-exist :create :branch branch)))
-    (unless branch
-      (setf branch (current-branch project)))))
+           (init project :if-does-not-exist :create :branch branch)))))
 
 (defun parse-directory-name (pathname)
   (car (last (pathname-directory pathname))))
