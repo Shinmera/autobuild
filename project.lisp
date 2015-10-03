@@ -108,7 +108,7 @@
   (:method ((project project))
     (let ((script (autobuild-script:read-script-file (project-config-file project))))
       (macrolet ((fsetf (field accessor)
-                   `(when (getf data ,field) (setf (,accessor project) (getf data ,field)))))
+                   `(when (getf script ,field) (setf (,accessor project) (getf script ,field)))))
         (fsetf :name name)
         (fsetf :build build-type)
         (fsetf :watch watch)))))
