@@ -20,6 +20,9 @@
    #:builder
    #:output
    #:*builder*
+   #:*watcher*
+   #:watch-task
+   #:timeout
    #:initialize-autobuild)
   ;; build.lisp
   (:export
