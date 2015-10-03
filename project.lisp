@@ -21,9 +21,8 @@
 
 (defmethod print-object ((project project) stream)
   (print-unreadable-object (project stream :type T)
-    (format stream "~s ~s ~s ~s ~s ~s"
-            :name (name project) :branch (current-branch project)
-            :commit (current-commit project))))
+    (format stream "~s ~s ~s ~s"
+            :name (name project) :branch (current-branch project))))
 
 (defmethod initialize-instance :after ((project project) &key branch remote)
   (with-slots (name location) project
