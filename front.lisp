@@ -152,3 +152,6 @@
   (setf (header "Cache-Control") "public, max-age=31536000")
   (setf (header "Access-Control-Allow-Origin") (string-right-trim "/" (uri-to-url #@"autobuild/" :representation :external)))
   (serve-file (static-file (format NIL "wf/~a" path))))
+
+(define-trigger radiance:startup ()
+  (initialize-autobuild))

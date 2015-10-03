@@ -40,9 +40,6 @@
               project))
           (uiop:subdirectories dir)))
 
-(eval-when (:load-toplevel :execute)
-  (setf *projects* (scan-for-projects)))
-
 (defclass builder (queued-runner)
   ((output-stream :initform (redirect-stream:make-redirect-stream) :accessor output-stream)))
 
@@ -62,9 +59,9 @@
       (call-next-method))))
 
 (defvar *builder* (make-instance 'builder))
-(defvar *builder-thread* (make-runner-thread *builder*))
+(defvar *builder-thread* NIL)
 (defvar *watcher* (make-instance 'builder))
-(defvar *watcher-thread* (make-runner-thread *watcher*))
+(defvar *watcher-thread* NIL)
 
 (defclass watch-task (task)
   ((timeout :initarg :timeout :accessor timeout))
@@ -86,5 +83,8 @@
      (sleep (timeout task))
      (schedule-task (make-instance 'watch-task) *watcher*))))
 
-(eval-when (:load-toplevel :execute)
+(defun initialize-autobuild ()
+  (setf *projects* (scan-for-projects))
+  (setf *builder-thread* (make-runner-thread *builder*))
+  (setf *watcher-thread* (make-runner-thread *watcher*))
   (schedule-task (make-instance 'watch-task) *watcher*))

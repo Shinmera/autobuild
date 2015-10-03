@@ -19,7 +19,8 @@
    #:project
    #:builder
    #:output
-   #:*builder*)
+   #:*builder*
+   #:initialize-autobuild)
   ;; build.lisp
   (:export
    #:*build-output*
