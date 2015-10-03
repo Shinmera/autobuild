@@ -98,13 +98,15 @@
                 (v:info :autobuild "Build for ~a finished." build)))))))))
 
 (defmethod perform-build :before ((build build))
-  (funcall (pre-build-func build)))
+  (when (pre-build-func build)
+    (funcall (pre-build-func build))))
 
 (defmethod perform-build ((build build))
   (funcall (build-func build)))
 
 (defmethod perform-build :after ((build build))
-  (funcall (post-build-func build)))
+  (when (post-build-func build)
+    (funcall (post-build-func build))))
 
 (defgeneric duration (build)
   (:method ((build build))
