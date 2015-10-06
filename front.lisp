@@ -8,7 +8,7 @@
 
 (define-api autobuild/project/build/add (project commit) ()
   (let ((project (project project)))
-    (ensure-build project commit))
+    (ensure-build project commit :restore :if-newer))
   (redirect (referer)))
 
 (define-api autobuild/project/build/start (project build) ()
@@ -48,7 +48,8 @@
 (define-api autobuild/project/pull (project) ()
   (let ((project (project project)))
     (pull project)
-    (ensure-current-build project))
+    (ensure-build project (current-commit project)
+                  :restore :if-newer))
   (redirect (referer)))
 
 (define-api autobuild/project/delete (project) ()
@@ -72,11 +73,8 @@
     (setf (watch project) (not (watch project))))
   (redirect (referer)))
 
-(define-api autobuild/project/add (remote &optional build-type branch) ()
+(define-api autobuild/project/add (remote &optional branch) ()
   (make-build-project
-   (or (when (and build-type (string/= build-type ""))
-         (find-symbol (string-upcase build-type) :autobuild))
-       'asdf-build)
    (autobuild::parse-remote-name remote)
    remote :branch (or* branch "master"))
   (redirect (referer)))

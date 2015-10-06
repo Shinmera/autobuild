@@ -11,19 +11,22 @@
 (defclass build (repository task)
   ((logfile :initarg :logfile :accessor logfile)
    (project :initarg :project :accessor project)
-   (start :initform NIL :accessor start)
-   (end :initform NIL :accessor end)
    (pre-build-func :initarg :pre-build :accessor pre-build-func)
    (build-func :initarg :build :accessor build-func)
-   (post-build-func :initarg :post-build :accessor post-build-func))
+   (post-build-func :initarg :post-build :accessor post-build-func)
+   (restore-behaviour :initarg :restore :accessor restore-behaviour)
+   (start :initform NIL :accessor start)
+   (end :initform NIL :accessor end)
+   (prev-timestamp :initform NIL :accessor prev-timestamp))
   (:default-initargs
    :logfile "autobuild.log"
    :project NIL
    :pre-build NIL
    :build NIL
-   :post-build NIL))
+   :post-build NIL
+   :restore-behaviour :never))
 
-(defmethod initialize-instance :after ((build build) &key)
+(defun initialize-build (build)
   (when (and (project build) (not (location build)))
     (setf (location build) (location (project build))))
   (setf (logfile build) (merge-pathnames (logfile build) (location build)))
@@ -31,6 +34,29 @@
   (setf (pre-build-func build) (coerce-function (pre-build-func build)))
   (setf (build-func build) (coerce-function (build-func build)))
   (setf (post-build-func build) (coerce-function (post-build-func build))))
+
+(defmethod initialize-instance :after ((build build) &rest initargs)
+  (initialize-build build)
+  (ecase (restore-behaviour build)
+    (:never)
+    (:always
+     (restore build))
+    (:if-newer
+     (let* ((file (discover-recipe build))
+            (script (autobuild-script:read-script-file file))
+            (type (getf script :type)))
+       (remf script :type)
+       ;; Filter explicitly passed args so we don't overwrite them.
+       (loop for (key val) on script by #'cddr
+             do (when (getf initargs key)
+                  (remf script val)))
+       (when script
+         (if type
+             (apply #'change-class build type script)
+             (apply #'reinitialize-instance build script)))))))
+
+(defmethod reinitialize-instance :after ((build build) &key)
+  (initialize-build build))
 
 (defmethod print-object ((build build) stream)
   (print-unreadable-object (build stream :type T)
@@ -54,8 +80,7 @@
         (loop for line = (read-line stream NIL NIL)
               while line
               do (when (search ";;;; Autobuild" line)
-                   (cond ((search "RUNNING" line))
-                         ((search "ERRORED" line)
+                   (cond ((search "ERRORED" line)
                           (return :errored))
                          ((search "COMPLETED" line)
                           (return :completed))))
@@ -63,8 +88,34 @@
 
 (defgeneric perform-build (build))
 
+(defun handle-build-start (build)
+  (setf (start build) (get-universal-time))
+  (format *build-output* "~&;;;; Autobuild ~a" (status build))
+  (format *build-output* "~&;; Started on ~a~%" (format-date (start build)))
+  (finish-output *build-output*))
+
+(defun print-build-footer (build)
+  (format *build-output* "~&;; Ended on ~a" (format-date (end build)))
+  (format *build-output* "~&;; Build took ~a" (format-time (- (end build) (start build))))
+  (format *build-output* "~&;;;; Autobuild ~a" (status build)))
+
+(defun handle-build-error (build err)
+  (setf (end build) (get-universal-time))
+  (setf (status build) :errored)
+  (format *build-output* "~&;; !! ERROR DURING BUILD~&")
+  (dissect:present err *build-output*)
+  (print-build-footer build)
+  (v:log :error :autobuild err))
+
+(defun handle-build-complete (build)
+  (setf (end build) (get-universal-time))
+  (setf (status build) :completed)
+  (print-build-footer build)
+  (v:info :autobuild "Build for ~a finished." build))
+
 (defmethod perform-build :around ((build build))
   (when (location build)
+    (maybe-restore build)
     (v:info :autobuild "Performing build for ~a" build)
     (with-simple-restart (abort "Abort the build of ~a" build)
       (with-chdir (build)
@@ -72,29 +123,12 @@
         (with-open-file-no-remove (log-out (logfile build)
                                            :direction :output
                                            :if-does-not-exist :create)
-          (let ((*build-output* (make-broadcast-stream *standard-output* log-out))
-                (start-time (get-universal-time)))
-            (setf (start build) start-time)
-            (format log-out ";;;; Autobuild RUNNING~&")
-            (format log-out ";; Started on ~a~&~%" (format-date start-time))
-            (finish-output log-out)
+          (let ((*build-output* (make-broadcast-stream *standard-output* log-out)))
+            (handle-build-start build)
             (multiple-value-prog1
-                (handler-bind ((error (lambda (err)
-                                        (format log-out "~&~%~%;; !! ERROR DURING BUILD~&")
-                                        (dissect:present err log-out)
-                                        (format log-out "~&~%~%")
-                                        (format log-out ";;;; Autobuild ERRORED~&")
-                                        (v:log :error :autobuild err))))
-                  (unwind-protect
-                       (call-next-method)
-                    (finish-output log-out)
-                    (setf (end build) (get-universal-time))))
-              (let ((end-time (get-universal-time)))
-                (format log-out "~&~%")
-                (format log-out ";; Ended on ~a~&" (format-date))
-                (format log-out ";; Build took ~a~&" (format-time (- end-time start-time)))
-                (format log-out ";;;; Autobuild COMPLETED~&")
-                (v:info :autobuild "Build for ~a finished." build)))))))))
+                (handler-bind ((error (lambda (err) (handle-build-error build err))))
+                  (call-next-method))
+              (handle-build-complete build))))))))
 
 (defmethod perform-build :before ((build build))
   (when (pre-build-func build)
@@ -117,6 +151,37 @@
     (when (probe-file (logfile build))
       (alexandria:read-file-into-string (logfile build)))))
 
+(defgeneric discover-recipe (location)
+  (:method ((location T))
+    (probe-file (make-pathname :name ".autobuild" :type "lisp" :defaults (location location))))
+  (:method ((build build))
+    (or (call-next-method)
+        (discover-recipe (project build)))))
+
+(defgeneric maybe-restore (build)
+  (:method ((build build))
+    (case (restore-behaviour build)
+      (:never)
+      (:always
+       (restore build))
+      (:if-newer
+       (let ((file (discover-recipe build)))
+         (when (and file
+                    (or (not (prev-timestamp build))
+                        (< (prev-timestamp build)
+                           (file-write-date file))))
+           (restore build file)))))))
+
+(defgeneric restore (build &optional file)
+  (:method ((build build) &optional (file (discover-recipe build)))
+    (prog1 (let* ((data (autobuild-script:read-script-file file))
+                  (type (getf data :type)))
+             (remf data :type)
+             (if (eql (type-of build) type)
+                 (apply #'reinitialize-instance build data)
+                 (apply #'change-class build type data)))
+      (setf (prev-timestamp build) (file-write-date file)))))
+
 (defmethod destroy :before ((build build))
   (when (eql :running (status build))
     (interrupt-task build NIL)))
@@ -134,10 +199,12 @@
   (error "INVALID BUILD! Please specify a proper build type for your project."))
 
 (defclass make-build (build)
-  ())
+  ((target :initarg :target :accessor target))
+  (:default-initargs
+   :target NIL))
 
 (defmethod perform-build ((build make-build))
-  (run "make" ()
+  (run "make" (when (target build) (list (target build)))
        :output *build-output* :error *build-output* :on-non-zero-exit :error))
 
 (defclass asdf-build (build)

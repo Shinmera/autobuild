@@ -22,7 +22,6 @@
       <form @action="/api/autobuild/project/add" id="add-project" method="post">
         <input name="remote" type="url" placeholder="https://github.com/..." title="Remote" required />
         <input name="branch" type="text" placeholder="master" title="Branch" />
-        <input name="build-type" type="text" placeholder="asdf-build" title="Build type" />
         <button type="submit"><i class="fa fa-plus-circle"></i></button>
       </form>
     </header>

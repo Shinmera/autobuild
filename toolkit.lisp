@@ -25,13 +25,28 @@
        (finish-output ,stream)
        (close ,stream))))
 
-(defgeneric destroy (repository)
+(define-condition destroy-warning (warning)
+  ((thing :initarg :thing :reader thing))
+  (:report (lambda (c s) (format s "Destroying ~a." (thing c)))))
+
+(defgeneric destroy (thing)
+  (:method :before (thing)
+    (warn 'destroy-warning :thing thing))
   (:method ((repository repository))
     (when (location repository)
       (uiop:delete-directory-tree
        (location repository)
        :validate (lambda (pathname)
                    (uiop:subpathp pathname (location repository)))))))
+
+(define-condition restore-warning (warning)
+  ((thing :initarg :thing :reader thing)
+   (source :initarg :source :reader source))
+  (:report (lambda (c s) (format s "Restoring ~a~@[ from ~a~]." (thing c) (source c)))))
+
+(defgeneric restore (thing &optional source)
+  (:method :before (thing &optional source)
+    (warn 'restore-warning :thing thing :source source)))
 
 (defgeneric coerce-function (func)
   (:method ((func null))

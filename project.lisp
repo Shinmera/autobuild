@@ -9,12 +9,10 @@
 (defvar *base-project-dir* (relative-dir (user-homedir-pathname) ".cache" "shirakumo" "autobuild"))
 
 (defclass project (repository)
-  ((build-type :initarg :build-type :accessor build-type)
-   (builds :initform () :accessor builds)
+  ((builds :initform () :accessor builds)
    (name :initarg :name :accessor name)
    (watch :initarg :watch :accessor watch))
   (:default-initargs
-   :build-type 'invalid-build
    :name NIL
    :branch NIL
    :watch NIL))
@@ -71,38 +69,28 @@
   (:method ((project project))
     (make-pathname :name ".autobuild" :type "lisp" :defaults (location project))))
 
-(defgeneric restore (project)
-  (:method :around ((project project))
-    (call-next-method)
-    project)
-  (:method ((project project))
-    (setf (build-type project) (or (autobuild-script:read-script-file (project-config-file project))
-                                   (build-type project)))))
-
 (defgeneric scan-for-builds (project)
   (:method ((project project))
-    (mapcar (lambda (dir) (coerce-build (build-type project) :location dir :project project))
+    (mapcar (lambda (dir) (coerce-build 'build :location dir :project project))
             (uiop:subdirectories (relative-dir (location project) ".autobuild")))))
 
 (defgeneric build-dir (project &optional commit)
   (:method ((project project) &optional (commit (current-commit project)))
     (relative-dir (location project) ".autobuild" commit)))
 
-(defgeneric ensure-build (project commit)
-  (:method ((project project) commit)
+(defgeneric ensure-build (project commit &rest args)
+  (:method ((project project) commit &rest args)
     (or (build commit project)
-        (let ((dir (build-dir project commit)))
+        (let ((dir (build-dir project commit))
+              (args (copy-list args)))
+          (unless (getf args :type) (setf (getf args :type) 'build))
           (v:debug :autobuild.project "Creating build for ~a ~s" project commit)
           (clone project dir)
-          (let ((build (coerce-build (build-type project) :location dir :project project)))
+          (let ((build (coerce-build args :location dir :project project)))
             (checkout build commit)
             (reset build :hard T)
             (push build (builds project))
             build)))))
-
-(defgeneric ensure-current-build (project)
-  (:method ((project project))
-    (ensure-build project (current-commit project))))
 
 (defmethod perform-build ((project project))
   (perform-build (ensure-current-build project)))

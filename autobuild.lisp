@@ -24,10 +24,10 @@
           (project (remove id *projects*))
           (T (remove id *projects* :key #'name :test #'equalp)))))
 
-(defun make-build-project (build-type name remote &key branch)
+(defun make-build-project (name remote &key branch)
   (when (project name)
     (cerror "Name ~s is already taken by ~a." name (project name)))
-  (let ((project (offload (make-instance 'project :name name :remote remote :branch branch :build-type build-type))))
+  (let ((project (offload (make-instance 'project :name name :remote remote :branch branch))))
     (setf (project NIL) project)))
 
 (defmethod destroy :after ((project project))
@@ -76,7 +76,7 @@
             (new-commit (progn (pull project) (current-commit project))))
         (when (string/= old-commit new-commit)
           (v:info :watcher "~a has changed. Performing build." project)
-          (let ((build (ensure-build project new-commit)))
+          (let ((build (ensure-build project new-commit :restore :if-newer)))
             (simple-tasks:schedule-task build *builder*))))))
   ;; Done, reschedule self in a moment.
   (bt:make-thread

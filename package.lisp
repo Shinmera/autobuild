@@ -43,7 +43,6 @@
   (:export
    #:*base-project-dir*
    #:project
-   #:build-type
    #:builds
    #:name
    #:watch
@@ -51,7 +50,6 @@
    #:build-dir
    #:coerce-build
    #:ensure-build
-   #:ensure-current-build
    #:build
    #:status
    #:clean
