@@ -60,7 +60,7 @@
 (define-api autobuild/project/populate (project) ()
   (let ((project (project project)))
     (dolist (commit (commits project))
-      (ensure-build project commit)))
+      (ensure-build project commit :restore :if-newer)))
   (redirect (referer)))
 
 (define-api autobuild/project/clean (project) ()

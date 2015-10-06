@@ -24,7 +24,7 @@
    :pre-build NIL
    :build NIL
    :post-build NIL
-   :restore-behaviour :never))
+   :restore :never))
 
 (defun initialize-build (build)
   (when (and (project build) (not (location build)))
@@ -172,15 +172,14 @@
                            (file-write-date file))))
            (restore build file)))))))
 
-(defgeneric restore (build &optional file)
-  (:method ((build build) &optional (file (discover-recipe build)))
-    (prog1 (let* ((data (autobuild-script:read-script-file file))
-                  (type (getf data :type)))
-             (remf data :type)
-             (if (eql (type-of build) type)
-                 (apply #'reinitialize-instance build data)
-                 (apply #'change-class build type data)))
-      (setf (prev-timestamp build) (file-write-date file)))))
+(defmethod restore ((build build) &optional (file (discover-recipe build)))
+  (prog1 (let* ((data (autobuild-script:read-script-file file))
+                (type (getf data :type)))
+           (remf data :type)
+           (if (or (not type) (eql (type-of build) type))
+               (apply #'reinitialize-instance build data)
+               (apply #'change-class build type data)))
+    (setf (prev-timestamp build) (file-write-date file))))
 
 (defmethod destroy :before ((build build))
   (when (eql :running (status build))

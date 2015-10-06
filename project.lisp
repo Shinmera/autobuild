@@ -71,7 +71,7 @@
 
 (defgeneric scan-for-builds (project)
   (:method ((project project))
-    (mapcar (lambda (dir) (coerce-build 'build :location dir :project project))
+    (mapcar (lambda (dir) (coerce-build 'build :location dir :project project :restore :if-newer))
             (uiop:subdirectories (relative-dir (location project) ".autobuild")))))
 
 (defgeneric build-dir (project &optional commit)

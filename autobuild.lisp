@@ -35,7 +35,7 @@
 
 (defun scan-for-projects (&optional (dir *base-project-dir*))
   (mapcar (lambda (dir)
-            (let ((project (restore (make-instance 'project :location dir))))
+            (let ((project (make-instance 'project :location dir)))
               (setf (builds project) (scan-for-builds project))
               project))
           (uiop:subdirectories dir)))
