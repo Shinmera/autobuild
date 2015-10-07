@@ -29,7 +29,8 @@
   (redirect #@"/"))
 
 (define-api autobuild/project/build/log (project build &optional file-position) ()
-  (multiple-value-bind (text position) (log-contents (build build project) (parse-integer file-position :junk-allowed T))
+  (multiple-value-bind (text position) (log-contents (build build project)
+                                                     (parse-integer (or* file-position "0") :junk-allowed T))
     (api-output
      (alexandria:plist-hash-table
       `(:text ,text :position ,position)))))
