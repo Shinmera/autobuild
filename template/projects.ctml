@@ -3,11 +3,11 @@
   <head>
     <meta charset="utf-8"/>
     <title>Autobuild</title>
-    <meta name="viewport" content="width=device-width" />
-    <meta name="description" content="Autobuild reports" />
-    <meta name="robots" content="index, follow" />
     <link rel="stylesheet" type="text/css" @href="/static/autobuild-server/main.css" href="../static/main.css" />
     <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+    <meta name="description" content="Autobuild reports" />
+    <meta name="robots" content="index, follow" />
+    <meta name="viewport" content="width=device-width" />
   </head>
   <body>
     <header>
@@ -18,13 +18,13 @@
         <div class="ram"><label>RAM</label><span class="percentage">0</span><div class="bar"><div style="width:0%"></div></div></div>
         <div class="mem"><label>MEM</label><span class="percentage">0</span><div class="bar"><div style="width:0%"></div></div></div>
       </div>
-      
-      <form @action="/api/autobuild/project/add" id="add-project" method="post">
-        <input name="remote" type="url" placeholder="https://github.com/..." title="Remote" required />
-        <input name="branch" type="text" placeholder="master" title="Branch" />
-        <button type="submit"><i class="fa fa-plus-circle"></i></button>
-      </form>
     </header>
+    <form @action="/api/autobuild/project/add" id="add-project" method="post">
+      <input name="name" type="text" placeholder="name" title="Name, automatically determined from remote." />
+      <input name="remote" type="url" placeholder="https://github.com/..." title="Remote" required />
+      <input name="branch" type="text" placeholder="master" title="Branch" />
+      <button type="submit"><i class="fa fa-plus-circle"></i></button>
+    </form>
     <main iterate="projects">
       <article class="project" lquery="(data :name name)">
         <header>

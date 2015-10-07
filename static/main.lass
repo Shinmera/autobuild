@@ -20,24 +20,8 @@
      :display flex
      :align-items center
      :border-bottom 3px solid #(border)
-     (a (h1 :margin 0))
-     (form
-      ((:or input button)
-       :font-size 12pt
-       :border none
-       :color #(headert)
-       :background #(header2))
-      ("[type=submit]"
-       :font-size 14pt
-       :background none
-       :cursor pointer)
-      ((:and "[type=submit]" :hover)
-       :color #(hover)))
-     ("#add-project"
-      :white-space nowrap
-      ("[name=remote]" :width 300px)
-      ("[name=branch]" :width 100px)
-      ("[name=build-type]" :width 100px)))
+     (a (h1 :margin 0)))
+    
     (>main
      :margin 0 10px 0 10px
      
@@ -50,7 +34,9 @@
        (h2
         :margin 0
         :display inline-block
-        :min-width 200px)
+        :min-width 200px
+        :overflow hidden
+        :text-overflow ellipsis)
        (nav
         (.watching :color #(completed))
         (.not-watching :color #(created))))
@@ -62,7 +48,8 @@
         ((:or input button)
          :font-size 12pt
          :border none
-         :color (hex 151515))
+         :color (hex 151515)
+         :background (hex FFFFFF))
         ("[type=submit]"
          :font-size 14pt
          :background none
@@ -162,8 +149,8 @@
     :margin 3px
     :color #(headert)
     :display flex
-    (* :display inline-block
-       :padding 1px 3px 1px 3px)
+    (>* :display inline-block
+        :padding 1px 3px 1px 3px)
     (label
      :width 30px)
     (.percentage
@@ -172,6 +159,7 @@
     ((:and .percentage :after)
      :content "'%'")
     (.bar
+     :padding 0
      :min-width 100px
      :flex-grow 1
      :position relative
@@ -180,6 +168,31 @@
           :position absolute
           :top 0
           :bottom 0))))
+
+  (form
+   ((:or input button)
+    :font-size 12pt
+    :border none
+    :color #(headert)
+    :background #(header2))
+   ("[type=submit]"
+    :font-size 14pt
+    :background none
+    :cursor pointer)
+   ((:and "[type=submit]" :hover)
+    :color #(hover)))
+  
+  ("#add-project"
+   :margin 10px 10px 0 10px
+   :padding 5px
+   :border-left 5px solid #(border)
+   :background #(header)
+   :white-space nowrap
+   :display flex
+   (>* :margin 5px)
+   ("[name=name]" :width 200px)
+   ("[name=remote]" :flex-grow 1)
+   ("[name=branch]" :width 100px))
 
   (.project
    (.name)
@@ -200,4 +213,25 @@
    (.duration :font-family triplicate monospace
               :white-space nowrap)
    (.start :font-family triplicate monospace
-           :white-space nowrap)))
+           :white-space nowrap))
+
+  (:media
+   "(max-width:900px)"
+   (html
+    (body
+     ("#add-project"
+      :margin 10px 0 0 0
+      ("[name=name]" :display none))
+     (>main
+      :margin 0
+      (article.project
+       (header
+        (.name :flex-grow 1)
+        ((:or .link .branch) :display none))
+       (section.builds
+        (thead :display none)
+        ((:or .actions .duration .start) :display none)))
+
+      (article.build
+       (header
+        (nav :white-space nowrap))))))))

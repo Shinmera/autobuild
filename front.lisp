@@ -73,9 +73,9 @@
     (setf (watch project) (not (watch project))))
   (redirect (referer)))
 
-(define-api autobuild/project/add (remote &optional branch) ()
+(define-api autobuild/project/add (remote &optional name branch) ()
   (make-build-project
-   (autobuild::parse-remote-name remote)
+   (or* name (autobuild::parse-remote-name remote))
    remote :branch (or* branch "master"))
   (redirect (referer)))
 

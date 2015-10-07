@@ -3,12 +3,12 @@
   <head>
     <meta charset="utf-8"/>
     <title><c:splice lquery="(text commit)">Commit</c:splice> - Autobuild</title>
-    <meta name="viewport" content="width=device-width" />
-    <meta name="description" content="Autobuild reports" />
-    <meta name="robots" content="index, follow" />
     <link rel="stylesheet" type="text/css" @href="/static/autobuild-server/main.css" href="../static/main.css" />
     <link rel="stylesheet" type="text/css" @href="/static/autobuild-server/prism.css" href="../static/prismmain.css" />
     <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+    <meta name="description" content="Autobuild reports" />
+    <meta name="robots" content="index, follow" />
+    <meta name="viewport" content="width=device-width" />
   </head>
   <body>
     <header>
