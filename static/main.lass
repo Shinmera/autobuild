@@ -66,29 +66,40 @@
        (.branch
         :text-align right))
       (section.builds
-       (table
-        :width 100%
-        :border-collapse collapse
-        (thead
-         :background #(header2)
-         :color white)
-        ((:or th td) :padding 2px 3px 2px 3px)
-        (.status :width 50px :text-align center
-                 (i :font-size 0)
-                 ((:and i :before)
-                  :font-size 14pt))
-        (.hash :width 100px :text-align center)
+       (.header
+        :background #(header2)
+        :color white)
+       (ul
+        :padding 0
+        :margin 0
+        :list-style none
+        (li :display block))
+       ((:or .header .build)
+        :display flex
+        (>* 
+         :padding 2px 3px 2px 3px)
+        (.status
+         :min-width 30px
+         :text-align center
+         (i :font-size 0)
+         ((:and i :before)
+          :font-size 14pt))
+        (.hash
+         :min-width 100px
+         :text-align center)
         (.message
+         :flex-grow 1
          :text-align left
-         (p
-          :margin 0
-          :white-space nowrap
-          :overflow hidden
-          :text-overflow ellipsis))
-        (.duration :text-align right :font-size 11pt)
-        (.start :width 200px :text-align right :font-size 11pt)
+         :margin 0
+         :white-space nowrap
+         :overflow hidden
+         :text-overflow ellipsis)
+        ((:or .start .duration)
+         :text-align right
+         :font-size 11pt
+         :min-width 200px)
         (.actions
-         :width 1px
+         :min-width 100px
          :text-align right
          :font-size 12pt
          :white-space nowrap

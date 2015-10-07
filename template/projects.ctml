@@ -42,35 +42,29 @@
           </nav>
         </header>
         <section class="builds">
-          <table>
-            <thead>
-              <tr>
-                <th class="status">Status</th>
-                <th class="hash">Commit</th>
-                <th class="message">Message</th>
-                <th class="duration">Duration</th>
-                <th class="start">Start Date</th>
-                <th class="actions"></th>
-              </tr>
-            </thead>
-            <tbody iterate="builds">
-              <tr class="build" lquery="(data :commit commit)">
-                <td class="status"><a href="#" @href='(#?"/project/{0}/build/{1}" (name project) commit)'><i class="fa" lquery="(add-class status-icon)"></i></a></td>
-                <td class="hash"><a href="#" @href='(#?"/project/{0}/build/{1}" (name project) commit)' lquery="(text short-commit)">c0mm1t</a></td>
-                <td class="message short"><p lquery="(text short-message)">Something Descriptive</p></td>
-                <td class="duration"><time lquery="(text duration)">2:00:14</time></td>
-                <td class="start"><time lquery="(text start) (attr :datetime start)">2015.09.27 13:19:38</time></td>
-                <td class="actions">
-                  <nav>
-                    <a href="#" title="View on GitHub" lquery="(attr :href remote)"><i class="fa fa-github"></i></a>
-                    <a href="#" title="Start build" @href='(#?"/api/autobuild/project/build/start?project={0}&build={1}" (name project) commit)'><i class="fa fa-arrow-circle-right"></i></a>
-                    <a href="#" title="Stop build" @href='(#?"/api/autobuild/project/build/stop?project={0}&build={1}" (name project) commit)'><i class="fa fa-times-circle"></i></a>
-                    <a href="#" title="Delete this build" class="confirm" @href='(#?"/api/autobuild/project/build/delete?project={0}&build={1}" (name project) commit)'><i class="fa fa-times"></i></a>
-                  </nav>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <div class="header">
+            <span class="status">Status</span>
+            <span class="hash">Commit</span>
+            <span class="message">Message</span>
+            <span class="duration">Duration</span>
+            <span class="start">Start Date</span>
+            <span class="actions"></span>
+          </div>
+          <ul iterate="builds">
+            <li class="build" lquery="(data :commit commit)">
+              <a class="status" href="#" @href='(#?"/project/{0}/build/{1}" (name project) commit)'><i class="fa" lquery="(add-class status-icon)"></i></a>
+              <a class="hash" href="#" @href='(#?"/project/{0}/build/{1}" (name project) commit)' lquery="(text short-commit)">c0mm1t</a>
+              <p class="message short" lquery="(text short-message)">Something Descriptive</p>
+              <time class="duration" lquery="(text duration)">2:00:14</time>
+              <time class="start" lquery="(text start) (attr :datetime start)">2015.09.27 13:19:38</time>
+              <nav class="actions">
+                <a href="#" title="View on GitHub" lquery="(attr :href remote)"><i class="fa fa-github"></i></a>
+                <a href="#" title="Start build" @href='(#?"/api/autobuild/project/build/start?project={0}&build={1}" (name project) commit)'><i class="fa fa-arrow-circle-right"></i></a>
+                <a href="#" title="Stop build" @href='(#?"/api/autobuild/project/build/stop?project={0}&build={1}" (name project) commit)'><i class="fa fa-times-circle"></i></a>
+                <a href="#" title="Delete this build" class="confirm" @href='(#?"/api/autobuild/project/build/delete?project={0}&build={1}" (name project) commit)'><i class="fa fa-times"></i></a>
+              </nav>
+            </li>
+          </ul>
           <form @action="/api/autobuild/project/build/add" id="add-build" method="post">
             <input type="hidden" name="project" lquery="(val name)" />
             <input type="text" name="commit" placeholder="Commit hash" required />
