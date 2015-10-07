@@ -90,6 +90,7 @@
 
 (defun handle-build-start (build)
   (setf (start build) (get-universal-time))
+  (setf (status build) :running)
   (format *build-output* "~&;;;; Autobuild ~a" (status build))
   (format *build-output* "~&;; Started on ~a~%" (format-date (start build)))
   (finish-output *build-output*))
@@ -146,10 +147,17 @@
     (when (start build)
       (- (or (end build) (get-universal-time)) (start build)))))
 
-(defgeneric log-contents (build)
-  (:method ((build build))
+(defgeneric log-contents (build &optional file-position)
+  (:method ((build build) &optional file-position)
     (when (probe-file (logfile build))
-      (alexandria:read-file-into-string (logfile build)))))
+      (with-open-file (stream (logfile build) :direction :input)
+        (when file-position (file-position stream file-position))
+        (values (with-output-to-string (output)
+                  (let ((buffer (make-array 4096 :element-type 'character)))
+                    (loop for count = (read-sequence buffer stream)
+                          do (write-sequence buffer output :end count)
+                          while (= count (length buffer)))))
+                (file-position stream))))))
 
 (defgeneric discover-recipe (location)
   (:method ((location T))
@@ -200,18 +208,14 @@
   (error "INVALID BUILD! Please specify a proper build type for your project."))
 
 (defclass make-build (build)
-  ((target :initarg :target :accessor target))
-  (:default-initargs
-   :target NIL))
+  ((target :initarg :target :initform NIL :accessor target)))
 
 (defmethod perform-build ((build make-build))
   (run "make" (when (target build) (list (target build)))
        :output *build-output* :error *build-output* :on-non-zero-exit :error))
 
 (defclass asdf-build (build)
-  ((system :initarg :system :accessor system))
-  (:default-initargs
-   :system NIL))
+  ((system :initarg :system :initform NIL :accessor system)))
 
 (defmethod initialize-instance :after ((build asdf-build) &key)
   (unless (system build)

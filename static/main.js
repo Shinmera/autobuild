@@ -74,15 +74,22 @@ $(function(){
         });
     }
 
+    var logPosition = 0;
     var updateLog = function(project, commit){
         $.ajax({
             url: "/api/autobuild/project/build/log",
-            data: {"project": project, "build": commit},
+            data: {"project": project, "build": commit, "file-position": logPosition},
             dataType: "json",
             success: function(data){
                 data = data.data;
-                $(".build[data-commit="+commit+"] #log code").text(data);
-                Prism.highlightAll();
+                var $log = $(".build[data-commit="+commit+"] #log code");
+                if(logPosition == 0){
+                    $log.text(data.text);
+                }else{
+                    $log.text($log.text()+data.text);
+                }
+                Prism.highlightElement($log[0]);
+                logPosition = data.position;
             }
         });
     }

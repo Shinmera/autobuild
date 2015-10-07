@@ -28,9 +28,11 @@
     (destroy build))
   (redirect #@"/"))
 
-(define-api autobuild/project/build/log (project build) ()
-  (api-output
-   (log-contents (build build project))))
+(define-api autobuild/project/build/log (project build &optional file-position) ()
+  (multiple-value-bind (text position) (log-contents (build build project) (parse-integer file-position :junk-allowed T))
+    (api-output
+     (alexandria:plist-hash-table
+      `(:text ,text :position ,position)))))
 
 (define-api autobuild/project/build (project build[]) ()
   (api-output
