@@ -27,7 +27,7 @@
 (defun make-build-project (name remote &key branch)
   (when (project name)
     (cerror "Name ~s is already taken by ~a." name (project name)))
-  (let ((project (offload (make-instance 'project :name name :remote remote :branch branch))))
+  (let ((project (make-instance 'project :name name :remote remote :branch branch)))
     (setf (project NIL) project)))
 
 (defmethod destroy :after ((project project))

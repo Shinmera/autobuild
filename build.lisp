@@ -43,7 +43,7 @@
      (restore build))
     (:if-newer
      (let* ((file (discover-recipe build))
-            (script (autobuild-script:read-script-file file))
+            (script (when file (autobuild-script:read-script-file file :if-does-not-exist NIL)))
             (type (getf script :type)))
        (remf script :type)
        ;; Filter explicitly passed args so we don't overwrite them.
@@ -173,13 +173,15 @@
            (restore build file)))))))
 
 (defmethod restore ((build build) &optional (file (discover-recipe build)))
-  (prog1 (let* ((data (autobuild-script:read-script-file file))
-                (type (getf data :type)))
-           (remf data :type)
-           (if (or (not type) (eql (type-of build) type))
-               (apply #'reinitialize-instance build data)
-               (apply #'change-class build type data)))
-    (setf (prev-timestamp build) (file-write-date file))))
+  (let* ((data (autobuild-script:read-script-file file :if-does-not-exist NIL))
+         (type (getf data :type)))
+    (when data
+      (remf data :type)
+      (prog1
+          (if (or (not type) (eql (type-of build) type))
+              (apply #'reinitialize-instance build data)
+              (apply #'change-class build type data))
+        (setf (prev-timestamp build) (file-write-date file))))))
 
 (defmethod destroy :before ((build build))
   (when (eql :running (status build))
