@@ -138,15 +138,17 @@ var Autobuild = function(){
     }
 
     var useNotifications = false;
-    self.maybeEnableNotifications = function(){
+    self.maybeEnableNotifications = function(cont){
         if("Notification" in window){
             if (Notification.permission === "granted") {
                 self.log("Found notification permission.");
+                cont();
                 return true;
             }else{
-                Notification.requestPermission(function (permission) {
+                Notification.requestPermission(function(permission){
                     if (permission === "granted") {
                         self.log("Got notification permission.");
+                        cont();
                         return true;
                     }else{
                         self.log("Notification permission denied.");
@@ -159,10 +161,10 @@ var Autobuild = function(){
 
     self.setUseNotifications = function(bool){
         if(bool){
-            if(self.maybeEnableNotifications()){
+            self.maybeEnableNotifications(function(){
                 $(".global-options .notifications").addClass("active");
                 useNotifications = true;
-            }
+            });
         }else{
             useNotifications = false;
             $(".global-options .notifications").removeClass("active");
