@@ -1,14 +1,46 @@
-$(function(){
-    $("a.confirm").each(function(){
-        var self = this;
-        $(self).click(function(){
-            var title = $(self).attr("title")[0].toLowerCase() + $(self).attr("title").slice(1);
-            return confirm("Are you sure you want to "+title+"?");
-        });
-    });
+var Autobuild = function(){
+    var self = this;
 
-    var updateLoadInfo = function(){
-        console.log("Fetching load info..");
+    self.log = function(){
+        var args = $.extend([], arguments);
+        args.unshift("[Autobuild]");
+        console.log.apply(console, args);
+        return true;
+    }
+    
+    self.statusIcon = function(status){
+        return (status === "created")? "fa-circle-o":
+            (status === "running")? "fa-cog":
+            (status === "stopping")? "fa-times":
+            (status === "stopped")? "fa-times":
+            (status === "completed")? "fa-check-circle":
+            (status === "errored")? "fa-exclamation-triangle":
+            "fa-question";
+    }
+
+    self.formatDuration = function(duration){
+        if(duration === null)
+            return "-";
+        else{
+            var s = duration % 60;
+            var m = Math.floor((duration/60)%60);
+            var h = Math.floor(duration/(60*60));
+            return ((h==0)?"":h+"hours")+((m==0)?"":" "+m+" minutes")+((s==0)?"":" "+s+" seconds");
+        }
+    }
+
+    self.formatDate = function(time){
+        if(time === null)
+            return "-";
+        else{
+            var z = function(date){return ("0" + date).slice(-2);}
+            // Convert from universal to unix and make it ms based.
+            var date = new Date((time-2208988800)*1000);
+            return date.getFullYear()+"."+(date.getMonth()+1)+"."+date.getDate()+" "+z(date.getHours())+":"+z(date.getMinutes())+":"+z(date.getSeconds());
+        }
+    }
+
+    self.updateLoadInfo = function(){
         $.ajax({
             url: "/api/autobuild/system/load",
             dataType: "json",
@@ -24,39 +56,7 @@ $(function(){
         });
     }
 
-    var statusIcon = function(status){
-        return (status === "created")? "fa-circle-o":
-            (status === "running")? "fa-cog":
-            (status === "stopping")? "fa-times":
-            (status === "stopped")? "fa-times":
-            (status === "completed")? "fa-check-circle":
-            (status === "errored")? "fa-exclamation-triangle":
-            "fa-question";
-    }
-
-    var formatDuration = function(duration){
-        if(duration === null)
-            return "-";
-        else{
-            var s = duration % 60;
-            var m = Math.floor((duration/60)%60);
-            var h = Math.floor(duration/(60*60));
-            return ((h==0)?"":h+"hours")+((m==0)?"":" "+m+" minutes")+((s==0)?"":" "+s+" seconds");
-        }
-    }
-
-    var formatDate = function(time){
-        if(time === null)
-            return "-";
-        else{
-            var z = function(date){return ("0" + date).slice(-2);}
-            // Convert from universal to unix and make it ms based.
-            var date = new Date((time-2208988800)*1000);
-            return date.getFullYear()+"."+(date.getMonth()+1)+"."+date.getDate()+" "+z(date.getHours())+":"+z(date.getMinutes())+":"+z(date.getSeconds());
-        }
-    }
-
-    var updateBuildStatus = function(project, hashes){
+    self.updateBuildStatus = function(project, hashes){
         $.ajax({
             url: "/api/autobuild/project/build",
             data: {"project": project, "build[]": hashes},
@@ -64,18 +64,22 @@ $(function(){
             success: function(data){
                 data = data.data;
                 $.each(data, function(commit, data){
-                    var build = $(".build[data-commit="+commit+"]");
-                    $(".start time", build).text(formatDate(data.start));
-                    $(".duration time", build).text(formatDuration(data.duration));
-                    $(".status i", build).attr("class","fa "+statusIcon(data.status))
-                        .text(data.status.toUpperCase());
+                    var $build = $(".build[data-commit="+commit+"]");
+                    $(".start time", $build).text(self.formatDate(data.start));
+                    $(".duration time", $build).text(self.formatDuration(data.duration));
+                    if($build.attr("data-status") !== data.status){
+                        self.notify(project+" build "+commit+" changed status to "+data.status+".");
+                        $build.attr("data-status", data.status);
+                        $(".status i", $build).attr("class","fa "+self.statusIcon(data.status))
+                            .text(data.status.toUpperCase());
+                    }
                 });
             }
         });
     }
 
     var logPosition = 0;
-    var updateLog = function(project, commit){
+    self.updateLog = function(project, commit){
         $.ajax({
             url: "/api/autobuild/project/build/log",
             data: {"project": project, "build": commit, "file-position": logPosition},
@@ -94,24 +98,76 @@ $(function(){
         });
     }
 
-    var updateAllStatus = function(){
+    self.updateAllStatus = function(){
         $(".project").each(function(){
             var commits = []
-            $(".build",this).each(function(){commits.push($(this).data("commit"));});
-            updateBuildStatus($(this).data("name"), commits);
+            $(".build",this).each(function(){commits.push($(this).attr("data-commit"));});
+            self.updateBuildStatus($(this).attr("data-name"), commits);
         });
         $("article.build").each(function(){
-            updateBuildStatus($(this).data("project"), [$(this).data("commit")]);
-            updateLog($(this).data("project"), $(this).data("commit"));
+            self.updateBuildStatus($(this).attr("data-project"), [$(this).attr("data-commit")]);
+            self.updateLog($(this).attr("data-project"), $(this).attr("data-commit"));
         });
     }
 
-    var update = function(){
-        updateLoadInfo();
-        updateAllStatus();
+    self.update = function(){
+        self.log("Fetching updates..");
+        self.updateLoadInfo();
+        self.updateAllStatus();
     }
 
-    updateLoadInfo();
-    // Takes a second to measure, so interval every 4 gives a total of 5.
-    setInterval(update, 4000);
+    self.initUpdate = function(){
+        self.updateLoadInfo();
+        setInterval(self.update, 4000);
+    }
+
+    self.initConfirm = function(){
+        $("a.confirm").each(function(){
+            var self = this;
+            $(self).click(function(){
+                var title = $(self).attr("title")[0].toLowerCase() + $(self).attr("title").slice(1);
+                return confirm("Are you sure you want to "+title+"?");
+            });
+        });
+    }
+
+    var notificationsAvailable = true;
+    self.initNotify = function(){
+        if("Notification" in window){
+            if (Notification.permission === "granted") {
+                notifcationsAvailable = true;
+                self.log("Found notification permission.");
+            }else if (Notification.permission !== 'denied') {
+                Notification.requestPermission(function (permission) {
+                    if (permission === "granted") {
+                        notificationsAvailable = true;
+                        self.log("Got notification permission.");
+                    }
+                });
+            }
+        }
+    }
+
+    self.notify = function(message){
+        if(!notificationsAvailable)return;
+        
+        self.log("Notifying with",message);
+        return new Notification("Autobuild Update",{
+            body: message});
+    }
+
+    self.init = function(){
+        self.log("Initializing.");
+        self.initConfirm();
+        self.initNotify();
+        self.initUpdate();
+    }
+
+    return self;
+}
+
+autobuild = new Autobuild();
+
+$(function(){
+    autobuild.init();
 })

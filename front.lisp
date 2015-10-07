@@ -101,7 +101,7 @@
 (defmethod clip:clip ((build build) field)
   (ecase field
     (status
-     (status build))
+     (string-downcase (status build)))
     (status-icon
      (case (status build)
        (:created "fa-circle-o")

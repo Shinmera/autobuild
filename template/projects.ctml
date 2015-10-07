@@ -51,7 +51,7 @@
             <span class="actions"></span>
           </div>
           <ul iterate="builds">
-            <li class="build" lquery="(data :commit commit)">
+            <li class="build" lquery="(data :commit commit) (data :project (name project)) (data :status status)">
               <a class="status" href="#" @href='(#?"/project/{0}/build/{1}" (name project) commit)'><i class="fa" lquery="(add-class status-icon)"></i></a>
               <a class="hash" href="#" @href='(#?"/project/{0}/build/{1}" (name project) commit)' lquery="(text short-commit)">c0mm1t</a>
               <p class="message short" lquery="(text short-message)">Something Descriptive</p>
