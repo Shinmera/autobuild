@@ -30,10 +30,10 @@
             <i class="fa" lquery="(text status) (add-class status-icon)"></i>
           </span>
           <nav>
-            <a href="#" title="View on GitHub" lquery="(attr :href remote)"><i class="fa fa-github"></i></a>
             <a href="#" title="Start build" @href='(#?"/api/autobuild/project/build/start?project={0}&build={1}" (name project) commit)'><i class="fa fa-arrow-circle-right"></i></a>
             <a href="#" title="Stop build" @href='(#?"/api/autobuild/project/build/stop?project={0}&build={1}" (name project) commit)'><i class="fa fa-times-circle"></i></a>
-            <a href="#" title="Delete this build" class="confirm" @href='(#?"/api/autobuild/project/build/delete?project={0}&build={1}" (name project) commit)'><i class="fa fa-times"></i></a>
+            <a href="#" title="Delete this build" class="confirm" @href='(#?"/api/autobuild/project/build/delete?project={0}&build={1}" (name project) commit)'><i class="fa fa-trash"></i></a>
+            <a href="#" title="View on GitHub" lquery="(attr :href remote)"><i class="fa fa-github"></i></a>
           </nav>
         </header>
         <section class="message long">

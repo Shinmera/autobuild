@@ -18,7 +18,7 @@
         <div class="mem"><label>MEM</label><span class="percentage">0</span><div class="bar"><div style="width:0%"></div></div></div>
       </div>
       <nav class="global-options">
-        <a class="notifications" title="Toggle update notifications"><i class="fa fa-comment"></i></a>
+        <a class="notifications" title="Toggle update notifications"><i class="fa fa-bell"></i></a>
       </nav>
     </header>
     <form @action="/api/autobuild/project/add" id="add-project" method="post">
@@ -34,10 +34,10 @@
           <a class="link" href="#" lquery="(text remote) (attr :href remote)">online.com</a>
           <span class="branch" lquery="(text branch)">Branch</span>
           <nav>
-            <a href="#" title="Pull" @href='(#?"/api/autobuild/project/pull?project={0}" name)'><i class="fa fa-arrow-circle-down"></i></a>
-            <a href="#" title="Populate builds" class="confirm" @href='(#?"/api/autobuild/project/populate?project={0}" name)'><i class="fa fa-repeat"></i></a>
-            <a href="#" title="Clean out old builds (delete all but the most recent 5)" class="confirm" @href='(#?"/api/autobuild/project/clean?project={0}" name)'><i class="fa fa-times-circle"></i></a>
-            <a href="#" title="Delete this project" class="confirm" @href='(#?"/api/autobuild/project/delete?project={0}" name)'><i class="fa fa-times"></i></a>
+            <a href="#" title="Pull" @href='(#?"/api/autobuild/project/pull?project={0}" name)'><i class="fa fa-download"></i></a>
+            <a href="#" title="Populate builds" class="confirm" @href='(#?"/api/autobuild/project/populate?project={0}" name)'><i class="fa fa-history"></i></a>
+            <a href="#" title="Clean out old builds (delete all but the most recent 5)" class="confirm" @href='(#?"/api/autobuild/project/clean?project={0}" name)'><i class="fa fa-recycle"></i></a>
+            <a href="#" title="Delete this project" class="confirm" @href='(#?"/api/autobuild/project/delete?project={0}" name)'><i class="fa fa-trash"></i></a>
             <a href="#" title="Start/stop automatic building" @href='(#?"/api/autobuild/project/toggle-watch?project={0}" name)'>
               <i class="fa fa-circle" lquery='(add-class (if watch "watching" "not-watching"))'></i>
             </a>
@@ -60,10 +60,10 @@
               <time class="duration" lquery="(text duration)">2:00:14</time>
               <time class="start" lquery="(text start) (attr :datetime start)">2015.09.27 13:19:38</time>
               <nav class="actions">
-                <a href="#" title="View on GitHub" lquery="(attr :href remote)"><i class="fa fa-github"></i></a>
                 <a href="#" title="Start build" @href='(#?"/api/autobuild/project/build/start?project={0}&build={1}" (name project) commit)'><i class="fa fa-arrow-circle-right"></i></a>
                 <a href="#" title="Stop build" @href='(#?"/api/autobuild/project/build/stop?project={0}&build={1}" (name project) commit)'><i class="fa fa-times-circle"></i></a>
-                <a href="#" title="Delete this build" class="confirm" @href='(#?"/api/autobuild/project/build/delete?project={0}&build={1}" (name project) commit)'><i class="fa fa-times"></i></a>
+                <a href="#" title="Delete this build" class="confirm" @href='(#?"/api/autobuild/project/build/delete?project={0}&build={1}" (name project) commit)'><i class="fa fa-trash"></i></a>
+                <a href="#" title="View on GitHub" lquery="(attr :href remote)"><i class="fa fa-github"></i></a>
               </nav>
             </li>
           </ul>
