@@ -12,12 +12,14 @@
   <body>
     <header>
       <a @href="/" href="#"><h1>Autobuild</h1></a>
-      
-      <div id="system-load">
+      <div class="system-load">
         <div class="cpu"><label>CPU</label><span class="percentage">0</span><div class="bar"><div style="width:0%"></div></div></div>
         <div class="ram"><label>RAM</label><span class="percentage">0</span><div class="bar"><div style="width:0%"></div></div></div>
         <div class="mem"><label>MEM</label><span class="percentage">0</span><div class="bar"><div style="width:0%"></div></div></div>
       </div>
+      <nav class="global-options">
+        <a class="notifications" title="Toggle update notifications"><i class="fa fa-comment"></i></a>
+      </nav>
     </header>
     <form @action="/api/autobuild/project/add" id="add-project" method="post">
       <input name="name" type="text" placeholder="name" title="Name, automatically determined from remote." />

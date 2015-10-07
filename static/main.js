@@ -7,6 +7,12 @@ var Autobuild = function(){
         console.log.apply(console, args);
         return true;
     }
+
+    self.val = function(key, val){
+        return (val === undefined)?
+            JSON.parse(localStorage.getItem(key)):
+            localStorage.setItem(key,JSON.stringify(val));
+    }
     
     self.statusIcon = function(status){
         return (status === "created")? "fa-circle-o":
@@ -131,25 +137,48 @@ var Autobuild = function(){
         });
     }
 
-    var notificationsAvailable = true;
-    self.initNotify = function(){
+    var useNotifications = false;
+    self.maybeEnableNotifications = function(){
         if("Notification" in window){
             if (Notification.permission === "granted") {
-                notifcationsAvailable = true;
                 self.log("Found notification permission.");
-            }else if (Notification.permission !== 'denied') {
+                return true;
+            }else{
                 Notification.requestPermission(function (permission) {
                     if (permission === "granted") {
-                        notificationsAvailable = true;
                         self.log("Got notification permission.");
+                        return true;
+                    }else{
+                        self.log("Notification permission denied.");
                     }
                 });
             }
         }
+        return false;
+    }
+
+    self.setUseNotifications = function(bool){
+        if(bool){
+            if(self.maybeEnableNotifications()){
+                $(".global-options .notifications").addClass("active");
+                useNotifications = true;
+            }
+        }else{
+            useNotifications = false;
+            $(".global-options .notifications").removeClass("active");
+        }
+        self.val("notifications",bool);
+    }
+
+    self.initNotifications = function(){
+        $(".global-options .notifications").click(function(){
+            self.setUseNotifications(!useNotifications);
+        });
+        self.setUseNotifications(self.val("notifications"));
     }
 
     self.notify = function(message){
-        if(!notificationsAvailable)return;
+        if(!useNotifications)return;
         
         self.log("Notifying with",message);
         return new Notification("Autobuild Update",{
@@ -159,7 +188,7 @@ var Autobuild = function(){
     self.init = function(){
         self.log("Initializing.");
         self.initConfirm();
-        self.initNotify();
+        self.initNotifications();
         self.initUpdate();
     }
 

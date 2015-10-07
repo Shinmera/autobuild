@@ -10,7 +10,8 @@
        (running (hex 333333))
        (completed (hex 00EE00))
        (stopped (hex 880000))
-       (errored (hex EE0000)))
+       (errored (hex EE0000))
+       (active (hex FFDD00)))
   (html
    :font-family concourse sans-serif
    (body
@@ -21,7 +22,42 @@
      :align-items center
      :border-bottom 3px solid #(border)
      :white-space nowrap
-     (a (h1 :margin 0)))
+     (a (h1 :margin 0))
+
+     (.system-load
+      :flex-grow 1
+      :display flex
+      :flex-wrap wrap
+      :font-size 10pt
+      :background #(header)
+      (>div
+       :margin 3px
+       :color #(headert)
+       :display flex
+       (>* :display inline-block
+           :padding 1px 3px 1px 3px)
+       (label
+        :width 30px)
+       (.percentage
+        :text-align right
+        :width 50px)
+       ((:and .percentage :after)
+        :content "'%'")
+       (.bar
+        :padding 0
+        :min-width 100px
+        :flex-grow 1
+        :position relative
+        :background #(header2)
+        (div :background #(headert)
+             :position absolute
+             :top 0
+             :bottom 0))))
+
+     (nav
+      :white-space nowrap
+      (.active
+       :color #(active))))
     
     (>main
      :margin 0 10px 0 10px
@@ -149,38 +185,6 @@
   ((:and a :hover)
    :color #(hover)
    :text-decoration underline !important)
-
-  ("#system-load"
-   :flex-grow 1
-   :display flex
-   :flex-wrap wrap
-   :position :absolute
-   :bottom 0 :left 0
-   :font-size 10pt
-   :background #(header)
-   (>div
-    :margin 3px
-    :color #(headert)
-    :display flex
-    (>* :display inline-block
-        :padding 1px 3px 1px 3px)
-    (label
-     :width 30px)
-    (.percentage
-     :text-align right
-     :width 50px)
-    ((:and .percentage :after)
-     :content "'%'")
-    (.bar
-     :padding 0
-     :min-width 100px
-     :flex-grow 1
-     :position relative
-     :background #(header2)
-     (div :background #(headert)
-          :position absolute
-          :top 0
-          :bottom 0))))
 
   (form
    ((:or input button)
