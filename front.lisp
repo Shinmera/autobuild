@@ -68,8 +68,9 @@
 
 (define-api autobuild/project/populate (project) ()
   (let ((project (project project)))
-    (dolist (commit (commits project))
-      (ensure-build project commit :restore :if-newer)))
+    (loop for commit in (commits project)
+          for i from 0 below 20
+          do (ensure-build project commit :restore :if-newer)))
   (redirect (referer)))
 
 (define-api autobuild/project/clean (project) ()

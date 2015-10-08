@@ -35,7 +35,7 @@
           <span class="branch" lquery="(text branch)">Branch</span>
           <nav>
             <a href="#" title="Pull" @href='(#?"/api/autobuild/project/pull?project={0}" name)'><i class="fa fa-download"></i></a>
-            <a href="#" title="Populate builds" class="confirm" @href='(#?"/api/autobuild/project/populate?project={0}" name)'><i class="fa fa-history"></i></a>
+            <a href="#" title="Populate builds (create builds for the most recent 20)" class="confirm" @href='(#?"/api/autobuild/project/populate?project={0}" name)'><i class="fa fa-history"></i></a>
             <a href="#" title="Clean out old builds (delete all but the most recent 5)" class="confirm" @href='(#?"/api/autobuild/project/clean?project={0}" name)'><i class="fa fa-recycle"></i></a>
             <a href="#" title="Delete this project" class="confirm" @href='(#?"/api/autobuild/project/delete?project={0}" name)'><i class="fa fa-trash"></i></a>
             <a href="#" title="Start/stop automatic building" @href='(#?"/api/autobuild/project/toggle-watch?project={0}" name)'>
