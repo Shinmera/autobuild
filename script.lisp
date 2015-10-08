@@ -110,28 +110,32 @@
         `(-> ,(read-filename stream) ,(read-line* stream))))
   (set-macro-character #\> #'read-> T *script-read-table*))
 
-(defun read-script (stream)
-  (let ((*readtable* *script-read-table*)
-        (*package* (find-package '#:org.shirakumo.autobuild.script.user)))
-    (read stream)))
+(defgeneric read-script (source &key &allow-other-keys)
+  (:method ((stream stream) &key)
+    (let ((*readtable* *script-read-table*)
+          (*package* (find-package '#:org.shirakumo.autobuild.script.user)))
+      (read stream)))
+  (:method ((source string) &key)
+    (let ((*readtable* *script-read-table*)
+          (*package* (find-package '#:org.shirakumo.autobuild.script.user)))
+      (read-from-string source)))
+  (:method ((file pathname) &key if-does-not-exist)
+    (with-open-file (stream file :direction :input
+                                 :if-does-not-exist if-does-not-exist)
+      (when stream (read-script stream)))))
 
-(defun read-script-file (file &key if-does-not-exist)
-  (with-open-file (stream file :direction :input
-                               :if-does-not-exist if-does-not-exist)
-    (when stream (read-script stream))))
-
-(defun write-script (script stream)
-  (let ((*package* (find-package :org.shirakumo.autobuild.script.user)))
-    (write script
-           :stream stream
-           :readably T
-           :pretty T
-           :circle T
-           :case :downcase)))
-
-(defun write-script-file (script file &key (if-exists :supersede))
-  (with-open-file (stream (project-config-file project)
-                          :direction :output
-                          :if-exists if-exists
-                          :if-does-not-exist :create)
-    (write-script script stream)))
+(defgeneric write-script (script target &key &allow-other-keys)
+  (:method (script (stream stream) &key)
+    (let ((*package* (find-package :org.shirakumo.autobuild.script.user)))
+      (write script
+             :stream stream
+             :readably T
+             :pretty T
+             :circle T
+             :case :downcase)))
+  (:method (script (file pathname) &key (if-exists :supsersede))
+    (with-open-file (stream file
+                            :direction :output
+                            :if-exists if-exists
+                            :if-does-not-exist :create)
+      (write-script script stream))))
