@@ -39,6 +39,7 @@
    #:make-build
    #:asdf-build
    #:log-contents
+   #:discover-recipe
    #:recipe)
   ;; project.lisp
   (:export

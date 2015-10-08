@@ -45,6 +45,7 @@ Message
         </section>
         <section class="recipe">
           <h3>Build Recipe</h3>
+          <span lquery="(text recipe-file)"></span>
           <form method="post" @action="/api/autobuild/project/build/update-recipe">
             <input type="hidden" name="project" lquery="(val (name project))" />
             <input type="hidden" name="build" lquery="(val commit)" />

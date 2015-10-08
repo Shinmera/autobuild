@@ -144,7 +144,10 @@
     (log-contents
      (log-contents build))
     (recipe
-     (recipe build))))
+     (recipe build))
+    (recipe-file
+     (uiop:native-namestring
+      (uiop:enough-pathname (discover-recipe build) *base-project-dir*)))))
 
 (define-page builds #@"/^$" (:lquery (template "projects.ctml"))
   (let ((*package* (find-package :org.shirakumo.autobuild.server)))
