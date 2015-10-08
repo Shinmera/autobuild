@@ -44,8 +44,8 @@
    (source :initarg :source :reader source))
   (:report (lambda (c s) (format s "Restoring ~a~@[ from ~a~]." (thing c) (source c)))))
 
-(defgeneric restore (thing &optional source)
-  (:method :before (thing &optional source)
+(defgeneric restore (thing source)
+  (:method :before (thing source)
     (warn 'restore-warning :thing thing :source source)))
 
 (defgeneric coerce-function (func)
@@ -57,3 +57,10 @@
     func)
   (:method ((func list))
     (compile NIL `(lambda () ,func))))
+
+(defun read-stream-to-string (stream)
+  (with-output-to-string (output)
+    (let ((buffer (make-array 4096 :element-type 'character)))
+      (loop for count = (read-sequence buffer stream)
+            do (write-sequence buffer output :end count)
+            while (= count (length buffer))))))

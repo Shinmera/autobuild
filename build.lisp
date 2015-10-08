@@ -40,10 +40,10 @@
   (ecase (restore-behaviour build)
     (:never)
     (:always
-     (restore build))
+     (restore build NIL))
     (:if-newer
      (let* ((file (discover-recipe build))
-            (script (when file (autobuild-script:read-script-file file :if-does-not-exist NIL)))
+            (script (when file (autobuild-script:read-script file :if-does-not-exist NIL)))
             (type (getf script :type)))
        (remf script :type)
        ;; Filter explicitly passed args so we don't overwrite them.
@@ -152,11 +152,7 @@
     (when (probe-file (logfile build))
       (with-open-file (stream (logfile build) :direction :input)
         (when file-position (file-position stream file-position))
-        (values (with-output-to-string (output)
-                  (let ((buffer (make-array 4096 :element-type 'character)))
-                    (loop for count = (read-sequence buffer stream)
-                          do (write-sequence buffer output :end count)
-                          while (= count (length buffer)))))
+        (values (read-stream-to-string stream)
                 (file-position stream))))))
 
 (defgeneric discover-recipe (location)
@@ -166,12 +162,18 @@
     (or (call-next-method)
         (discover-recipe (project build)))))
 
+(defgeneric recipe (build)
+  (:method ((build build))
+    (let ((recipe (discover-recipe build)))
+      (when recipe (with-open-file (stream recipe :direction :input)
+                     (read-stream-to-string stream))))))
+
 (defgeneric maybe-restore (build)
   (:method ((build build))
     (case (restore-behaviour build)
       (:never)
       (:always
-       (restore build))
+       (restore build NIL))
       (:if-newer
        (let ((file (discover-recipe build)))
          (when (and file
@@ -180,16 +182,27 @@
                            (file-write-date file))))
            (restore build file)))))))
 
-(defmethod restore ((build build) &optional (file (discover-recipe build)))
-  (let* ((data (autobuild-script:read-script-file file :if-does-not-exist NIL))
-         (type (getf data :type)))
+(defmethod restore ((build build) (source null))
+  (restore build (discover-recipe build)))
+
+(defmethod restore ((build build) (file pathname))
+  (restore build (autobuild-script:read-script file :if-does-not-exist NIL)))
+
+(defmethod restore ((build build) (script string))
+  (let ((file (discover-recipe build)))
+    (when file (with-open-file (stream file :direction :output :if-exists :supersede)
+                 (write-string script stream))))
+  (restore build (autobuild-script:read-script script)))
+
+(defmethod restore ((build build) (data list))
+  (let ((type (getf data :type)))
     (when data
       (remf data :type)
       (prog1
           (if (or (not type) (eql (type-of build) type))
               (apply #'reinitialize-instance build data)
               (apply #'change-class build type data))
-        (setf (prev-timestamp build) (file-write-date file))))))
+        (setf (prev-timestamp build) (get-universal-time))))))
 
 (defmethod destroy :before ((build build))
   (when (eql :running (status build))

@@ -38,7 +38,8 @@
    #:invalid-build
    #:make-build
    #:asdf-build
-   #:log-contents)
+   #:log-contents
+   #:recipe)
   ;; project.lisp
   (:export
    #:*base-project-dir*
@@ -65,7 +66,8 @@
    #:remote-url)
   ;; toolkit.lisp
   (:export
-   #:destroy))
+   #:destroy
+   #:restore))
 
 (defpackage #:autobuild-script
   (:nicknames #:org.shirakumo.autobuild.script)
@@ -76,9 +78,7 @@
    #:>>
    #:s/r
    #:read-script
-   #:read-script-file
-   #:write-script
-   #:write-script-file))
+   #:write-script))
 
 (defpackage #:autobuild-script-user
   (:nicknames #:org.shirakumo.autobuild.script.user #:as-user)
