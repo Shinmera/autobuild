@@ -101,7 +101,6 @@
   (:method (id (name T))
     (build id (project name))))
 
-(defgeneric clean (project)
-  (:method ((project project))
-    (dolist (build (copy-list (nthcdr 5 (builds project))))
-      (destroy build))))
+(defmethod clean ((project project) &key)
+  (dolist (build (copy-list (nthcdr 5 (builds project))))
+    (destroy build)))

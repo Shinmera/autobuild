@@ -14,6 +14,7 @@
    (pre-build-func :initarg :pre-build :accessor pre-build-func)
    (build-func :initarg :build :accessor build-func)
    (post-build-func :initarg :post-build :accessor post-build-func)
+   (clean-func :initarg :clean :accessor clean-func)
    (restore-behaviour :initarg :restore :accessor restore-behaviour)
    (start :initform NIL :accessor start)
    (end :initform NIL :accessor end)
@@ -24,6 +25,7 @@
    :pre-build NIL
    :build NIL
    :post-build NIL
+   :clean NIL
    :restore :never))
 
 (defun initialize-build (build)
@@ -33,7 +35,8 @@
   (setf (status build) (discover-status-from-logfile (logfile build)))
   (setf (pre-build-func build) (coerce-function (pre-build-func build)))
   (setf (build-func build) (coerce-function (build-func build)))
-  (setf (post-build-func build) (coerce-function (post-build-func build))))
+  (setf (post-build-func build) (coerce-function (post-build-func build)))
+  (setf (clean-func build) (coerce-function (clean-func build))))
 
 (defmethod initialize-instance :after ((build build) &rest initargs)
   (initialize-build build)
@@ -116,7 +119,6 @@
 
 (defmethod perform-build :around ((build build))
   (when (location build)
-    (maybe-restore build)
     (v:info :autobuild "Performing build for ~a" build)
     (with-simple-restart (abort "Abort the build of ~a" build)
       (with-chdir (build)
@@ -124,10 +126,17 @@
         (with-open-file-no-remove (log-out (logfile build)
                                            :direction :output
                                            :if-does-not-exist :create)
-          (let ((*build-output* (make-broadcast-stream *standard-output* log-out)))
+          (let* ((*build-output* (make-broadcast-stream *standard-output* log-out))
+                 (*standard-output* *build-output*))
             (handle-build-start build)
             (multiple-value-prog1
                 (handler-bind ((error (lambda (err) (handle-build-error build err))))
+                  ;; Clean out possible changes from a previous build or something.
+                  (clean build)
+                  ;; Perhaps we need to reload the configuration from file.
+                  ;; Last chance, so do it now.
+                  (maybe-restore build)
+                  ;; Pass over into real build methods.
                   (call-next-method))
               (handle-build-complete build))))))))
 
@@ -155,12 +164,15 @@
         (values (read-stream-to-string stream)
                 (file-position stream))))))
 
-(defgeneric discover-recipe (location)
-  (:method ((location T))
-    (probe-file (make-pathname :name ".autobuild" :type "lisp" :defaults (location location))))
-  (:method ((build build))
-    (or (call-next-method)
-        (discover-recipe (project build)))))
+(defgeneric discover-recipe (location &key default)
+  (:method ((location T) &key default)
+    (let ((pathname (make-pathname :name ".autobuild" :type "lisp" :defaults (location location))))
+      (or (probe-file pathname) (and default pathname))))
+  (:method ((build build) &key default)
+    (or (call-next-method build :default NIL)
+        (discover-recipe (project build))
+        (when default
+          (call-next-method build :default T)))))
 
 (defgeneric recipe (build)
   (:method ((build build))
@@ -183,15 +195,17 @@
            (restore build file)))))))
 
 (defmethod restore ((build build) (source null))
-  (restore build (discover-recipe build)))
+  (let ((file (discover-recipe build)))
+    (when file
+      (restore build file))))
 
 (defmethod restore ((build build) (file pathname))
   (restore build (autobuild-script:read-script file :if-does-not-exist NIL)))
 
 (defmethod restore ((build build) (script string))
-  (let ((file (discover-recipe build)))
-    (when file (with-open-file (stream file :direction :output :if-exists :supersede)
-                 (write-string script stream))))
+  (let ((file (discover-recipe build :default T)))
+    (with-open-file (stream file :direction :output :if-exists :supersede)
+      (write-string script stream)))
   (restore build (autobuild-script:read-script script)))
 
 (defmethod restore ((build build) (data list))
@@ -203,6 +217,10 @@
               (apply #'reinitialize-instance build data)
               (apply #'change-class build type data))
         (setf (prev-timestamp build) (get-universal-time))))))
+
+(defmethod clean ((build build) &key)
+  (when (clean-func build)
+    (funcall (clean-func build))))
 
 (defmethod destroy :before ((build build))
   (when (eql :running (status build))
@@ -226,6 +244,12 @@
 (defmethod perform-build ((build make-build))
   (run "make" (when (target build) (list (target build)))
        :output *build-output* :error *build-output* :on-non-zero-exit :error))
+
+(defmethod clean ((build make-build) &key)
+  (if (clean-func build)
+      (funcall (clean-func build))
+      (run "make" (list "clean")
+           :output *build-output* :error *build-output* :on-non-zero-exit :error)))
 
 (defclass asdf-build (build)
   ((system :initarg :system :initform NIL :accessor system)))
