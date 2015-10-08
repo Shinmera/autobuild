@@ -19,7 +19,7 @@
         <div class="mem"><label>MEM</label><span class="percentage">0</span><div class="bar"><div style="width:50%"></div></div></div>
       </div>
       <nav class="global-options">
-        <a class="notifications" title="Toggle update notifications"><i class="fa fa-comment"></i></a>
+        <a class="notifications" title="Toggle update notifications"><i class="fa fa-bell"></i></a>
       </nav>
     </header>
     <main>
