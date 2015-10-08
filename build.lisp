@@ -252,7 +252,8 @@
            :output *build-output* :error *build-output* :on-non-zero-exit :error)))
 
 (defclass asdf-build (build)
-  ((system :initarg :system :initform NIL :accessor system)))
+  ((system :initarg :system :initform NIL :accessor system)
+   (operation :initarg :operation :initform :load-op :accessor operation)))
 
 (defmethod initialize-instance :after ((build asdf-build) &key)
   (unless (system build)
@@ -265,7 +266,8 @@
                     "--eval"
                     (format NIL "(push ~s asdf:*central-registry*)" (location build))
                     "--eval"
-                    (format NIL "(asdf:load-system ~s :verbose T :force T)" (system build))
+                    (format NIL "(asdf:operate ~s (asdf:find-system ~s T) :verbose T :force T)"
+                            (operation build) (system build))
                     "--eval"
                     (format NIL "(sb-ext:exit)"))
        :output *build-output* :error *build-output* :on-non-zero-exit :error))
