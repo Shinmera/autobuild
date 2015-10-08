@@ -156,6 +156,12 @@ var Autobuild = function(){
         });
     }
 
+    self.initLog = function(){
+        $("#log code").each(function(){
+            Prism.highlightElement(this);
+        });
+    }
+
     var useNotifications = false;
     self.maybeEnableNotifications = function(cont){
         if("Notification" in window){
@@ -211,6 +217,7 @@ var Autobuild = function(){
         self.initConfirm();
         self.initRecipe();
         self.initNotifications();
+        self.initLog();
         self.initUpdate();
     }
 
