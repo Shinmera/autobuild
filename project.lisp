@@ -93,7 +93,7 @@
             build)))))
 
 (defmethod perform-build ((project project))
-  (perform-build (ensure-current-build project)))
+  (perform-build (ensure-build project (current-commit project))))
 
 (defgeneric build (id project)
   (:method (id (project project))
