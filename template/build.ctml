@@ -5,6 +5,7 @@
     <title><c:splice lquery="(text commit)">Commit</c:splice> - Autobuild</title>
     <link rel="stylesheet" type="text/css" @href="/static/autobuild-server/main.css" href="../static/main.css" />
     <link rel="stylesheet" type="text/css" @href="/static/autobuild-server/prism.css" href="../static/prismmain.css" />
+    <link rel="stylesheet" type="text/css" @href="/static/autobuild-server/codemirror.css" href="../static/codemirror.css" />
     <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
     <meta name="description" content="Autobuild reports" />
     <meta name="robots" content="index, follow" />
@@ -42,6 +43,15 @@
 Message
           </pre>
         </section>
+        <section class="recipe">
+          <h3>Build Recipe</h3>
+          <form method="post" @action="/api/autobuild/project/build/update-recipe">
+            <input type="hidden" name="project" lquery="(val (name project))" />
+            <input type="hidden" name="build" lquery="(val commit)" />
+            <textarea name="recipe" lquery="(text recipe)"></textarea>
+            <input type="submit" value="Save" />
+          </form>
+        </section>
         <section class="log">
           <h3>Build Log</h3>
           <pre class="line-numbers" id="log"><code class="language-none" lquery="(text log-contents)"></code></pre>
@@ -51,8 +61,9 @@ Message
     <footer>
       &copy; Shirakumo
     </footer>
-    <script type="text/javascript" src="../static/prism.js" @src="/static/autobuild-server/prism.js"></script>
     <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script type="text/javascript" src="../static/prism.js" @src="/static/autobuild-server/prism.js"></script>
+    <script type="text/javascript" src="../static/codemirror.js" @src="/static/autobuild-server/codemirror.js"></script>
     <script type="text/javascript" src="../static/main.js" @src="/static/autobuild-server/main.js"></script>
   </body>
 </html>

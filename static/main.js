@@ -92,6 +92,8 @@ var Autobuild = function(){
             dataType: "json",
             success: function(data){
                 data = data.data;
+                if(data.text === null)return;
+                
                 var $log = $(".build[data-commit="+commit+"] #log code");
                 if(logPosition == 0){
                     $log.text(data.text);
@@ -133,6 +135,23 @@ var Autobuild = function(){
             $(self).click(function(){
                 var title = $(self).attr("title")[0].toLowerCase() + $(self).attr("title").slice(1);
                 return confirm("Are you sure you want to "+title+"?");
+            });
+        });
+    }
+
+    self.initRecipe = function(){
+        $(".recipe").each(function(){
+            var mirror = CodeMirror.fromTextArea($("textarea",this)[0], {
+                mode: "commonlisp",
+                keyMap: "emacs",
+                lineNumbers: true,
+                autoCloseBrackets: true,
+                matchBrackets: true,
+                extraKeys: {
+                    Enter: function(cm){
+                        cm.execCommand("newlineAndIndent");
+                    }
+                }
             });
         });
     }
@@ -190,6 +209,7 @@ var Autobuild = function(){
     self.init = function(){
         self.log("Initializing.");
         self.initConfirm();
+        self.initRecipe();
         self.initNotifications();
         self.initUpdate();
     }

@@ -35,6 +35,12 @@
      (alexandria:plist-hash-table
       `(:text ,text :position ,position)))))
 
+(define-api autobuild/project/build/update-recipe (project build recipe) ()
+  (when recipe
+    (let ((build (build build project)))
+      (restore build recipe)))
+  (redirect (referer)))
+
 (define-api autobuild/project/build (project build[]) ()
   (api-output
    (alexandria:alist-hash-table
@@ -136,7 +142,9 @@
          (autobuild::format-date (start build))
          "-"))
     (log-contents
-     (log-contents build))))
+     (log-contents build))
+    (recipe
+     (recipe build))))
 
 (define-page builds #@"/^$" (:lquery (template "projects.ctml"))
   (let ((*package* (find-package :org.shirakumo.autobuild.server)))
