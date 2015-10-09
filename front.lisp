@@ -152,9 +152,7 @@
 
 (define-page builds #@"/^$" (:lquery (template "projects.ctml"))
   (let ((*package* (find-package :org.shirakumo.autobuild.server)))
-    (clip:process
-     lquery:*lquery-master-document*
-     :projects *projects*)))
+    (clip:process lquery:*lquery-master-document* :projects *projects*)))
 
 (define-page build #@"/project/([^/]+)/build/([a-z0-9]{40})" (:uri-groups (project hash) :lquery (template "build.ctml"))
   (let ((*package* (find-package :org.shirakumo.autobuild.server)))
