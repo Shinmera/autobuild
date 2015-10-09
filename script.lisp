@@ -141,3 +141,68 @@
                             :if-exists if-exists
                             :if-does-not-exist :create)
       (write-script script stream))))
+
+(defgeneric coerce-script (func)
+  (:method ((func null))
+    (lambda ()))
+  (:method ((func symbol))
+    func)
+  (:method ((func function))
+    func)
+  (:method ((func list))
+    (compile NIL `(lambda () ,func)))
+  (:method ((file pathname))
+    (coerce-script (read-script file)))
+  (:method ((stream stream))
+    (coerce-script (read-script stream)))
+  (:method ((source string))
+    (coerce-script (read-script source))))
+
+(defclass script-class (standard-class)
+  ()
+  (:documentation "Metaclass for classes with script slots."))
+
+(defmethod c2mop:validate-superclass ((class script-class) (superclass t)) NIL)
+(defmethod c2mop:validate-superclass ((class standard-class) (superclass script-class)) T)
+(defmethod c2mop:validate-superclass ((class script-class) (superclass standard-class)) T)
+(defmethod c2mop:validate-superclass ((class script-class) (superclass script-class)) T)
+
+(defclass script-slot ()
+  ((script-p :initarg :script :initform NIL :reader script-p))
+  (:documentation "Superclass for slots that act as a script."))
+
+(defmethod print-object ((slot script-slot) stream)
+  (print-unreadable-object (slot stream :type T :identity T)
+    (format stream "~s ~s ~s" (c2mop:slot-definition-name slot) :script (script-p slot))))
+
+(defclass script-direct-slot-definition (script-slot c2mop:standard-direct-slot-definition)
+  ()
+  (:default-initargs :initform NIL :initfunction (constantly NIL)))
+
+(defclass script-effective-slot-definition (script-slot c2mop:standard-effective-slot-definition)
+  ())
+
+(defmethod c2mop:compute-effective-slot-definition ((class script-class) name direct-slots)
+  (declare (ignore name))
+  (let ((effective-slot (call-next-method)))
+    (loop for direct-slot in direct-slots
+          do (when (and (typep direct-slot 'script-direct-slot-definition)
+                        (eql (c2mop:slot-definition-name direct-slot)
+                             (c2mop:slot-definition-name effective-slot)))
+               (setf (slot-value effective-slot 'script-p)
+                     (script-p direct-slot))
+               (return)))
+    effective-slot))
+
+(defmethod c2mop:direct-slot-definition-class ((class script-class) &rest initargs)
+  (declare (ignore initargs))
+  (find-class 'script-direct-slot-definition))
+
+(defmethod c2mop:effective-slot-definition-class ((class script-class) &rest initargs)
+  (declare (ignore initargs))
+  (find-class 'script-effective-slot-definition))
+
+(defmethod (setf c2mop:slot-value-using-class) (new-value (class script-class) object (slotd script-slot))
+  (if (script-p slotd)
+      (call-next-method (coerce-script new-value) class object slotd)
+      (call-next-method)))

@@ -48,16 +48,6 @@
   (:method :before (thing source)
     (warn 'restore-warning :thing thing :source source)))
 
-(defgeneric coerce-function (func)
-  (:method ((func null))
-    (lambda ()))
-  (:method ((func symbol))
-    func)
-  (:method ((func function))
-    func)
-  (:method ((func list))
-    (compile NIL `(lambda () ,func))))
-
 (defun read-stream-to-string (stream)
   (with-output-to-string (output)
     (let ((buffer (make-array 4096 :element-type 'character)))

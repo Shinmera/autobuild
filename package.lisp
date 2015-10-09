@@ -79,7 +79,9 @@
    #:>>
    #:s/r
    #:read-script
-   #:write-script))
+   #:write-script
+   #:coerce-script
+   #:script-class))
 
 (defpackage #:autobuild-script-user
   (:nicknames #:org.shirakumo.autobuild.script.user #:as-user)

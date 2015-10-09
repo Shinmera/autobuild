@@ -11,35 +11,25 @@
 (defclass build (repository task)
   ((logfile :initarg :logfile :accessor logfile)
    (project :initarg :project :accessor project)
-   (pre-build-func :initarg :pre-build :accessor pre-build-func)
-   (build-func :initarg :build :accessor build-func)
-   (post-build-func :initarg :post-build :accessor post-build-func)
-   (clean-func :initarg :clean :accessor clean-func)
    (restore-behaviour :initarg :restore :accessor restore-behaviour)
    (start :initform NIL :accessor start)
    (end :initform NIL :accessor end)
-   (prev-timestamp :initform NIL :accessor prev-timestamp))
+   (prev-timestamp :initform NIL :accessor prev-timestamp)
+   (pre-build-func :initarg :pre-build :accessor pre-build-func :script T)
+   (build-func :initarg :build :accessor build-func :script T)
+   (post-build-func :initarg :post-build :accessor post-build-func :script T)
+   (clean-func :initarg :clean :accessor clean-func :script T))
   (:default-initargs
    :logfile "autobuild.log"
    :project NIL
-   :pre-build NIL
-   :build NIL
-   :post-build NIL
-   :clean NIL
-   :restore :never))
+   :restore :never)
+  (:metaclass autobuild-script:script-class))
 
-(defun initialize-build (build)
+(defmethod initialize-instance :after ((build build) &rest initargs)
   (when (and (project build) (not (location build)))
     (setf (location build) (location (project build))))
   (setf (logfile build) (merge-pathnames (logfile build) (location build)))
   (setf (status build) (discover-status-from-logfile (logfile build)))
-  (setf (pre-build-func build) (coerce-function (pre-build-func build)))
-  (setf (build-func build) (coerce-function (build-func build)))
-  (setf (post-build-func build) (coerce-function (post-build-func build)))
-  (setf (clean-func build) (coerce-function (clean-func build))))
-
-(defmethod initialize-instance :after ((build build) &rest initargs)
-  (initialize-build build)
   (ecase (restore-behaviour build)
     (:never)
     (:always
@@ -57,9 +47,6 @@
          (if type
              (apply #'change-class build type script)
              (apply #'reinitialize-instance build script)))))))
-
-(defmethod reinitialize-instance :after ((build build) &key)
-  (initialize-build build))
 
 (defmethod print-object ((build build) stream)
   (print-unreadable-object (build stream :type T)

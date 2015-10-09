@@ -15,8 +15,8 @@
   :serial T
   :components ((:file "package")
                (:file "toolkit")
-               (:file "build")
                (:file "script")
+               (:file "build")
                (:file "project")
                (:file "autobuild"))
   :depends-on (:alexandria
@@ -27,4 +27,5 @@
                :simple-tasks
                :trivial-gray-streams
                :redirect-stream
-               :cl-ppcre))
+               :cl-ppcre
+               :closer-mop))
