@@ -88,6 +88,6 @@
   (setf *projects* (scan-for-projects))
   (unless (eql (status *builder*) :running)
     (setf *builder-thread* (make-runner-thread *builder*)))
-  (unless (eql (status *builder*) :running)
+  (unless (eql (status *watcher*) :running)
     (setf *watcher-thread* (make-runner-thread *watcher*))
     (schedule-task (make-instance 'watch-task) *watcher*)))
