@@ -16,6 +16,7 @@ var Autobuild = function(){
     
     self.statusIcon = function(status){
         return (status === "created")? "fa-circle-o":
+            (status === "scheduled")? "fa-ellipsis-h":
             (status === "running")? "fa-cog":
             (status === "stopping")? "fa-times":
             (status === "stopped")? "fa-times":

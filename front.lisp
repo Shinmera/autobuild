@@ -113,6 +113,7 @@
     (status-icon
      (case (status build)
        (:created "fa-circle-o")
+       (:scheduled "fa-ellipsis-h")
        (:running "fa-cog")
        ((:stopping :stopped) "fa-times")
        (:completed "fa-check-circle")

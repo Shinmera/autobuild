@@ -74,7 +74,7 @@
 (defmethod task-ready-p ((build build))
   (case (status build)
     ((:running :stopping) NIL)
-    ((:stopped :completed :errored :created) T)))
+    ((:stopped :completed :errored :created :scheduled) T)))
 
 (defun discover-status-from-logfile (logfile)
   (if (not (probe-file logfile))
