@@ -71,7 +71,7 @@ var Autobuild = function(){
             success: function(data){
                 data = data.data;
                 $.each(data, function(commit, data){
-                    var $build = $(".build[data-commit="+commit+"]");
+                    var $build = $(".build[data-project="+project+"][data-commit="+commit+"]");
                     $(".start time", $build).text(self.formatDate(data.start));
                     $(".duration time", $build).text(self.formatDuration(data.duration));
                     if($build.attr("data-status") !== data.status){
