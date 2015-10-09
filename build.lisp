@@ -255,11 +255,17 @@
   ((system :initarg :system :initform NIL :accessor system)
    (operation :initarg :operation :initform :load-op :accessor operation)))
 
-(defmethod initialize-instance :after ((build asdf-build) &key)
+(defun initialize-asdf-build (build)
   (unless (system build)
     (if (project build)
         (setf (system build) (name (project build)))
         (setf (system build) (parse-directory-name (location build))))))
+
+(defmethod initialize-instance :after ((build asdf-build) &key)
+  (initialize-asdf-build build))
+
+(defmethod reinitialize-instance :after ((build asdf-build) &key)
+  (initialize-asdf-build build))
 
 (defmethod perform-build ((build asdf-build))
   (run "sbcl" (list "--disable-debugger"
