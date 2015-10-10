@@ -232,7 +232,23 @@
    (.duration :font-family triplicate monospace
               :white-space nowrap)
    (.start :font-family triplicate monospace
-           :white-space nowrap))
+           :white-space nowrap)
+   ((:or .log .recipe)
+    (textarea
+     :box-sizing border-box
+     :width 100%
+     :min-height 200px))
+   (.recipe
+    (".CodeMirror"
+     :height auto)
+    (".CodeMirror-scroll"
+     :overflow-y hidden
+     :overflow-x auto))
+   (.log
+    (textarea
+     :min-height 500px)
+    (".CodeMirror"
+     :height 800px)))
 
   (:media
    "(max-width:900px)"

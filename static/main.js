@@ -95,15 +95,15 @@ var Autobuild = function(){
             dataType: "json",
             success: function(data){
                 data = data.data;
-                if(data.text === null)return;
+                if(data.text === null || data.text.length == 0)return;
                 
-                var $log = $(".build[data-commit="+commit+"] #log code");
+                var mirror = $(".build[data-commit="+commit+"] .log").data("mirror");
                 if(logPosition == 0){
-                    $log.text(data.text);
+                    mirror.getDoc().setValue(data.text);
                 }else{
-                    $log.text($log.text()+data.text);
+                    mirror.getDoc().replaceRange(data.text, {line: Infinity});
                 }
-                Prism.highlightElement($log[0]);
+                mirror.getDoc().setCursor({line: Infinity});
                 logPosition = data.position;
             }
         });
@@ -156,12 +156,20 @@ var Autobuild = function(){
                     }
                 }
             });
+            $(this).data("mirror",mirror);
         });
     }
 
+    
     self.initLog = function(){
-        $("#log code").each(function(){
-            Prism.highlightElement(this);
+        $(".log").each(function(){
+            var mirror = CodeMirror.fromTextArea($("textarea",this)[0], {
+                mode: "text/plain",
+                lineNumbers: true,
+                lineWrapping: true,
+                readOnly: true
+            });
+            $(this).data("mirror",mirror);
         });
     }
 
