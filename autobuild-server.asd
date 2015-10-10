@@ -18,6 +18,7 @@
                (:file "front"))
   :depends-on (:i-json
                :r-clip
+               :r-pretty-errors
                :autobuild
                :system-load
                :alexandria))
