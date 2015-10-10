@@ -104,6 +104,12 @@
   (print-build-footer build)
   (v:info :autobuild "Build for ~a finished." build))
 
+(defun handle-build-stopped (build)
+  (setf (end build) (get-universal-time))
+  (setf (status build) :stopped)
+  (print-build-footer build)
+  (v:info :autobuild "Build for ~a stopped." build))
+
 (defmethod perform-build :around ((build build))
   (when (location build)
     (v:info :autobuild "Performing build for ~a" build)
@@ -117,14 +123,18 @@
                  (*standard-output* *build-output*))
             (handle-build-start build)
             (multiple-value-prog1
-                (handler-bind ((error (lambda (err) (handle-build-error build err))))
-                  ;; Clean out possible changes from a previous build or something.
-                  (clean build)
-                  ;; Perhaps we need to reload the configuration from file.
-                  ;; Last chance, so do it now.
-                  (maybe-restore build)
-                  ;; Pass over into real build methods.
-                  (call-next-method))
+                (restart-case
+                    (handler-bind ((error (lambda (err) (handle-build-error build err))))
+                      ;; Clean out possible changes from a previous build or something.
+                      (clean build)
+                      ;; Perhaps we need to reload the configuration from file.
+                      ;; Last chance, so do it now.
+                      (maybe-restore build)
+                      ;; Pass over into real build methods.
+                      (call-next-method))
+                  (simple-tasks:stop ()
+                    (handle-build-stopped build)
+                    (invoke-restart 'simple-tasks:stop)))
               (handle-build-complete build))))))))
 
 (defmethod perform-build :before ((build build))
