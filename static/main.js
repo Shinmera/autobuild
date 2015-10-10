@@ -77,6 +77,8 @@ var Autobuild = function(){
                     if($build.attr("data-status") !== data.status){
                         self.notify(project+" build "+commit+" changed status to "+data.status+".");
                         $build.attr("data-status", data.status);
+                        // Cheapo way of doing it.
+                        $(".status",$build).attr("class","status "+data.status);
                         $(".status i", $build).attr("class","fa "+self.statusIcon(data.status))
                             .text(data.status.toUpperCase());
                     }

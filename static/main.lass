@@ -98,7 +98,7 @@
      
      (article.project
       (header
-       (.link
+       (.remote
         :flex-grow 1
         :padding 0 10px 0 10px)
        (.branch
@@ -122,7 +122,7 @@
          (i :font-size 0)
          ((:and i :before)
           :font-size 14pt))
-        (.hash
+        (.commit
          :min-width 100px
          :text-align center)
         (.message
@@ -213,7 +213,7 @@
 
   (.project
    (.name)
-   (.link)
+   (.remote)
    (.branch))
 
   (.build
@@ -226,7 +226,7 @@
    (.status.stopped :color #(stopped))
    (.status.errored :color #(errored))
    (.status.running :color #(running))
-   (.hash :font-family triplicate monospace
+   (.commit :font-family triplicate monospace
           (a :text-decoration none))
    (.message)
    (.duration :font-family triplicate monospace
@@ -246,7 +246,7 @@
       (article.project
        (header
         (.name :flex-grow 1)
-        ((:or .link .branch) :display none))
+        ((:or .remote .branch) :display none))
        (section.builds
         (thead :display none)
         ((:or .actions .duration .start) :display none)))

@@ -137,10 +137,14 @@
               (format NIL "~a..." (subseq message 0 cutoff)))
              (T message))))
     (duration
+     (duration build))
+    (duration-formatted
      (if (duration build)
          (autobuild::format-time (duration build))
          "-"))
     (start
+     (start build))
+    (start-formatted
      (if (start build)
          (autobuild::format-date (start build))
          "-"))
