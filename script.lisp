@@ -75,10 +75,11 @@
                       (T (write-char prev output)
                        (write-char char output))))
                    ((char= char #\\))
+                   ((and skipping (char= char #\ )))
+                   ((and skipping (char= prev #\Return) (char= char #\Newline)))
                    ((or (char= char #\Linefeed)
                         (char= char #\Return))
                     (return))
-                   ((and skipping (char= char #\ )))
                    (T
                     (setf skipping NIL)
                     (write-char char output))))))
