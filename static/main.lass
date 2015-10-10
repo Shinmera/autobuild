@@ -218,12 +218,14 @@
 
   (.build
    (.status
-    :font-size 1.2em
-    (.fa-circle-o :color #(created))
-    (.fa-check-circle :color #(completed))
-    (.fa-times :color #(stopped))
-    (.fa-exclamation-triangle :color #(errored))
-    (.fa-cog :color #(running)))
+    :font-size 1.2em)
+   (.status.created :color #(created))
+   (.status.scheduled :color #(created))
+   (.status.completed :color #(completed))
+   (.status.stopping :color #(stopped))
+   (.status.stopped :color #(stopped))
+   (.status.errored :color #(errored))
+   (.status.running :color #(running))
    (.hash :font-family triplicate monospace
           (a :text-decoration none))
    (.message)

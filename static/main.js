@@ -18,7 +18,7 @@ var Autobuild = function(){
         return (status === "created")? "fa-circle-o":
             (status === "scheduled")? "fa-ellipsis-h":
             (status === "running")? "fa-cog":
-            (status === "stopping")? "fa-times":
+            (status === "stopping")? "fa-ellipsis-h":
             (status === "stopped")? "fa-times":
             (status === "completed")? "fa-check-circle":
             (status === "errored")? "fa-exclamation-triangle":

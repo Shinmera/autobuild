@@ -27,7 +27,7 @@
       <article class="build" lquery="(data :commit commit) (data :project (name project)) (data :status status)">
         <header>
           <h2 class="commit" lquery="(text commit)">Commit</h2>
-          <span class="status">
+          <span class="status" lquery="(add-class status)">
             <i class="fa" lquery="(text status) (add-class status-icon)"></i>
           </span>
           <nav>

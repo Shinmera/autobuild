@@ -115,7 +115,8 @@
        (:created "fa-circle-o")
        (:scheduled "fa-ellipsis-h")
        (:running "fa-cog")
-       ((:stopping :stopped) "fa-times")
+       (:stopping "fa-ellipsis-h")
+       (:stopped "fa-times")
        (:completed "fa-check-circle")
        (:errored "fa-exclamation-triangle")))
     (remote
