@@ -16,7 +16,7 @@
         (m (floor (mod (/ seconds 60) 60)))
         (h (floor (/ seconds (* 60 60)))))
     (format NIL "~:[~d hour~:p~;~*~]~:[ ~d minute~:p~;~*~]~:[ ~d second~:p~;~*~]"
-            (= 0 h) h (= 0 m) m (= 0 s) s)))
+            (= 0 h) h (= 0 m) m (and (= 0 s) (or (/= 0 m) (/= 0 s))) s)))
 
 (defmacro with-open-file-no-remove ((stream pathname &rest options &key &allow-other-keys) &body body)
   `(let ((,stream (open ,pathname ,@options)))

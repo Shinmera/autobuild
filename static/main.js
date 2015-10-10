@@ -32,7 +32,7 @@ var Autobuild = function(){
             var s = duration % 60;
             var m = Math.floor((duration/60)%60);
             var h = Math.floor(duration/(60*60));
-            return ((h==0)?"":h+"hours")+((m==0)?"":" "+m+" minutes")+((s==0)?"":" "+s+" seconds");
+            return ((h==0)?"":h+"hours")+((m==0)?"":" "+m+" minutes")+(((s==0)&&(m!=0||h!=0))?"":" "+s+" seconds");
         }
     }
 
