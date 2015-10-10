@@ -230,13 +230,15 @@
         (delete build (builds (project build)))))
 
 (defclass invalid-build (build)
-  ())
+  ()
+  (:metaclass autobuild-script:script-class))
 
 (defmethod perform-build ((build invalid-build))
   (error "INVALID BUILD! Please specify a proper build type for your project."))
 
 (defclass make-build (build)
-  ((target :initarg :target :initform NIL :accessor target)))
+  ((target :initarg :target :initform NIL :accessor target))
+  (:metaclass autobuild-script:script-class))
 
 (defmethod perform-build ((build make-build))
   (run "make" (when (target build) (list (target build)))
@@ -250,7 +252,8 @@
 
 (defclass asdf-build (build)
   ((system :initarg :system :initform NIL :accessor system)
-   (operation :initarg :operation :initform :load-op :accessor operation)))
+   (operation :initarg :operation :initform :load-op :accessor operation))
+  (:metaclass autobuild-script:script-class))
 
 (defun initialize-asdf-build (build)
   (unless (system build)
@@ -278,7 +281,8 @@
 (defclass function-build (build)
   ((func :initarg :func :accessor func))
   (:default-initargs
-   :func (error "FUNC required.")))
+   :func (error "FUNC required."))
+  (:metaclass autobuild-script:script-class))
 
 (defmethod perform-build ((build function-build))
   (funcall (func build) build))

@@ -164,7 +164,7 @@
   (:documentation "Metaclass for classes with script slots."))
 
 (defmethod c2mop:validate-superclass ((class script-class) (superclass t)) NIL)
-(defmethod c2mop:validate-superclass ((class standard-class) (superclass script-class)) T)
+(defmethod c2mop:validate-superclass ((class standard-class) (superclass script-class)) NIL)
 (defmethod c2mop:validate-superclass ((class script-class) (superclass standard-class)) T)
 (defmethod c2mop:validate-superclass ((class script-class) (superclass script-class)) T)
 
