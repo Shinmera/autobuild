@@ -36,24 +36,29 @@
             <a href="#" title="View on GitHub" lquery="(attr :href remote)"><i class="fa fa-github"></i></a>
           </nav>
         </header>
-        <section class="message long">
-          <h3>Commit Message</h3>
-          <pre lquery="(text message)">
+        <section class="info">
+          <header>
+            <h3>Build Info</h3>
+            <span class="source" lquery="(text location)"></span>
+          </header>
+          <pre class="message long" lquery="(text message)">
 Message
           </pre>
         </section>
         <section class="recipe">
-          <h3>Build Recipe</h3>
-          <span lquery="(text recipe-file)"></span>
           <form method="post" @action="/api/autobuild/project/build/update-recipe">
+            <header>
+              <h3>Build Recipe</h3>
+              <span class="source" lquery="(text recipe-file)"></span>
+              <input type="submit" value="Save" title="Save the recipe to disk" />
+            </header>
             <input type="hidden" name="project" lquery="(val (name project))" />
             <input type="hidden" name="build" lquery="(val commit)" />
             <textarea name="recipe" lquery="(text recipe)"></textarea>
-            <input type="submit" value="Save" />
           </form>
         </section>
         <section class="log">
-          <h3>Build Log</h3>
+          <header><h3>Build Log</h3></header>
           <textarea lquery="(text log-contents)"></textarea>
         </section>
       </article>

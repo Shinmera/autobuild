@@ -21,7 +21,7 @@
         <a class="notifications" title="Toggle update notifications"><i class="fa fa-bell"></i></a>
       </nav>
     </header>
-    <form @action="/api/autobuild/project/add" id="add-project" method="post">
+    <form @action="/api/autobuild/project/add" class="add-project" method="post">
       <input name="name" type="text" placeholder="name" title="Name, automatically determined from remote." />
       <input name="remote" type="url" placeholder="https://github.com/..." title="Remote" required />
       <input name="branch" type="text" placeholder="master" title="Branch" />
@@ -44,14 +44,14 @@
           </nav>
         </header>
         <section class="builds">
-          <div class="header">
+          <header>
             <span class="status">Status</span>
             <span class="commit">Commit</span>
             <span class="message">Message</span>
             <span class="duration">Duration</span>
             <span class="start">Start Date</span>
             <span class="actions"></span>
-          </div>
+          </header>
           <ul iterate="builds">
             <li class="build" lquery="(data :commit commit) (data :project (name project)) (data :status status)">
               <a class="status" href="#" @href='(#?"/project/{0}/build/{1}" (name project) commit)' lquery="(add-class status) (attr :title status)"><i class="fa" lquery="(add-class status-icon)"></i></a>
@@ -67,7 +67,7 @@
               </nav>
             </li>
           </ul>
-          <form @action="/api/autobuild/project/build/add" id="add-build" method="post">
+          <form @action="/api/autobuild/project/build/add" class="add-build" method="post">
             <input type="hidden" name="project" lquery="(val name)" />
             <input type="text" name="commit" placeholder="Commit hash" required />
             <button type="submit"><i class="fa fa-plus-circle"></i></button>

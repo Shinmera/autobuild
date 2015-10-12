@@ -124,6 +124,9 @@
      (format NIL "~a/commit/~a" (remote-url (project build)) (current-commit build)))
     (project
      (project build))
+    (location
+     (uiop:native-namestring
+      (uiop:enough-pathname (location build) *base-project-dir*)))
     (commit
      (current-commit build))
     (short-commit
@@ -154,7 +157,7 @@
      (recipe build))
     (recipe-file
      (uiop:native-namestring
-      (uiop:enough-pathname (discover-recipe build) *base-project-dir*)))))
+      (uiop:enough-pathname (discover-recipe build :default T) *base-project-dir*)))))
 
 (define-page builds #@"/^$" (:lquery (template "projects.ctml"))
   (let ((*package* (find-package :org.shirakumo.autobuild.server)))

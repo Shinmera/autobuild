@@ -64,7 +64,7 @@
      
      (article
       :margin 20px 0 0 0
-      (header
+      (>header
        :display flex
        :align-items center
        :border-left 5px solid #(border)
@@ -81,20 +81,25 @@
       (section
        :background (hex EEEEEE)
 
-       (form
-        :padding 3px
-        ((:or input button)
-         :font-size 12pt
-         :border none
-         :color (hex 151515)
-         :background (hex FFFFFF))
-        ("[type=submit]"
+       (header
+        :background #(header2)
+        :color #(headert)
+        :padding 2px 5px 2px 5px
+        :display flex
+        :align-items center
+        (h3
+         :margin 0
          :font-size 14pt
-         :background none
-         :color (hex AAAAAA)
-         :cursor pointer)
-        ((:and "[type=submit]" :hover)
-         :color #(hover)))))
+         :display inline-block)
+        (>*
+         :margin 0 5px 0 5px)
+        ([type=submit]
+         :margin -2px -5px -2px 0
+         :background #(border)
+         :font-size 14pt)
+        ((:and [type=submit] :hover)
+         :color #(headert) !important
+         :background #(hover)))))
      
      (article.project
       (header
@@ -104,15 +109,12 @@
        (.branch
         :text-align right))
       (section.builds
-       (.header
-        :background #(header2)
-        :color white)
        (ul
         :padding 0
         :margin 0
         :list-style none
         (li :display block))
-       ((:or .header .build)
+       ((:or header .build)
         :display flex
         (>* 
          :padding 2px 3px 2px 3px)
@@ -141,11 +143,10 @@
          :text-align right
          :font-size 12pt
          :white-space nowrap
-         (a :color #(header2))
-         ((:and a :hover) :color #(hover)))))
-      ("#add-build"
+         (a :color #(header2)))))
+      (.add-build
        :display flex
-       ("[type=text]"
+       ([type=text]
         :flex-grow 1
         :box-sizing border-box)))
      
@@ -157,9 +158,16 @@
         ((:and i :before)
          :padding 0 10px 0 0)))
       (section
-       :padding 5px
-       (h3 :margin 0)
-       (pre))))
+       :min-height 100px)
+      (.info
+       (.message
+        :margin 0
+        :padding 10px))
+      ((:or .recipe .info)
+       (.source
+         :flex-grow 1
+         :text-align right))))
+    
     (>footer
      :margin-top 10px
      :text-align center
@@ -177,14 +185,12 @@
     :margin 0 5px 0 5px
     (a
      :margin 5px
-     :color #(headert))
-    ((:and a :hover)
-     :color #(hover))))
+     :color #(headert))))
 
   (a :color #(link))
-  ((:and a :hover)
-   :color #(hover)
-   :text-decoration underline !important)
+  
+  ((:and (:or a [type=submit]) :hover)
+   :color #(hover) !important)
 
   (form
    ((:or input button)
@@ -192,14 +198,20 @@
     :border none
     :color #(headert)
     :background #(header2))
-   ("[type=submit]"
+   (input
+    :padding 1px 3px 1px 3px
+    :border 1px solid transparent)
+   ((:and input :focus)
+    :border 1px solid #(border)
+    :box-shadow 0 0 3px #(border))
+   ((:or [type=submit] button)
     :font-size 14pt
-    :background none
-    :cursor pointer)
-   ((:and "[type=submit]" :hover)
-    :color #(hover)))
+    :cursor pointer
+    :padding 2px
+    ;; Simulate fa-fw
+    (i :width 1.28571429em)))
   
-  ("#add-project"
+  (.add-project
    :margin 10px 10px 0 10px
    :padding 5px
    :border-left 5px solid #(border)
@@ -207,9 +219,10 @@
    :white-space nowrap
    :display flex
    (>* :margin 5px)
-   ("[name=name]" :width 200px)
-   ("[name=remote]" :flex-grow 1)
-   ("[name=branch]" :width 100px))
+   ([name=name] :width 200px)
+   ([name=remote] :flex-grow 1)
+   ([name=branch] :width 100px)
+   ([type=submit] :background none))
 
   (.project
    (.name)
@@ -246,17 +259,17 @@
      :overflow-x auto))
    (.log
     (textarea
-     :min-height 500px)
+     :min-height 700px)
     (".CodeMirror"
-     :height 800px)))
+     :height 700px)))
 
   (:media
    "(max-width:900px)"
    (html
     (body
-     ("#add-project"
+     (.add-project
       :margin 10px 0 0 0
-      ("[name=name]" :display none))
+      ([name=name] :display none))
      (>main
       :margin 0
       (article.project

@@ -56,6 +56,7 @@
    #:status
    #:clean
    ;; Reexport repository API
+   #:location
    #:clone
    #:pull
    #:checkout
