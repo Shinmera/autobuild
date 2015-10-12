@@ -47,66 +47,67 @@ var Autobuild = function(){
         }
     }
 
-    self.updateLoadInfo = function(){
+    self.api = function(url,data,success){
         $.ajax({
-            url: "/api/autobuild/system/load",
+            url: "/api/autobuild/"+url,
+            data: data,
             dataType: "json",
             success: function(data){
-                data = data.data;
-                $(".system-load .cpu .percentage").text(Number(data.cpuUsage.toFixed(2))+"");
-                $(".system-load .cpu .bar div").css("width",data.cpuUsage+"%");
-                $(".system-load .ram .percentage").text(Number(data.ramUsage.toFixed(2))+"");
-                $(".system-load .ram .bar div").css("width",data.ramUsage+"%");
-                $(".system-load .mem .percentage").text(Number(data.memUsage.toFixed(2))+"");
-                $(".system-load .mem .bar div").css("width",data.memUsage+"%");
+                if(data.status !== 200){
+                    self.log("[API] Request to",url,"with",data,"failed:",data.message);
+                    return null;
+                }
+                success(data.data);
             }
         });
     }
 
+    self.updateLoadInfo = function(){
+        self.api("system/load", {},
+                 function(data){
+                     $(".system-load .cpu .percentage").text(Number(data.cpuUsage.toFixed(2))+"");
+                     $(".system-load .cpu .bar div").css("width",data.cpuUsage+"%");
+                     $(".system-load .ram .percentage").text(Number(data.ramUsage.toFixed(2))+"");
+                     $(".system-load .ram .bar div").css("width",data.ramUsage+"%");
+                     $(".system-load .mem .percentage").text(Number(data.memUsage.toFixed(2))+"");
+                     $(".system-load .mem .bar div").css("width",data.memUsage+"%");
+                 });
+    }
+
     self.updateBuildStatus = function(project, hashes){
-        $.ajax({
-            url: "/api/autobuild/project/build",
-            data: {"project": project, "build[]": hashes},
-            dataType: "json",
-            success: function(data){
-                data = data.data;
-                $.each(data, function(commit, data){
-                    var $build = $(".build[data-project="+project+"][data-commit="+commit+"]");
-                    $(".start time", $build).text(self.formatDate(data.start));
-                    $(".duration time", $build).text(self.formatDuration(data.duration));
-                    if($build.attr("data-status") !== data.status){
-                        self.notify(project+" build "+commit+" changed status to "+data.status+".");
-                        $build.attr("data-status", data.status);
-                        // Cheapo way of doing it.
-                        $(".status",$build).attr("class","status "+data.status);
-                        $(".status i", $build).attr("class","fa "+self.statusIcon(data.status))
-                            .text(data.status.toUpperCase());
-                    }
-                });
-            }
-        });
+        self.api("project/build", {"project": project, "build[]": hashes},
+                 function(data){
+                     $.each(data, function(commit, data){
+                         var $build = $(".build[data-project="+project+"][data-commit="+commit+"]");
+                         $(".start time", $build).text(self.formatDate(data.start));
+                         $(".duration time", $build).text(self.formatDuration(data.duration));
+                         if($build.attr("data-status") !== data.status){
+                             self.notify(project+" build "+commit+" changed status to "+data.status+".");
+                             $build.attr("data-status", data.status);
+                             // Cheapo way of doing it.
+                             $(".status",$build).attr("class","status "+data.status);
+                             $(".status i", $build).attr("class","fa "+self.statusIcon(data.status))
+                                 .text(data.status.toUpperCase());
+                         }
+                     });
+                 });
     }
 
     var logPosition = 0;
     self.updateLog = function(project, commit){
-        $.ajax({
-            url: "/api/autobuild/project/build/log",
-            data: {"project": project, "build": commit, "file-position": logPosition},
-            dataType: "json",
-            success: function(data){
-                data = data.data;
-                if(data.text === null || data.text.length == 0)return;
-                
-                var mirror = $(".build[data-commit="+commit+"] .log").data("mirror");
-                if(logPosition == 0){
-                    mirror.getDoc().setValue(data.text);
-                }else{
-                    mirror.getDoc().replaceRange(data.text, {line: Infinity});
-                }
-                mirror.getDoc().setCursor({line: Infinity});
-                logPosition = data.position;
-            }
-        });
+        self.api("project/build/log", {"project": project, "build": commit, "file-position": logPosition},
+                 function(data){
+                     if(data.text === null || data.text.length == 0)return;
+                     
+                     var mirror = $(".build[data-commit="+commit+"] .log").data("mirror");
+                     if(logPosition == 0){
+                         mirror.getDoc().setValue(data.text);
+                     }else{
+                         mirror.getDoc().replaceRange(data.text, {line: Infinity});
+                     }
+                     mirror.getDoc().setCursor({line: Infinity});
+                     logPosition = data.position;
+                 });
     }
 
     self.updateAllStatus = function(){
