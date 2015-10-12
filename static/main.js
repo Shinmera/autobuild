@@ -75,6 +75,7 @@ var Autobuild = function(){
     }
 
     self.updateBuildStatus = function(project, hashes){
+        if(hashes.length == 0)return;
         self.api("project/build", {"project": project, "build[]": hashes},
                  function(data){
                      $.each(data, function(commit, data){
