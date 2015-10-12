@@ -80,8 +80,8 @@ var Autobuild = function(){
                  function(data){
                      $.each(data, function(commit, data){
                          var $build = $(".build[data-project="+project+"][data-commit="+commit+"]");
-                         $(".start time", $build).text(self.formatDate(data.start));
-                         $(".duration time", $build).text(self.formatDuration(data.duration));
+                         $(".start", $build).text(self.formatDate(data.start));
+                         $(".duration", $build).text(self.formatDuration(data.duration));
                          if($build.attr("data-status") !== data.status){
                              self.notify(project+" build "+commit+" changed status to "+data.status+".");
                              $build.attr("data-status", data.status);
