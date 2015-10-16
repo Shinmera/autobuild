@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8"/>
-    <title>Autobuild</title>
+    <title><c:splice lquery="(text (machine-instance))"/> - Autobuild</title>
     <link rel="stylesheet" type="text/css" @href="/static/autobuild-server/main.css" href="../static/main.css" />
     <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
     <meta name="description" content="Autobuild reports" />
@@ -11,7 +11,7 @@
   </head>
   <body>
     <header>
-      <a @href="/" href="#"><h1>Autobuild</h1></a>
+      <a @href="/" href="#"><h1 lquery="(text (machine-instance))">Autobuild</h1></a>
       <div class="system-load">
         <div class="cpu"><label>CPU</label><span class="percentage">0</span><div class="bar"><div style="width:0%"></div></div></div>
         <div class="ram"><label>RAM</label><span class="percentage">0</span><div class="bar"><div style="width:0%"></div></div></div>
@@ -76,7 +76,10 @@
       </article>
     </main>
     <footer>
-      &copy; Shirakumo
+      &copy; Shirakumo -
+      Autobuild <c:splice lquery="(text (asdf:component-version (asdf:find-system :autobuild-server)))"/>
+      running on <c:splice lquery="(text (lisp-implementation-type)))"/><c:splice lquery="(text (lisp-implementation-version))"/> <c:splice lquery="(text (machine-type))"/>
+      @ <c:splice lquery="(text (machine-instance))"/> <c:splice lquery="(text (machine-version))"/>
     </footer>
     <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
     <script type="text/javascript" src="../main.js" @src="/static/autobuild-server/main.js"></script>
