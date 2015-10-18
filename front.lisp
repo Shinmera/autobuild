@@ -8,36 +8,40 @@
 
 (define-api autobuild/project/build/add (project commit) ()
   (let ((project (project project)))
-    (ensure-build project commit :restore :if-newer))
+    (when project
+      (ensure-build project commit :restore :if-newer)))
   (redirect (referer)))
 
 (define-api autobuild/project/build/start (project build) ()
   (let ((build (build build project)))
-    (when (simple-tasks:task-ready-p build)
+    (when (and build (simple-tasks:task-ready-p build))
       (simple-tasks:schedule-task build *builder*)))
   (redirect (referer)))
 
 (define-api autobuild/project/build/stop (project build) ()
   (let ((build (build build project)))
-    (when (eql :running (status build))
+    (when (and build (eql :running (status build)))
       (simple-tasks:interrupt-task build NIL)))
   (redirect (referer)))
 
 (define-api autobuild/project/build/delete (project build) ()
   (let ((build (build build project)))
-    (destroy build))
+    (when build
+      (destroy build)))
   (redirect #@"/"))
 
 (define-api autobuild/project/build/log (project build &optional file-position) ()
-  (multiple-value-bind (text position) (log-contents (build build project)
-                                                     (parse-integer (or* file-position "0") :junk-allowed T))
-    (api-output
-     (alexandria:plist-hash-table
-      `(:text ,text :position ,position)))))
+  (let ((build (build build project))
+        (pos (parse-integer (or* file-position "0") :junk-allowed T)))
+    (when build
+      (multiple-value-bind (text position) (log-contents build pos)
+        (api-output
+         (alexandria:plist-hash-table
+          `(:text ,text :position ,position)))))))
 
 (define-api autobuild/project/build/update-recipe (project build recipe) ()
-  (when recipe
-    (let ((build (build build project)))
+  (let ((build (build build project)))
+    (when (and build recipe)
       (restore build recipe)))
   (redirect (referer)))
 
@@ -46,6 +50,7 @@
    (alexandria:alist-hash-table
     (loop for commit in build[]
           for build = (build commit project)
+          when build
           collect (cons (current-commit build)
                         (alexandria:plist-hash-table
                          `(:status ,(status build)
@@ -56,31 +61,36 @@
 
 (define-api autobuild/project/pull (project) ()
   (let ((project (project project)))
-    (pull project)
-    (ensure-build project (current-commit project)
-                  :restore :if-newer))
+    (when project
+      (pull project)
+      (ensure-build project (current-commit project)
+                    :restore :if-newer)))
   (redirect (referer)))
 
 (define-api autobuild/project/delete (project) ()
   (let ((project (project project)))
-    (destroy project))
+    (when project
+      (destroy project)))
   (redirect (referer)))
 
 (define-api autobuild/project/populate (project) ()
   (let ((project (project project)))
-    (loop for commit in (commits project)
-          for i from 0 below 20
-          do (ensure-build project commit :restore :if-newer)))
+    (when project
+      (loop for commit in (commits project)
+            for i from 0 below 20
+            do (ensure-build project commit :restore :if-newer))))
   (redirect (referer)))
 
 (define-api autobuild/project/clean (project) ()
   (let ((project (project project)))
-    (clean project))
+    (when project
+      (clean project)))
   (redirect (referer)))
 
 (define-api autobuild/project/toggle-watch (project) ()
   (let ((project (project project)))
-    (setf (watch project) (not (watch project))))
+    (when project
+      (setf (watch project) (not (watch project)))))
   (redirect (referer)))
 
 (define-api autobuild/project/add (remote &optional name branch) ()
