@@ -97,7 +97,8 @@
 
 (defgeneric build (id project)
   (:method (id (project project))
-    (find id (builds project) :key #'current-commit :test #'equalp))
+    (find id (builds project) :key #'current-commit
+                              :test (lambda (id hash) (search id hash :test #'char-equal))))
   (:method (id (name T))
     (build id (project name))))
 
