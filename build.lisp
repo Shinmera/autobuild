@@ -80,6 +80,7 @@
 
 (defun handle-build-start (build)
   (setf (start build) (get-universal-time))
+  (setf (end build) NIL)
   (setf (status build) :running)
   (format *build-output* "~&;;;; Autobuild ~a" (status build))
   (format *build-output* "~&;; Started on ~a~%" (format-date (start build)))
