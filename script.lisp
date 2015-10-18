@@ -12,7 +12,7 @@
              :on-non-zero-exit :error))
 
 (defun -> (file contents)
-  (with-open-file (stream (merge-pathnames file (uiop:getcwd))
+  (with-open-file (stream (merge-pathnames file *cwd*)
                           :direction :output
                           :if-exists :supersede
                           :if-does-not-exist :create)
@@ -20,7 +20,7 @@
     (terpri stream)))
 
 (defun >> (file contents)
-  (with-open-file (stream (merge-pathnames file (uiop:getcwd))
+  (with-open-file (stream (merge-pathnames file *cwd*)
                           :direction :output
                           :if-exists :append
                           :if-does-not-exist :create)
@@ -28,7 +28,7 @@
     (terpri stream)))
 
 (defun s/r (file search replace &key (all T) case-insensitive single-line multi-line)
-  (with-open-file (stream (merge-pathnames file (uiop:getcwd))
+  (with-open-file (stream (merge-pathnames file *cwd*)
                           :direction :io
                           :if-exists :supersede
                           :if-does-not-exist :error)
