@@ -88,7 +88,8 @@
 (defun print-build-footer (build)
   (format *build-output* "~&;; Ended on ~a" (format-date (end build)))
   (format *build-output* "~&;; Build took ~a" (format-time (- (end build) (start build))))
-  (format *build-output* "~&;;;; Autobuild ~a" (status build)))
+  (format *build-output* "~&;;;; Autobuild ~a" (status build))
+  (finish-output *build-output*))
 
 (defun handle-build-error (build err)
   (setf (end build) (get-universal-time))
