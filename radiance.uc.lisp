@@ -1,6 +1,7 @@
 {EQL
 :STANDALONE T
 :INTERFACES {EQL
+  :DATABASE "-i-sqlite"
   :USER "-r-simple-users",
   :AUTH "-r-simple-auth",
   :SESSION "-r-simple-sessions",
