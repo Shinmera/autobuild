@@ -102,10 +102,9 @@ var Autobuild = function(){
                      
                      var mirror = $(".build[data-commit="+commit+"] .log").data("mirror");
                      if(logPosition == 0){
-                         mirror.getDoc().setValue(data.text);
-                     }else{
-                         mirror.getDoc().replaceRange(data.text, {line: Infinity});
+                         data.text = data.text.substr(mirror.getDoc().getValue().length);
                      }
+                     mirror.getDoc().replaceRange(data.text, {line: Infinity});
                      mirror.getDoc().setCursor({line: Infinity});
                      logPosition = data.position;
                  });
