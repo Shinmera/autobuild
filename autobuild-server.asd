@@ -16,7 +16,9 @@
   :homepage "https://github.com/Shinmera/autobuild"
   :components ((:file "module")
                (:file "front"))
-  :depends-on (:i-json
+  :depends-on ((:interface :user)
+               (:interface :auth)
+               :i-json
                :r-clip
                :r-pretty-errors
                :autobuild

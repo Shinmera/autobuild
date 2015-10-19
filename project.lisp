@@ -80,6 +80,7 @@
 
 (defgeneric ensure-build (project commit &rest args)
   (:method ((project project) commit &rest args)
+    ;; FIXME: Parallelism issue
     (or (build commit project)
         (let ((dir (build-dir project commit))
               (args (copy-list args)))

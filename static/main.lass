@@ -58,6 +58,21 @@
       :white-space nowrap
       (.active
        :color #(active))))
+
+    (>.message
+     :margin 10px 10px 0 10px
+     :padding 5px
+     :border-left 5px solid #(border)
+     :background #(header)
+     :color #(headert)
+     :font-size 18pt)
+
+    ((:and >.message :before)
+     :display inline-block
+     :padding 5px
+     :color #(errored)
+     :content "\"\\f071\""
+     :font-family "FontAwesome")
     
     (>main
      :margin 0 10px 0 10px

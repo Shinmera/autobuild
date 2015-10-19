@@ -6,31 +6,46 @@
 
 (in-package #:autobuild-server)
 
-(define-api autobuild/project/build/add (project commit) ()
-  (let ((project (project project)))
-    (when project
-      (ensure-build project commit :restore :if-newer)))
-  (redirect (referer)))
+(defmacro define-ab-api (name args opts &body body)
+  `(define-api ,name ,args ,opts
+     (cond ((permitted)
+            (or (progn ,@body)
+                (if (string= (post/get "browser") "true")
+                    (redirect (referer))
+                    (api-output NIL))))
+           (T
+            (if (string= (post/get "browser") "true")
+                (redirect (format NIL "~a?error=Not permitted." (cut-get-part (referer))))
+                (api-output T :status 403 :message "Not permitted."))))))
 
-(define-api autobuild/project/build/start (project build) ()
+(define-ab-api autobuild/project/build/add (project commit) ()
+  (when (permitted)
+    (let ((project (project project)))
+      (when project
+        (ensure-build project commit :restore :if-newer))))
+  NIL)
+
+(define-ab-api autobuild/project/build/start (project build) ()
   (let ((build (build build project)))
     (when (and build (simple-tasks:task-ready-p build))
       (simple-tasks:schedule-task build *builder*)))
-  (redirect (referer)))
+  NIL)
 
-(define-api autobuild/project/build/stop (project build) ()
+(define-ab-api autobuild/project/build/stop (project build) ()
   (let ((build (build build project)))
     (when (and build (eql :running (status build)))
       (simple-tasks:interrupt-task build NIL)))
-  (redirect (referer)))
+  NIL)
 
-(define-api autobuild/project/build/delete (project build) ()
+(define-ab-api autobuild/project/build/delete (project build) ()
   (let ((build (build build project)))
     (when build
       (destroy build)))
-  (redirect #@"/"))
+  (if (string= (post/get "browser") "true")
+      (redirect #@"/")
+      (api-output NIL)))
 
-(define-api autobuild/project/build/log (project build &optional file-position) ()
+(define-ab-api autobuild/project/build/log (project build &optional file-position) ()
   (let ((build (build build project))
         (pos (parse-integer (or* file-position "0") :junk-allowed T)))
     (when build
@@ -39,13 +54,13 @@
          (alexandria:plist-hash-table
           `(:text ,text :position ,position)))))))
 
-(define-api autobuild/project/build/update-recipe (project build recipe) ()
+(define-ab-api autobuild/project/build/update-recipe (project build recipe) ()
   (let ((build (build build project)))
     (when (and build recipe)
       (restore build recipe)))
-  (redirect (referer)))
+  NIL)
 
-(define-api autobuild/project/build (project build[]) ()
+(define-ab-api autobuild/project/build (project build[]) ()
   (api-output
    (alexandria:alist-hash-table
     (loop for commit in build[]
@@ -59,47 +74,47 @@
                            :end ,(end build)
                            :duration ,(duration build))))))))
 
-(define-api autobuild/project/pull (project) ()
+(define-ab-api autobuild/project/pull (project) ()
   (let ((project (project project)))
     (when project
       (pull project)
       (ensure-build project (current-commit project)
                     :restore :if-newer)))
-  (redirect (referer)))
+  NIL)
 
-(define-api autobuild/project/delete (project) ()
+(define-ab-api autobuild/project/delete (project) ()
   (let ((project (project project)))
     (when project
       (destroy project)))
-  (redirect (referer)))
+  NIL)
 
-(define-api autobuild/project/populate (project) ()
+(define-ab-api autobuild/project/populate (project) ()
   (let ((project (project project)))
     (when project
       (loop for commit in (commits project)
             for i from 0 below 20
             do (ensure-build project commit :restore :if-newer))))
-  (redirect (referer)))
+  NIL)
 
-(define-api autobuild/project/clean (project) ()
+(define-ab-api autobuild/project/clean (project) ()
   (let ((project (project project)))
     (when project
       (clean project)))
-  (redirect (referer)))
+  NIL)
 
-(define-api autobuild/project/toggle-watch (project) ()
+(define-ab-api autobuild/project/toggle-watch (project) ()
   (let ((project (project project)))
     (when project
       (setf (watch project) (not (watch project)))))
-  (redirect (referer)))
+  NIL)
 
-(define-api autobuild/project/add (remote &optional name branch) ()
+(define-ab-api autobuild/project/add (remote &optional name branch) ()
   (make-build-project
    (or* name (autobuild::parse-remote-name remote))
    remote :branch (or* branch "master"))
-  (redirect (referer)))
+  NIL)
 
-(define-api autobuild/system/load (&optional sample) ()
+(define-ab-api autobuild/system/load (&optional sample) ()
   (api-output
    (alexandria:plist-hash-table
     `(:cpu-usage ,(cdr (assoc :cpu (system-load:cpu-usages :sample (parse-integer (or* sample "1")))))
@@ -107,6 +122,11 @@
       :mem-usage ,(system-load:mem-usage)
       :mem-total ,(system-load:mem-total)
       :mem-free ,(system-load:mem-free)))))
+
+(defun permitted ()
+  (or (radiance:config-tree :standalone)
+      (let ((user (auth:current)))
+        (and user (user:check user (perm :autobuild :admin))))))
 
 (defmethod clip:clip ((project project) field)
   (ecase field
@@ -185,3 +205,5 @@
 
 (define-trigger radiance:startup ()
   (initialize-autobuild))
+
+(radiance:remove-uri-dispatcher 'radiance:welcome)

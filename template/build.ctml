@@ -22,6 +22,9 @@
         <a class="notifications" title="Toggle update notifications"><i class="fa fa-bell"></i></a>
       </nav>
     </header>
+    <c:when test='(post/get "error")'>
+      <div class="message error" lquery='(text (post/get "error"))'></div>
+    </c:when>
     <main>
       <article class="build" lquery="(data :commit commit) (data :project (name project)) (data :status status)">
         <header>
@@ -30,9 +33,11 @@
             <i class="fa" lquery="(text status) (add-class status-icon)"></i>
           </span>
           <nav>
-            <a href="#" title="Start build" @href='(#?"/api/autobuild/project/build/start?project={0}&build={1}" (name project) commit)'><i class="fa fa-arrow-circle-right"></i></a>
-            <a href="#" title="Stop build" @href='(#?"/api/autobuild/project/build/stop?project={0}&build={1}" (name project) commit)'><i class="fa fa-times-circle"></i></a>
-            <a href="#" title="Delete this build" class="confirm" @href='(#?"/api/autobuild/project/build/delete?project={0}&build={1}" (name project) commit)'><i class="fa fa-trash"></i></a>
+            <c:when test="(permitted)">
+              <a href="#" title="Start build" @href='(#?"/api/autobuild/project/build/start?browser=true&project={0}&build={1}" (name project) commit)'><i class="fa fa-arrow-circle-right"></i></a>
+              <a href="#" title="Stop build" @href='(#?"/api/autobuild/project/build/stop?browser=true&project={0}&build={1}" (name project) commit)'><i class="fa fa-times-circle"></i></a>
+              <a href="#" title="Delete this build" class="confirm" @href='(#?"/api/autobuild/project/build/delete?browser=true&project={0}&build={1}" (name project) commit)'><i class="fa fa-trash"></i></a>
+            </c:when>
             <a href="#" title="View on GitHub" lquery="(attr :href remote)"><i class="fa fa-github"></i></a>
           </nav>
         </header>
@@ -50,8 +55,11 @@ Message
             <header>
               <h3>Build Recipe</h3>
               <span class="source" lquery="(text recipe-file)"></span>
-              <input type="submit" value="Save" title="Save the recipe to disk" />
+              <c:when test="(permitted)">
+                <input type="submit" value="Save" title="Save the recipe to disk" />
+              </c:when>
             </header>
+            <input type="hidden" name="browser" value="true" />
             <input type="hidden" name="project" lquery="(val (name project))" />
             <input type="hidden" name="build" lquery="(val commit)" />
             <textarea name="recipe" lquery="(text recipe)"></textarea>

@@ -21,12 +21,18 @@
         <a class="notifications" title="Toggle update notifications"><i class="fa fa-bell"></i></a>
       </nav>
     </header>
-    <form @action="/api/autobuild/project/add" class="add-project" method="post">
-      <input name="name" type="text" placeholder="name" title="Name, automatically determined from remote." />
-      <input name="remote" type="url" placeholder="https://github.com/..." title="Remote" required />
-      <input name="branch" type="text" placeholder="master" title="Branch" />
-      <button type="submit"><i class="fa fa-plus-circle"></i></button>
-    </form>
+    <c:when test='(post/get "error")'>
+      <div class="message error" lquery='(text (post/get "error"))'></div>
+    </c:when>
+    <c:when test="(permitted)">
+      <form @action="/api/autobuild/project/add" class="add-project" method="post">
+        <input name="browser" type="hidden" value="true" />
+        <input name="name" type="text" placeholder="name" title="Name, automatically determined from remote." />
+        <input name="remote" type="url" placeholder="https://github.com/..." title="Remote" required />
+        <input name="branch" type="text" placeholder="master" title="Branch" />
+        <button type="submit"><i class="fa fa-plus-circle"></i></button>
+      </form>
+    </c:when>
     <main iterate="projects">
       <article class="project" lquery="(data :name name)">
         <header>
@@ -34,13 +40,15 @@
           <a class="remote" href="#" lquery="(text remote) (attr :href remote)">online.com</a>
           <span class="branch" lquery="(text branch)">Branch</span>
           <nav>
-            <a href="#" title="Pull" @href='(#?"/api/autobuild/project/pull?project={0}" name)'><i class="fa fa-download"></i></a>
-            <a href="#" title="Populate builds (create builds for the most recent 20)" class="confirm" @href='(#?"/api/autobuild/project/populate?project={0}" name)'><i class="fa fa-history"></i></a>
-            <a href="#" title="Clean out old builds (delete all but the most recent 5)" class="confirm" @href='(#?"/api/autobuild/project/clean?project={0}" name)'><i class="fa fa-recycle"></i></a>
-            <a href="#" title="Delete this project" class="confirm" @href='(#?"/api/autobuild/project/delete?project={0}" name)'><i class="fa fa-trash"></i></a>
-            <a href="#" title="Start/stop automatic building" @href='(#?"/api/autobuild/project/toggle-watch?project={0}" name)' class="watch" lquery='(add-class (if watch "watching" "not-watching"))'>
-              <i class="fa fa-circle"></i>
-            </a>
+            <c:when test="(permitted)">
+              <a href="#" title="Pull" @href='(#?"/api/autobuild/project/pull?project={0}" name)'><i class="fa fa-download"></i></a>
+              <a href="#" title="Populate builds (create builds for the most recent 20)" class="confirm" @href='(#?"/api/autobuild/project/populate?browser=true&project={0}" name)'><i class="fa fa-history"></i></a>
+              <a href="#" title="Clean out old builds (delete all but the most recent 5)" class="confirm" @href='(#?"/api/autobuild/project/clean?browser=true&project={0}" name)'><i class="fa fa-recycle"></i></a>
+              <a href="#" title="Delete this project" class="confirm" @href='(#?"/api/autobuild/project/delete?browser=true&project={0}" name)'><i class="fa fa-trash"></i></a>
+              <a href="#" title="Start/stop automatic building" @href='(#?"/api/autobuild/project/toggle-watch?browser=true&project={0}" name)' class="watch" lquery='(add-class (if watch "watching" "not-watching"))'>
+                <i class="fa fa-circle"></i>
+              </a>
+            </c:when>
           </nav>
         </header>
         <section class="builds">
@@ -60,18 +68,23 @@
               <time class="duration" lquery="(text duration-formatted) (data :stamp duration)">2:00:14</time>
               <time class="start" lquery="(text start-formatted) (attr :datetime start-formatted) (data :stamp start)">2015.09.27 13:19:38</time>
               <nav class="actions">
-                <a href="#" title="Start build" @href='(#?"/api/autobuild/project/build/start?project={0}&build={1}" (name project) commit)'><i class="fa fa-arrow-circle-right"></i></a>
-                <a href="#" title="Stop build" @href='(#?"/api/autobuild/project/build/stop?project={0}&build={1}" (name project) commit)'><i class="fa fa-times-circle"></i></a>
-                <a href="#" title="Delete this build" class="confirm" @href='(#?"/api/autobuild/project/build/delete?project={0}&build={1}" (name project) commit)'><i class="fa fa-trash"></i></a>
+                <c:when test="(permitted)">
+                  <a href="#" title="Start build" @href='(#?"/api/autobuild/project/build/start?browser=true&project={0}&build={1}" (name project) commit)'><i class="fa fa-arrow-circle-right"></i></a>
+                  <a href="#" title="Stop build" @href='(#?"/api/autobuild/project/build/stop?browser=true&project={0}&build={1}" (name project) commit)'><i class="fa fa-times-circle"></i></a>
+                  <a href="#" title="Delete this build" class="confirm" @href='(#?"/api/autobuild/project/build/delete?browser=true&project={0}&build={1}" (name project) commit)'><i class="fa fa-trash"></i></a>
+                </c:when>
                 <a href="#" title="View on GitHub" lquery="(attr :href remote)"><i class="fa fa-github"></i></a>
               </nav>
             </li>
           </ul>
-          <form @action="/api/autobuild/project/build/add" class="add-build" method="post">
-            <input type="hidden" name="project" lquery="(val name)" />
-            <input type="text" name="commit" placeholder="Commit hash" required />
-            <button type="submit"><i class="fa fa-plus-circle"></i></button>
-          </form>
+          <c:when test="(permitted)">
+            <form @action="/api/autobuild/project/build/add" class="add-build" method="post">
+              <input type="hidden" name="browser" value="true" />
+              <input type="hidden" name="project" lquery="(val name)" />
+              <input type="text" name="commit" placeholder="Commit hash" required />
+              <button type="submit"><i class="fa fa-plus-circle"></i></button>
+            </form>
+          </c:when>
         </section>
       </article>
     </main>

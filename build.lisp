@@ -64,6 +64,7 @@
     ((:stopped :completed :errored :created :scheduled) T)))
 
 (defun discover-status-from-logfile (logfile)
+  ;; FIXME: discover start/end
   (if (not (probe-file logfile))
       :created
       (with-open-file (stream logfile :direction :input)
@@ -83,11 +84,11 @@
   (setf (end build) NIL)
   (setf (status build) :running)
   (format *build-output* "~&;;;; Autobuild ~a" (status build))
-  (format *build-output* "~&;; Started on ~a~%" (format-date (start build)))
+  (format *build-output* "~&;; Started on ~a (~a)~%" (format-date (start build)) (start build))
   (finish-output *build-output*))
 
-(defun print-build-footer (build)
-  (format *build-output* "~&;; Ended on ~a" (format-date (end build)))
+(defun print-build-end (build)
+  (format *build-output* "~&;; Ended on ~a (~a)" (format-date (end build)) (end build))
   (format *build-output* "~&;; Build took ~a" (format-time (- (end build) (start build))))
   (format *build-output* "~&;;;; Autobuild ~a" (status build))
   (finish-output *build-output*))
@@ -97,19 +98,19 @@
   (setf (status build) :errored)
   (format *build-output* "~&;; !! ERROR DURING BUILD~&")
   (dissect:present err *build-output*)
-  (print-build-footer build)
+  (print-build-end build)
   (v:log :error :autobuild err))
 
 (defun handle-build-complete (build)
   (setf (end build) (get-universal-time))
   (setf (status build) :completed)
-  (print-build-footer build)
+  (print-build-end build)
   (v:info :autobuild "Build for ~a finished." build))
 
 (defun handle-build-stopped (build)
   (setf (end build) (get-universal-time))
   (setf (status build) :stopped)
-  (print-build-footer build)
+  (print-build-end build)
   (v:info :autobuild "Build for ~a stopped." build))
 
 (defmethod perform-build :around ((build build))
