@@ -101,7 +101,7 @@
     (find id (builds project) :key #'current-commit
                               :test (lambda (id hash) (search id hash :test #'char-equal))))
   (:method (id (name T))
-    (build id (or (project name) (return-from 'build NIL)))))
+    (build id (or (project name) (return-from build NIL)))))
 
 (defmethod clean ((project project) &key)
   (dolist (build (copy-list (nthcdr 5 (builds project))))
