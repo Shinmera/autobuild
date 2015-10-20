@@ -48,6 +48,10 @@
   (:method :before (thing source)
     (warn 'restore-warning :thing thing :source source)))
 
+(defgeneric name (thing)
+  (:method ((thing null))
+    "NIL"))
+
 (defun read-stream-to-string (stream)
   (with-output-to-string (output)
     (let ((buffer (make-array 4096 :element-type 'character)))
