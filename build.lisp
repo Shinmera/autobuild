@@ -137,8 +137,9 @@
                       (call-next-method))
                   (simple-tasks:stop ()
                     (handle-build-stopped build)
-                    (when (find-restart 'simple-tasks:stop)
-                      (invoke-restart 'simple-tasks:stop))))
+                    (if (find-restart 'simple-tasks:stop)
+                        (invoke-restart 'simple-tasks:stop)
+                        (abort))))
               (handle-build-complete build))))))))
 
 (defmethod perform-build :before ((build build))
