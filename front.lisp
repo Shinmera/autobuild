@@ -184,9 +184,9 @@
     (end
      (end build))
     (end-formatted
-     (if (end build)
-         (autobuild::format-date (end build))
-         "-"))
+     (case (end build)
+       ((NIL T) "-")
+       (T (autobuild::format-date (end build)))))
     (committed
      (legit:current-age build))
     (committed-formatted
