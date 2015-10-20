@@ -29,7 +29,10 @@
   (when (and (project build) (not (location build)))
     (setf (location build) (location (project build))))
   (setf (logfile build) (merge-pathnames (logfile build) (location build)))
-  (setf (status build) (discover-status-from-logfile (logfile build)))
+  (multiple-value-bind (status start end) (discover-state-from-logfile (logfile build))
+    (setf (status build) status)
+    (setf (start build) start)
+    (setf (end build) end))
   (ecase (restore-behaviour build)
     (:never)
     (:always
@@ -63,19 +66,23 @@
     ((:running :stopping) NIL)
     ((:stopped :completed :errored :created :scheduled) T)))
 
-(defun discover-status-from-logfile (logfile)
-  ;; FIXME: discover start/end
-  (if (not (probe-file logfile))
-      :created
+(defun discover-state-from-logfile (logfile)
+  (let ((status :created)
+        (start NIL)
+        (end NIL))
+    (when (probe-file logfile)
       (with-open-file (stream logfile :direction :input)
         (loop for line = (read-line stream NIL NIL)
               while line
-              do (when (search ";;;; Autobuild" line)
-                   (cond ((search "ERRORED" line)
-                          (return :errored))
-                         ((search "COMPLETED" line)
-                          (return :completed))))
-              finally (return :stopped)))))
+              do (or (cl-ppcre:register-groups-bind (name) (";;;; Autobuild ([A-Z]+)" line)
+                       (let ((symb (find-symbol name :keyword)))
+                         (when symb (setf status symb))))
+                     (cl-ppcre:register-groups-bind (code) (";; Started on .*? \\(([0-9]+)\\)" line)
+                       (setf start (parse-integer code :junk-allowed T)))
+                     (cl-ppcre:register-groups-bind (code) (";; Ended on .*? \\(([0-9]+)\\)" line)
+                       (setf end (parse-integer code :junk-allowed T))))
+              finally (return :stopped))))
+    (values status start end)))
 
 (defgeneric perform-build (build))
 
