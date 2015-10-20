@@ -181,6 +181,16 @@
      (if (start build)
          (autobuild::format-date (start build))
          "-"))
+    (end
+     (end build))
+    (end-formatted
+     (if (end build)
+         (autobuild::format-date (end build))
+         "-"))
+    (committed
+     (legit:current-age build))
+    (committed-formatted
+     (autobuild::format-date (legit:current-age build)))
     (log-contents
      (log-contents build))
     (recipe

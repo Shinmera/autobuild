@@ -46,9 +46,14 @@
             <h3>Build Info</h3>
             <span class="source" lquery="(text location)"></span>
           </header>
-          <pre class="message long" lquery="(text message)">
-Message
-          </pre>
+          <dl>
+            <dt>Build Start:</dt><dd><time class="start" lquery="(text start-formatted) (attr :datetime start-formatted) (data :stamp start)">2015.09.27 13:19:38</time></dd>
+            <dt>Build End:</dt><dd><time class="end" lquery="(text end-formatted) (attr :datetime end-formatted) (data :stamp end)">2015.09.27 13:19:38</time></dd>
+            <dt>Build Duration:</dt><dd><time class="duration" lquery="(text duration-formatted) (data :stamp duration)">2:00:14</time></dd>
+            <br/>
+            <dt>Commit Time:</dt><dd><time class="committed" lquery="(text committed-formatted) (attr :datetime committed-formatted) (data :stamp committed)">2015.09.27 13:19:38</time></dd>
+            <dt>Commit Message:</dt><dd><p class="message long" lquery="(text message)">Message</p></dd>
+          </dl>
         </section>
         <section class="recipe">
           <form method="post" @action="/api/autobuild/project/build/update-recipe">

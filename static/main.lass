@@ -86,7 +86,6 @@
        (h2
         :margin 0
         :display inline-block
-        :min-width 200px
         :overflow hidden
         :text-overflow ellipsis)
        (nav
@@ -175,13 +174,20 @@
       (section
        :min-height 100px)
       (.info
-       (.message
-        :margin 0
-        :padding 10px))
+       :font-size 12pt
+       (dl :padding 0 10px 10px 10px
+           :display flex
+           :flex-wrap wrap
+           (br :width 100% :height 20px :content "\" \"")
+           (dt :white-space nowrap :width 15% :max-width 200px :font-weight bold)
+           (dd :flex-grow 1 :width 80%)))
       ((:or .recipe .info)
        (.source
          :flex-grow 1
-         :text-align right))))
+         :text-align right
+         :overflow hidden
+         :white-space nowrap
+         :text-overflow ellipsis))))
     
     (>footer
      :margin-top 10px
@@ -201,6 +207,9 @@
     (a
      :margin 5px
      :color #(headert))))
+
+  (time :font-family triplicate monospace
+        :white-space nowrap)
 
   (a :color #(link))
   
@@ -255,12 +264,10 @@
    (.status.errored :color #(errored))
    (.status.running :color #(running))
    (.commit :font-family triplicate monospace
-          (a :text-decoration none))
+            (a :text-decoration none))
    (.message)
-   (.duration :font-family triplicate monospace
-              :white-space nowrap)
-   (.start :font-family triplicate monospace
-           :white-space nowrap)
+   (.duration)
+   (.start)
    ((:or .log .recipe)
     (textarea
      :box-sizing border-box
