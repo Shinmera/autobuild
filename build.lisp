@@ -76,7 +76,7 @@
               while line
               do (or (cl-ppcre:register-groups-bind (name) (";;;; Autobuild ([A-Z]+)" line)
                        (let ((symb (find-symbol name :keyword)))
-                         (when symb (setf status symb))))
+                         (when (and symb (not (eql symb :running))) (setf status symb))))
                      (cl-ppcre:register-groups-bind (code) (";; Started on .*? \\(([0-9]+)\\)" line)
                        (setf start (parse-integer code :junk-allowed T)))
                      (cl-ppcre:register-groups-bind (code) (";; Ended on .*? \\(([0-9]+)\\)" line)
