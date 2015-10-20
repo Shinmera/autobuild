@@ -88,7 +88,7 @@
 
 (defun handle-build-start (build)
   (setf (start build) (get-universal-time))
-  (setf (end build) NIL)
+  (setf (end build) T)
   (setf (status build) :running)
   (format *build-output* "~&;;;; Autobuild ~a" (status build))
   (format *build-output* "~&;; Started on ~a (~a)~%" (format-date (start build)) (start build))
@@ -162,8 +162,8 @@
 
 (defgeneric duration (build)
   (:method ((build build))
-    (when (start build)
-      (- (or (end build) (get-universal-time)) (start build)))))
+    (when (and (start build) (end build))
+      (- (if (eql (end build) T) (get-universal-time) (end build)) (start build)))))
 
 (defgeneric log-contents (build &optional file-position)
   (:method ((build build) &optional file-position)
