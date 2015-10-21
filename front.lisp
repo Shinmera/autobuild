@@ -191,8 +191,8 @@
      (legit:current-age build))
     (committed-formatted
      (autobuild::format-date (legit:current-age build)))
-    (log-contents
-     (log-contents build))
+    (log-data
+     (multiple-value-list (log-contents build)))
     (recipe
      (recipe build))
     (recipe-file
@@ -217,3 +217,4 @@
   (initialize-autobuild))
 
 (radiance:remove-uri-dispatcher 'radiance:welcome)
+(user:add-default-permission (perm :autobuild :admin))

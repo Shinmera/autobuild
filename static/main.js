@@ -58,6 +58,9 @@ var Autobuild = function(){
                     return null;
                 }
                 success(data.data);
+            },
+            error: function(){
+                self.log("[API][Error] Request to",url,"with",data,"failed.");
             }
         });
     }
@@ -94,7 +97,7 @@ var Autobuild = function(){
                  });
     }
 
-    var logPosition = 0;
+    var logPosition = parseInt($(".build .log input[name=log-position]").val() || "0");
     self.updateLog = function(project, commit){
         self.api("project/build/log", {"project": project, "build": commit, "file-position": logPosition},
                  function(data){

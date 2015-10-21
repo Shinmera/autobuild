@@ -72,7 +72,10 @@
         </section>
         <section class="log">
           <header><h3>Build Log</h3></header>
-          <textarea lquery="(text log-contents)"></textarea>
+          <c:let data="log-data">
+            <textarea lquery="(text (first data))"></textarea>
+            <input type="hidden" name="log-position" lquery="(val (second data))" />
+          </c:let>
         </section>
       </article>
     </main>
