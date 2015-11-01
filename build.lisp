@@ -46,10 +46,8 @@
        (loop for (key val) on script by #'cddr
              do (when (getf initargs key)
                   (remf script val)))
-       (when script
-         (if type
-             (apply #'change-class build type script)
-             (apply #'reinitialize-instance build script)))))))
+       (cond (type (apply #'change-class build type script))
+             (script (apply #'reinitialize-instance build script)))))))
 
 (defmethod print-object ((build build) stream)
   (print-unreadable-object (build stream :type T)
