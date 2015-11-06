@@ -31,16 +31,17 @@
    #:logfile
    #:status
    #:project
-   #:start
-   #:end
+   #:stages
+   #:stage-order
+   #:current-stage
    #:perform-build
-   #:duration
-   #:invalid-build
-   #:make-build
-   #:asdf-build
+   #:perform-stage
+   #:find-stage
+   #:stage
    #:log-contents
    #:discover-recipe
-   #:recipe)
+   #:recipe
+   #:coerce-build)
   ;; project.lisp
   (:export
    #:*base-project-dir*
@@ -50,12 +51,21 @@
    #:watch
    #:scan-for-builds
    #:build-dir
-   #:coerce-build
    #:ensure-build
    #:build
    #:status
-   #:clean
-   ;; Reexport repository API
+   #:clean)
+  ;; stage.lisp
+  (:export
+   #:timed-task
+   #:start
+   #:end
+   #:duration
+   #:stage
+   #:name
+   #:script)
+  ;; Reexport repository API
+  (:export
    #:location
    #:clone
    #:pull

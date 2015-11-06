@@ -29,7 +29,7 @@
       <article class="build" lquery="(data :commit commit) (data :project (name project)) (data :status status)">
         <header>
           <h2 class="commit" lquery="(text commit)">Commit</h2>
-          <span class="status" lquery="(add-class status)">
+          <span class="status" lquery="(add-class (string-downcase status))">
             <i class="fa" lquery="(text status) (add-class status-icon)"></i>
           </span>
           <nav>
@@ -47,9 +47,15 @@
             <span class="source" lquery="(text location)"></span>
           </header>
           <dl>
-            <dt>Build Start:</dt><dd><time class="start" lquery="(text start-formatted) (attr :datetime start-formatted) (data :stamp start)">2015.09.27 13:19:38</time></dd>
-            <dt>Build End:</dt><dd><time class="end" lquery="(text end-formatted) (attr :datetime end-formatted) (data :stamp end)">2015.09.27 13:19:38</time></dd>
-            <dt>Build Duration:</dt><dd><time class="duration" lquery="(text duration-formatted) (data :stamp duration)">2:00:14</time></dd>
+            <dt class="build">Build Start:</dt><dd><time class="start" lquery="(text start-formatted) (attr :datetime start-formatted) (data :stamp start)">2015.09.27 13:19:38</time></dd>
+            <dt class="build">Build End:</dt><dd><time class="end" lquery="(text end-formatted) (attr :datetime end-formatted) (data :stamp end)">2015.09.27 13:19:38</time></dd>
+            <dt class="build">Build Duration:</dt><dd><time class="duration" lquery="(text duration-formatted) (data :stamp duration)">2:00:14</time></dd>
+            <c:splice-inner iterate="stages">
+              <div>
+                <dt class="stage" lquery='(add-class (string-downcase name)) (text (format nil "~a Duration:" name))'>STAGE</dt>
+                <dd><time class="duration" lquery="(text duration-formatted) (data :stamp duration)"></time></dd>
+              </div>
+            </c:splice-inner>
             <br/>
             <dt>Commit Time:</dt><dd><time class="committed" lquery="(text committed-formatted) (attr :datetime committed-formatted) (data :stamp committed)">2015.09.27 13:19:38</time></dd>
             <dt>Commit Message:</dt><dd><p class="message long" lquery="(text message)">Message</p></dd>

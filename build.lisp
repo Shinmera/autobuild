@@ -8,24 +8,26 @@
 
 (defvar *build-output*)
 
-(defclass build (repository task)
+(defclass build (repository timed-task runner)
   ((logfile :initarg :logfile :accessor logfile)
    (project :initarg :project :accessor project)
    (restore-behaviour :initarg :restore :accessor restore-behaviour)
-   (start :initform NIL :accessor start)
-   (end :initform NIL :accessor end)
+   (stages :initform NIL :accessor stages)
+   (stage-order :initarg :stage-order :accessor stage-order)
    (prev-timestamp :initform NIL :accessor prev-timestamp)
-   (pre-build-func :initarg :pre-build :accessor pre-build-func :script T)
-   (build-func :initarg :build :accessor build-func :script T)
-   (post-build-func :initarg :post-build :accessor post-build-func :script T)
-   (clean-func :initarg :clean :accessor clean-func :script T))
+   (current-stage :initform NIL :accessor current-stage))
   (:default-initargs
    :logfile "autobuild.log"
    :project NIL
-   :restore :never)
-  (:metaclass autobuild-script:script-class))
+   :restore :never
+   :stages NIL
+   :stage-order NIL))
 
-(defmethod initialize-instance :after ((build build) &rest initargs)
+(defmethod reinitialize-instance :after ((build build) &key (stages NIL s-p) &allow-other-keys)
+  (when s-p (setf (stages build) stages)))
+
+(defmethod initialize-instance :after ((build build) &rest initargs &key stages)
+  (declare (ignore stages))
   (when (and (project build) (not (location build)))
     (setf (location build) (location (project build))))
   (setf (logfile build) (merge-pathnames (logfile build) (location build)))
@@ -34,7 +36,7 @@
     (setf (start build) start)
     (setf (end build) end))
   (ecase (restore-behaviour build)
-    (:never)
+    (:never (when s-p (setf (stages build) stages)))
     (:always
      (restore build NIL))
     (:if-newer
@@ -53,11 +55,15 @@
   (print-unreadable-object (build stream :type T)
     (format stream "~s ~s ~s" (status build) :commit (current-commit build))))
 
+(defmethod (setf stages) (stages (build build))
+  (setf (slot-value build 'stages)
+        (loop for (key val) on stages by #'cddr
+              collect key collect (typecase val
+                                    (stage val)
+                                    (T (make-instance 'stage :name key :script val))))))
+
 (defmethod run-task ((build build))
-  (unwind-protect
-       (perform-build build)
-    ;; Reset runner to allow rescheduling
-    (setf (runner build) NIL)))
+  (perform-build build))
 
 (defmethod task-ready-p ((build build))
   (case (status build)
@@ -72,12 +78,12 @@
       (with-open-file (stream logfile :direction :input)
         (loop for line = (read-line stream NIL NIL)
               while line
-              do (or (cl-ppcre:register-groups-bind (name) ("^;;;; Autobuild ([A-Z]+)" line)
+              do (or (cl-ppcre:register-groups-bind (name) ("^;{4,} Autobuild ([A-Z]+)" line)
                        (let ((symb (find-symbol name :keyword)))
                          (when (and symb (not (eql symb :running))) (setf status symb))))
-                     (cl-ppcre:register-groups-bind (code) ("^;; Started on .*? \\(([0-9]+)\\)" line)
+                     (cl-ppcre:register-groups-bind (code) ("^;{2,} Started on .*? \\(([0-9]+)\\)" line)
                        (setf start (parse-integer code :junk-allowed T)))
-                     (cl-ppcre:register-groups-bind (code) ("^;; Ended on .*? \\(([0-9]+)\\)" line)
+                     (cl-ppcre:register-groups-bind (code) ("^;{2,} Ended on .*? \\(([0-9]+)\\)" line)
                        (setf end (parse-integer code :junk-allowed T))))
               finally (return :stopped))))
     (values status start end)))
@@ -89,19 +95,19 @@
   (setf (end build) T)
   (setf (status build) :running)
   (format *build-output* "~&;;;; Autobuild ~a" (status build))
-  (format *build-output* "~&;; Started on ~a (~a)~%" (format-date (start build)) (start build))
+  (format *build-output* "~&;;; Started on ~a (~a)~%" (format-date (start build)) (start build))
   (finish-output *build-output*))
 
 (defun print-build-end (build)
-  (format *build-output* "~&;; Ended on ~a (~a)" (format-date (end build)) (end build))
-  (format *build-output* "~&;; Build took ~a" (format-time (- (end build) (start build))))
+  (format *build-output* "~&;;; Ended on ~a (~a)" (format-date (end build)) (end build))
+  (format *build-output* "~&;;; Build took ~a" (format-time (- (end build) (start build))))
   (format *build-output* "~&;;;; Autobuild ~a" (status build))
   (finish-output *build-output*))
 
 (defun handle-build-error (build err)
   (setf (end build) (get-universal-time))
   (setf (status build) :errored)
-  (format *build-output* "~&;; !! ERROR DURING BUILD~&")
+  (format *build-output* "~&;;; !! ERROR DURING BUILD~&")
   (dissect:present err *build-output*)
   (print-build-end build)
   (v:log :error :autobuild err))
@@ -133,8 +139,6 @@
             (multiple-value-prog1
                 (restart-case
                     (handler-bind ((error (lambda (err) (handle-build-error build err))))
-                      ;; Clean out possible changes from a previous build or something.
-                      (clean build)
                       ;; Perhaps we need to reload the configuration from file.
                       ;; Last chance, so do it now.
                       (maybe-restore build)
@@ -147,21 +151,39 @@
                         (abort))))
               (handle-build-complete build))))))))
 
-(defmethod perform-build :before ((build build))
-  (when (pre-build-func build)
-    (funcall (pre-build-func build))))
-
 (defmethod perform-build ((build build))
-  (funcall (build-func build)))
+  ;; First we iterate and find the stages to make sure about two things
+  ;; 1) that the stages are all cached, as method stages need to be recreated
+  ;; 2) that we don't run into "surprise!! no such stage!!" sometime down the build.
+  (dolist (stage (stage-order build))
+    (find-stage stage build))
+  (dolist (stage (stage-order build))
+    (perform-stage stage build)))
 
-(defmethod perform-build :after ((build build))
-  (when (post-build-func build)
-    (funcall (post-build-func build))))
+(defmethod schedule-task :around ((stage stage) (build build))
+  (setf (current-stage build) stage)
+  (unwind-protect
+       (call-next-method)
+    (setf (current-stage build) NIL)))
 
-(defgeneric duration (build)
-  (:method ((build build))
-    (when (and (start build) (end build))
-      (- (if (eql (end build) T) (get-universal-time) (end build)) (start build)))))
+(defgeneric perform-stage (stage build)
+  (:method (name (build build))
+    (perform-stage (find-stage name build) build))
+  (:method ((stage stage) (build build))
+    (schedule-task stage build)))
+
+(defgeneric find-stage (name build)
+  (:method ((stage stage) build)
+    stage)
+  (:method (name (build build))
+    (or (getf (stages build) name)
+        ;; Find method and cache it.
+        (and (find-method #'stage () (list name build) NIL)
+             (setf (getf (stages build) name)
+                   (make-instance 'stage :name name :script (lambda () (stage name build)))))
+        (error "No stage named ~s found for build ~a." name build))))
+
+(defgeneric stage (identifier build))
 
 (defgeneric log-contents (build &optional file-position)
   (:method ((build build) &optional file-position)
@@ -225,10 +247,6 @@
               (apply #'change-class build type data))
         (setf (prev-timestamp build) (get-universal-time))))))
 
-(defmethod clean ((build build) &key)
-  (when (clean-func build)
-    (funcall (clean-func build))))
-
 (defmethod destroy :before ((build build))
   (when (eql :running (status build))
     (interrupt-task build NIL)))
@@ -238,64 +256,6 @@
   (setf (location build) NIL)
   (setf (builds (project build))
         (delete build (builds (project build)))))
-
-(defclass invalid-build (build)
-  ()
-  (:metaclass autobuild-script:script-class))
-
-(defmethod perform-build ((build invalid-build))
-  (error "INVALID BUILD! Please specify a proper build type for your project."))
-
-(defclass make-build (build)
-  ((target :initarg :target :initform NIL :accessor target))
-  (:metaclass autobuild-script:script-class))
-
-(defmethod perform-build ((build make-build))
-  (run "make" (when (target build) (list (target build)))
-       :output *build-output* :error *build-output* :on-non-zero-exit :error))
-
-(defmethod clean ((build make-build) &key)
-  (if (clean-func build)
-      (funcall (clean-func build))
-      (run "make" (list "clean")
-           :output *build-output* :error *build-output* :on-non-zero-exit :error)))
-
-(defclass asdf-build (build)
-  ((system :initarg :system :initform NIL :accessor system)
-   (operation :initarg :operation :initform :load-op :accessor operation))
-  (:metaclass autobuild-script:script-class))
-
-(defun initialize-asdf-build (build)
-  (unless (system build)
-    (if (project build)
-        (setf (system build) (name (project build)))
-        (setf (system build) (parse-directory-name (location build))))))
-
-(defmethod initialize-instance :after ((build asdf-build) &key)
-  (initialize-asdf-build build))
-
-(defmethod reinitialize-instance :after ((build asdf-build) &key)
-  (initialize-asdf-build build))
-
-(defmethod perform-build ((build asdf-build))
-  (run "sbcl" (list "--disable-debugger"
-                    "--eval"
-                    (format NIL "(push ~s asdf:*central-registry*)" (location build))
-                    "--eval"
-                    (format NIL "(asdf:operate ~s (asdf:find-system ~s T) :verbose T :force T)"
-                            (operation build) (system build))
-                    "--eval"
-                    (format NIL "(sb-ext:exit)"))
-       :output *build-output* :error *build-output* :on-non-zero-exit :error))
-
-(defclass function-build (build)
-  ((func :initarg :func :accessor func))
-  (:default-initargs
-   :func (error "FUNC required."))
-  (:metaclass autobuild-script:script-class))
-
-(defmethod perform-build ((build function-build))
-  (funcall (func build) build))
 
 (defgeneric coerce-build (thing &rest args)
   (:method ((script list) &rest args)

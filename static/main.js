@@ -83,8 +83,17 @@ var Autobuild = function(){
                  function(data){
                      $.each(data, function(commit, data){
                          var $build = $(".build[data-project="+project+"][data-commit="+commit+"]");
-                         $(".start", $build).text(self.formatDate(data.start));
-                         $(".duration", $build).text(self.formatDuration(data.duration));
+                         if($build[0].tagName == "article"){
+                             $(".build+dd .start", $build).text(self.formatDate(data.start));
+                             $(".build+dd .end", $build).text(self.formatDate(data.end));
+                             $(".build+dd .duration", $build).text(self.formatDuration(data.duration));
+                             $.each(data.stages, function(name, data){
+                                 $(".stage."+name+"+dd .duration").text(self.formatDuration(data.duration));
+                             });
+                         }else{
+                             $(".start", $build).text(self.formatDate(data.start));
+                             $(".duration", $build).text(self.formatDuration(data.duration));
+                         }                             
                          if($build.attr("data-status") !== data.status){
                              self.notify(project+" build "+commit+" changed status to "+data.status+".");
                              $build.attr("data-status", data.status);

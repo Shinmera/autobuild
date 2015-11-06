@@ -72,7 +72,16 @@
                            :message ,(current-message build)
                            :start ,(start build)
                            :end ,(end build)
-                           :duration ,(duration build))))))))
+                           :duration ,(duration build)
+                           :stages ,(loop with table = (make-hash-table)
+                                          for (name stage) on (stages build) by #'cddr
+                                          do (setf (gethash (string-downcase name) table)
+                                                   (alexandria:plist-hash-table
+                                                    `(:status ,(status stage)
+                                                      :start ,(start stage)
+                                                      :end ,(end stage)
+                                                      :duration ,(duration stage))))
+                                          finally (return table)))))))))
 
 (define-ab-api autobuild/project/pull (project) ()
   (let ((project (project project)))
@@ -128,18 +137,61 @@
       (let ((user (auth:current)))
         (and user (user:check user (perm :autobuild :admin))))))
 
+(defmethod clip:clip ((timed-task timed-task) field)
+  (case field
+    (duration
+     (duration timed-task))
+    (duration-formatted
+     (if (duration timed-task)
+         (autobuild::format-time (duration timed-task))
+         "-"))
+    (start
+     (start timed-task))
+    (start-formatted
+     (if (start timed-task)
+         (autobuild::format-date (start timed-task))
+         "-"))
+    (end
+     (end timed-task))
+    (end-formatted
+     (case (end timed-task)
+       ((NIL T) "-")
+       (T (autobuild::format-date (end timed-task)))))
+    (T (call-next-method))))
+
+(defmethod clip:clip ((repository legit:repository) field)
+  (case field
+    (remote (remote-url repository))
+    (branch (current-branch repository))
+    (commit
+     (current-commit repository))
+    (short-commit
+     (current-commit repository :short T))
+    (message
+     (current-message repository))
+    (short-message
+     (let* ((message (current-message repository))
+            (cutoff (min 80 (or (position #\Newline message) 80))))
+       (cond ((< cutoff (length message))
+              (format NIL "~a..." (subseq message 0 cutoff)))
+             (T message))))
+    (committed
+     (legit:current-age repository))
+    (committed-formatted
+     (autobuild::format-date (legit:current-age repository)))
+    (T (call-next-method))))
+
 (defmethod clip:clip ((project project) field)
-  (ecase field
+  (case field
     (name (name project))
-    (remote (remote-url project))
-    (branch (current-branch project))
     (watch (watch project))
-    (builds (builds project))))
+    (builds (builds project))
+    (T (call-next-method))))
 
 (defmethod clip:clip ((build build) field)
-  (ecase field
+  (case field
     (status
-     (string-downcase (status build)))
+     (status build))
     (status-icon
      (case (status build)
        (:created "fa-circle-o")
@@ -156,48 +208,23 @@
      (project build))
     (location
      (uiop:native-namestring
-      (uiop:enough-pathname (location build) *base-project-dir*)))
-    (commit
-     (current-commit build))
-    (short-commit
-     (current-commit build :short T))
-    (message
-     (current-message build))
-    (short-message
-     (let* ((message (current-message build))
-            (cutoff (min 80 (or (position #\Newline message) 80))))
-       (cond ((< cutoff (length message))
-              (format NIL "~a..." (subseq message 0 cutoff)))
-             (T message))))
-    (duration
-     (duration build))
-    (duration-formatted
-     (if (duration build)
-         (autobuild::format-time (duration build))
-         "-"))
-    (start
-     (start build))
-    (start-formatted
-     (if (start build)
-         (autobuild::format-date (start build))
-         "-"))
-    (end
-     (end build))
-    (end-formatted
-     (case (end build)
-       ((NIL T) "-")
-       (T (autobuild::format-date (end build)))))
-    (committed
-     (legit:current-age build))
-    (committed-formatted
-     (autobuild::format-date (legit:current-age build)))
+      (uiop:enough-pathname (location build) *base-project-dir*)))    
     (log-data
      (multiple-value-list (log-contents build)))
     (recipe
      (recipe build))
     (recipe-file
      (uiop:native-namestring
-      (uiop:enough-pathname (discover-recipe build :default T) *base-project-dir*)))))
+      (uiop:enough-pathname (discover-recipe build :default T) *base-project-dir*)))
+    (stages
+     (loop for (key val) on (stages build) by #'cddr collect val))
+    (T (call-next-method))))
+
+(defmethod clip:clip ((stage stage) field)
+  (case field
+    (name
+     (name stage))
+    (T (call-next-method))))
 
 (define-page builds #@"/^$" (:lquery (template "projects.ctml"))
   (let ((*package* (find-package :org.shirakumo.autobuild.server)))
