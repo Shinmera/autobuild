@@ -64,6 +64,14 @@
    #:stage
    #:name
    #:script)
+  ;; standard-builds.lisp
+  (:export
+   #:invalid-build
+   #:make-build
+   #:target
+   #:asdf-build
+   #:system
+   #:operation)
   ;; Reexport repository API
   (:export
    #:location
