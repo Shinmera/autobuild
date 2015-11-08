@@ -7,7 +7,7 @@
 (in-package #:modularize-user)
 (define-module #:autobuild-server
   (:nicknames #:org.shirakumo.autobuild.server)
-  (:shadowing-import-from #:autobuild #:remote #:name)
+  (:shadowing-import-from #:autobuild #:remote #:name #:target)
   (:use #:cl #:radiance #:autobuild)
   (:export)
   (:domain "autobuild"))

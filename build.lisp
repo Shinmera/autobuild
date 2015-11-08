@@ -12,7 +12,7 @@
   ((logfile :initarg :logfile :accessor logfile)
    (project :initarg :project :accessor project)
    (restore-behaviour :initarg :restore :accessor restore-behaviour)
-   (stages :initform NIL :accessor stages)
+   (stages :initarg :stages :accessor stages)
    (stage-order :initarg :stage-order :accessor stage-order)
    (prev-timestamp :initform NIL :accessor prev-timestamp)
    (current-stage :initform NIL :accessor current-stage))
@@ -24,6 +24,9 @@
    :stage-order NIL))
 
 (defmethod reinitialize-instance :after ((build build) &key (stages NIL s-p) &allow-other-keys)
+  (when s-p (setf (stages build) stages)))
+
+(defmethod update-instance-for-different-class :after (prev (build build) &key (stages NIL s-p) &allow-other-keys)
   (when s-p (setf (stages build) stages)))
 
 (defmethod initialize-instance :after ((build build) &rest initargs &key stages)
@@ -178,7 +181,7 @@
   (:method (name (build build))
     (or (getf (stages build) name)
         ;; Find method and cache it.
-        (and (find-method #'stage () (list name build) NIL)
+        (and (find-method #'stage () `((eql ,name) ,(class-of build)) NIL)
              (setf (getf (stages build) name)
                    (make-instance 'stage :name name :script (lambda () (stage name build)))))
         (error "No stage named ~s found for build ~a." name build))))
