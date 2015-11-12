@@ -55,6 +55,17 @@
    #:build
    #:status
    #:clean)
+  ;; script.lisp
+  (:export
+   #:$
+   #:->
+   #:>>
+   #:s/r
+   #:read-script
+   #:write-script
+   #:coerce-script
+   #:build
+   #:script-class)
   ;; stage.lisp
   (:export
    #:timed-task
@@ -89,19 +100,6 @@
    #:destroy
    #:restore))
 
-(defpackage #:autobuild-script
-  (:nicknames #:org.shirakumo.autobuild.script)
-  (:use #:cl #:autobuild #:legit)
-  (:export
-   #:$
-   #:->
-   #:>>
-   #:s/r
-   #:read-script
-   #:write-script
-   #:coerce-script
-   #:script-class))
-
 (defpackage #:autobuild-script-user
   (:nicknames #:org.shirakumo.autobuild.script.user #:as-user)
-  (:use #:cl #:legit #:autobuild #:autobuild-script))
+  (:use #:cl #:legit #:autobuild))

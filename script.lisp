@@ -4,7 +4,7 @@
  Author: Nicolas Hafner <shinmera@tymoon.eu>
 |#
 
-(in-package #:org.shirakumo.autobuild.script)
+(in-package #:org.shirakumo.autobuild)
 
 (defun $ (cmd)
   (legit:run "bash" (list "-c" cmd)

@@ -31,7 +31,7 @@
   (:default-initargs
    :name (error "NAME required.")
    :script NIL)
-  (:metaclass autobuild-script:script-class))
+  (:metaclass script-class))
 
 (defun handle-stage-start (stage)
   (v:info :autobuild "~a entering stage ~a" (runner stage) stage)

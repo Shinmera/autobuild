@@ -44,7 +44,7 @@
      (restore build NIL))
     (:if-newer
      (let* ((file (discover-recipe build))
-            (script (when file (autobuild-script:read-script file :if-does-not-exist NIL)))
+            (script (when file (read-script file :if-does-not-exist NIL)))
             (type (getf script :type)))
        (remf script :type)
        ;; Filter explicitly passed args so we don't overwrite them.
@@ -232,13 +232,13 @@
       (restore build file))))
 
 (defmethod restore ((build build) (file pathname))
-  (restore build (autobuild-script:read-script file :if-does-not-exist NIL)))
+  (restore build (read-script file :if-does-not-exist NIL)))
 
 (defmethod restore ((build build) (script string))
   (let ((file (discover-recipe build :default T)))
     (with-open-file (stream file :direction :output :if-exists :supersede)
       (write-string script stream)))
-  (restore build (autobuild-script:read-script script)))
+  (restore build (read-script script)))
 
 (defmethod restore ((build build) (data list))
   (let ((type (getf data :type)))
