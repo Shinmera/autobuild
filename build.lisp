@@ -183,7 +183,7 @@
         ;; Find method and cache it.
         (and (find-method #'stage () `((eql ,name) ,(class-of build)) NIL)
              (setf (getf (stages build) name)
-                   (make-instance 'stage :name name :script (lambda () (stage name build)))))
+                   (make-instance 'stage :name name :script (lambda (build) (stage name build)))))
         (error "No stage named ~s found for build ~a." name build))))
 
 (defgeneric stage (identifier build))

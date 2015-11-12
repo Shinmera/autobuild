@@ -56,7 +56,7 @@
 
 (defmethod run-task ((stage stage))
   (when (script stage)
-    (funcall (script stage))))
+    (funcall (script stage) (runner stage))))
 
 (defmethod task-ready-p ((stage stage))
   (case (status stage)
