@@ -6,7 +6,8 @@
 
 (in-package #:org.shirakumo.autobuild)
 
-(defvar *build-output*)
+(defvar *build-output* *standard-output*)
+(defvar *debugger* NIL)
 
 (defclass build (repository timed-task runner)
   ((logfile :initarg :logfile :accessor logfile)
@@ -108,6 +109,8 @@
   (finish-output *build-output*))
 
 (defun handle-build-error (build err)
+  (with-simple-restart (continue "Treat the ~a has having errored." build)
+    (when *debugger* (invoke-debugger err)))
   (setf (end build) (get-universal-time))
   (setf (status build) :errored)
   (format *build-output* "~&;;; !! ERROR DURING BUILD~&")
