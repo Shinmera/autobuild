@@ -29,10 +29,13 @@ var Autobuild = function(){
         if(duration === null)
             return "-";
         else{
+            var maybes = function(s){return (1<s)? "s": "";}
             var s = duration % 60;
             var m = Math.floor((duration/60)%60);
             var h = Math.floor(duration/(60*60));
-            return ((h==0)?"":h+" hours")+((m==0)?"":" "+m+" minutes")+(((s==0)&&(m!=0||h!=0))?"":" "+s+" seconds");
+            return ((h==0)?"":h+" hour"+maybes(h))+
+                   ((m==0)?"":" "+m+" minute"+maybes(m))+
+                   (((s==0)&&(m!=0||h!=0))?"":" "+s+" second"+maybes(s));
         }
     }
 
