@@ -14,7 +14,7 @@
 (defun -> (file contents)
   (with-open-file (stream (merge-pathnames file *cwd*)
                           :direction :output
-                          :if-exists :supersede
+                          :if-exists :rename-and-delete
                           :if-does-not-exist :create)
     (write-string contents stream)
     (terpri stream)))
@@ -28,23 +28,15 @@
     (terpri stream)))
 
 (defun s/r (file search replace &key (all T) case-insensitive single-line multi-line)
-  (with-open-file (stream (merge-pathnames file *cwd*)
-                          :direction :io
-                          :if-exists :supersede
-                          :if-does-not-exist :error)
-    (let ((regex (cl-ppcre:create-scanner search :single-line-mode single-line
-                                                 :multi-line-mode multi-line
-                                                 :case-insensitive-mode case-insensitive))
-          (text (with-output-to-string (datum)
-                  (let ((buffer (make-array 4096 :element-type 'character)))
-                    (loop for byte-count = (read-sequence buffer stream)
-                          do (write-sequence buffer datum :end byte-count)
-                          while (= byte-count 4096))))))
-      (write-string
-       (if all
-           (cl-ppcre:regex-replace-all regex text replace :preserve-case T)
-           (cl-ppcre:regex-replace regex text replace :preserve-case T))
-       stream))))
+  (let ((regex (cl-ppcre:create-scanner search :single-line-mode single-line
+                                               :multi-line-mode multi-line
+                                               :case-insensitive-mode case-insensitive))
+        (text (alexandria:read-file-into-string file)))
+    (alexandria:write-string-into-file
+     (if all
+         (cl-ppcre:regex-replace-all regex text replace :preserve-case T)
+         (cl-ppcre:regex-replace regex text replace :preserve-case T))
+     file :if-exists :rename-and-delete)))
 
 (defvar *script-read-table* (copy-readtable))
 
