@@ -261,7 +261,7 @@
    (.status.scheduled :color #(created))
    (.status.completed :color #(completed))
    (.status.stopping :color #(stopped))
-   (.status.stopped :color #(stopped))
+   (.status.stopped :color #(created))
    (.status.errored :color #(errored))
    (.status.running :color #(running))
    (.commit :font-family triplicate monospace
