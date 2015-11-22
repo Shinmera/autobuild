@@ -1,5 +1,3 @@
-(:import (url "wf/stylesheet.css"))
-
 (:let ((border (hex 0088EE))
        (header (hex 151515))
        (headert (hex EEEEEE))
