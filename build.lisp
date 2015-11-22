@@ -266,7 +266,7 @@
 (defgeneric rejuvenate (build)
   (:method ((build build))
     (reset build :hard T)
-    (clean build :directories T :force T)
+    (clean build :directories T :ignored-too T :force T)
     (setf (status build) :created)))
 
 (defgeneric coerce-build (thing &rest args)
