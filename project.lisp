@@ -76,7 +76,8 @@
 
 (defgeneric build-dir (project &optional commit)
   (:method ((project project) &optional (commit (current-commit project)))
-    (relative-dir (location project) ".autobuild" commit)))
+    (let ((name (git-value project `(rev-parse ,commit) (git-rev-parse commit))))
+      (relative-dir (location project) ".autobuild" name))))
 
 (defgeneric ensure-build (project commit &rest args)
   (:method ((project project) commit &rest args)
@@ -85,7 +86,7 @@
         (let ((dir (build-dir project commit))
               (args (copy-list args)))
           (unless (getf args :type) (setf (getf args :type) 'build))
-          (v:debug :autobuild.project "Creating build for ~a ~s" project commit)
+          (v:debug :autobuild.project "Creating build for ~a ~s in ~s" project commit dir)
           (clone project dir)
           (let ((build (coerce-build args :location dir :project project)))
             (checkout build commit)
