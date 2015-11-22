@@ -263,6 +263,12 @@
   (setf (builds (project build))
         (delete build (builds (project build)))))
 
+(defgeneric rejuvenate (build)
+  (:method ((build build))
+    (reset build :hard T)
+    (clean build :directories T :force T)
+    (setf (status build) :created)))
+
 (defgeneric coerce-build (thing &rest args)
   (:method ((script list) &rest args)
     (let ((script (copy-list script))

@@ -41,6 +41,7 @@
    #:log-contents
    #:discover-recipe
    #:recipe
+   #:rejuvenate
    #:coerce-build)
   ;; project.lisp
   (:export

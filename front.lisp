@@ -37,6 +37,14 @@
       (simple-tasks:interrupt-task build NIL)))
   NIL)
 
+(define-ab-api autobuild/project/build/rejuvenate (project build) ()
+  (let ((build (build build project)))
+    (when build
+      (rejuvenate build)))
+  (if (string= (post/get "browser") "true")
+      (redirect #@"/")
+      (api-output NIL)))
+
 (define-ab-api autobuild/project/build/delete (project build) ()
   (let ((build (build build project)))
     (when build

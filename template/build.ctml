@@ -36,6 +36,7 @@
             <c:when test="(permitted)">
               <a href="#" title="Start build" @href='(#?"/api/autobuild/project/build/start?browser=true&project={0}&build={1}" (name project) commit)'><i class="fa fa-arrow-circle-right"></i></a>
               <a href="#" title="Stop build" @href='(#?"/api/autobuild/project/build/stop?browser=true&project={0}&build={1}" (name project) commit)'><i class="fa fa-times-circle"></i></a>
+              <a href="#" title="Reset this build" class="confirm" @href='(#?"/api/autobuild/project/build/rejuvenate?browser=true&project={0}&build={1}" (name project) commit)'><i class="fa fa-history"></i></a>
               <a href="#" title="Delete this build" class="confirm" @href='(#?"/api/autobuild/project/build/delete?browser=true&project={0}&build={1}" (name project) commit)'><i class="fa fa-trash"></i></a>
             </c:when>
             <a href="#" title="View on GitHub" lquery="(attr :href remote)"><i class="fa fa-github"></i></a>
