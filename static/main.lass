@@ -78,6 +78,7 @@
      
      (article
       :margin 20px 0 0 0
+      (header :flex-wrap wrap)
       (>header
        :display flex
        :align-items center
@@ -107,7 +108,7 @@
         (>*
          :margin 0 5px 0 5px)
         ([type=submit]
-         :margin -2px -5px -2px 0
+         :margin -2px -5px -2px auto
          :background #(border)
          :font-size 14pt)
         ((:and [type=submit] :hover)
@@ -127,12 +128,17 @@
         :margin 0
         :list-style none
         (li :display block))
+       (header
+        :padding-left 0
+        :padding-right 0
+        (>*
+         :margin 0))
        ((:or header .build)
         :display flex
-        (>* 
+        (>*
          :padding 2px 3px 2px 3px)
         (.status
-         :min-width 30px
+         :min-width 50px
          :text-align center
          (i :font-size 0)
          ((:and i :before)
@@ -180,7 +186,8 @@
            :display flex
            :flex-wrap wrap
            (br :width 100% :height 20px :content "\" \"")
-           (dt :white-space nowrap :width 15% :max-width 200px :font-weight bold :overflow hidden :text-overflow ellipsis)
+           (dt :white-space nowrap :width 15% :max-width 200px :flex-grow 1
+               :font-weight bold :overflow hidden :text-overflow ellipsis)
            (dd :flex-grow 1 :width 80%)))
       ((:or .recipe .info)
        (.source
@@ -204,7 +211,8 @@
       ((:or h1 h2) :color #(headert)))
    (nav
     :font-size 1.2em
-    :margin 0 5px 0 5px
+    :margin 0 5px 0 auto
+    :padding-left 5px
     (a
      :margin 5px
      :color #(headert))))
@@ -301,8 +309,17 @@
         ((:or .remote .branch) :display none))
        (section.builds
         (thead :display none)
-        ((:or .actions .duration .start) :display none)))
+        ((:or .actions .duration .start) :display none)
+        (.status :min-width 18px !important)
+        (header
+         :padding-left 24px
+         (.status :display none))))
 
       (article.build
        (header
-        (nav :white-space nowrap))))))))
+        (nav :white-space nowrap))
+       ((:or .recipe .log)
+        ((:or textarea ".CodeMirror")
+         :max-height 75vh))
+       (.info (dd :margin-left 0px
+                  :width 100% !important))))))))
