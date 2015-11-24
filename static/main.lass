@@ -306,7 +306,11 @@
         ((:or .remote .branch) :display none))
        (section.builds
         (thead :display none)
-        ((:or .actions .duration .start) :display none)))
+        ((:or .actions .duration .start) :display none)
+        (.status :min-width 18px !important)
+        (header
+         :padding-left 24px
+         (.status :display none))))
 
       (article.build
        (header
