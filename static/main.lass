@@ -314,4 +314,7 @@
 
       (article.build
        (header
-        (nav :white-space nowrap))))))))
+        (nav :white-space nowrap))
+       ((:or .recipe .log)
+        ((:or textarea ".CodeMirror")
+         :max-height 75vh))))))))
