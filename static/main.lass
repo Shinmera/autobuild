@@ -185,7 +185,8 @@
            :display flex
            :flex-wrap wrap
            (br :width 100% :height 20px :content "\" \"")
-           (dt :white-space nowrap :width 15% :max-width 200px :font-weight bold :overflow hidden :text-overflow ellipsis)
+           (dt :white-space nowrap :width 15% :max-width 200px :flex-grow 1
+               :font-weight bold :overflow hidden :text-overflow ellipsis)
            (dd :flex-grow 1 :width 80%)))
       ((:or .recipe .info)
        (.source
@@ -317,4 +318,6 @@
         (nav :white-space nowrap))
        ((:or .recipe .log)
         ((:or textarea ".CodeMirror")
-         :max-height 75vh))))))))
+         :max-height 75vh))
+       (.info (dd :margin-left 0px
+                  :width 100% !important))))))))
