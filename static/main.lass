@@ -78,6 +78,7 @@
      
      (article
       :margin 20px 0 0 0
+      (header :flex-wrap wrap)
       (>header
        :display flex
        :align-items center
@@ -107,7 +108,7 @@
         (>*
          :margin 0 5px 0 5px)
         ([type=submit]
-         :margin -2px -5px -2px 0
+         :margin -2px -5px -2px auto
          :background #(border)
          :font-size 14pt)
         ((:and [type=submit] :hover)
@@ -210,7 +211,8 @@
       ((:or h1 h2) :color #(headert)))
    (nav
     :font-size 1.2em
-    :margin 0 5px 0 5px
+    :margin 0 5px 0 auto
+    :padding-left 5px
     (a
      :margin 5px
      :color #(headert))))
