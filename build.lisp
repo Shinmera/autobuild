@@ -264,9 +264,13 @@
         (delete build (builds (project build)))))
 
 (defgeneric rejuvenate (build)
+  (:method ((repository repository))
+    (reset repository :hard T)
+    (clean repository :directories T :ignored-too T :force T)
+    (do-submodules (submodule repository :only-existing T)
+      (rejuvenate submodule)))
   (:method ((build build))
-    (reset build :hard T)
-    (clean build :directories T :ignored-too T :force T)
+    (call-next-method)
     (setf (status build) :created)))
 
 (defgeneric coerce-build (thing &rest args)
