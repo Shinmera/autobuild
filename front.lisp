@@ -163,7 +163,7 @@
      (end timed-task))
     (end-formatted
      (case (end timed-task)
-       ((NIL T) "-")
+       ((NIL) "-")
        (T (autobuild::format-date (end timed-task)))))
     (T (call-next-method))))
 

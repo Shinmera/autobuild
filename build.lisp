@@ -95,8 +95,6 @@
 (defgeneric perform-build (build))
 
 (defun handle-build-start (build)
-  (setf (start build) (get-universal-time))
-  (setf (end build) T)
   (setf (status build) :running)
   (format *build-output* "~&;;;; Autobuild ~a" (status build))
   (format *build-output* "~&;;; Started on ~a (~a)~%" (format-date (start build)) (start build))

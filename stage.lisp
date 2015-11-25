@@ -12,15 +12,15 @@
 
 (defmethod run-task :around ((timed-task timed-task))
   (setf (start timed-task) (get-universal-time)
-        (end timed-task) T)
+        (end timed-task) nil)
   (unwind-protect
        (call-next-method)
     (setf (end timed-task) (get-universal-time))))
 
 (defgeneric duration (timed-task)
   (:method ((timed-task timed-task))
-    (when (and (start timed-task) (end timed-task))
-      (- (if (eql (end timed-task) T)
+    (when (start timed-task)
+      (- (if (null (end timed-task))
              (get-universal-time)
              (end timed-task))
          (start timed-task)))))
