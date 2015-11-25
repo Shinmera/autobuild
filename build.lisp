@@ -9,7 +9,7 @@
 (defvar *build-output* *standard-output*)
 (defvar *debugger* NIL)
 
-(defclass build (repository timed-task runner)
+(defclass build (synchronized-repository timed-task runner)
   ((logfile :initarg :logfile :accessor logfile)
    (project :initarg :project :accessor project)
    (restore-behaviour :initarg :restore :accessor restore-behaviour)

@@ -8,7 +8,7 @@
 
 (defvar *base-project-dir* (relative-dir (user-homedir-pathname) ".cache" "shirakumo" "autobuild"))
 
-(defclass project (repository)
+(defclass project (synchronized-repository)
   ((builds :initform () :accessor builds)
    (name :initarg :name :accessor name)
    (watch :initarg :watch :accessor watch))

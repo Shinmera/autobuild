@@ -17,11 +17,13 @@
                (:file "toolkit")
                (:file "script")
                (:file "stage")
+               (:file "synchronized-repository")
                (:file "build")
                (:file "standard-builds")
                (:file "project")
                (:file "autobuild"))
   :depends-on (:alexandria
+               :bordeaux-threads
                :dissect
                :verbose
                :legit
