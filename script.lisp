@@ -31,12 +31,12 @@
   (let ((regex (cl-ppcre:create-scanner search :single-line-mode single-line
                                                :multi-line-mode multi-line
                                                :case-insensitive-mode case-insensitive))
-        (text (alexandria:read-file-into-string file)))
+        (text (alexandria:read-file-into-string (merge-pathnames file *cwd*))))
     (alexandria:write-string-into-file
      (if all
          (cl-ppcre:regex-replace-all regex text replace :preserve-case T)
          (cl-ppcre:regex-replace regex text replace :preserve-case T))
-     file :if-exists :rename-and-delete)))
+     (merge-pathnames file *cwd*) :if-exists :rename-and-delete)))
 
 (defvar *script-read-table* (copy-readtable))
 
