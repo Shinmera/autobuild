@@ -20,10 +20,13 @@
 (defgeneric duration (timed-task)
   (:method ((timed-task timed-task))
     (when (start timed-task)
-      (- (if (null (end timed-task))
-             (get-universal-time)
-             (end timed-task))
-         (start timed-task)))))
+      (cond
+        ((eql (status timed-task) :running)
+         (- (start timed-task) (get-universal-time)))
+        ((end timed-task)
+         (- (start timed-task) (end timed-task)))
+        (T
+         NIL)))))
 
 (defclass stage (timed-task)
   ((name :initarg :name :accessor name)
