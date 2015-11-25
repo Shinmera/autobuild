@@ -271,6 +271,12 @@
       (rejuvenate submodule)))
   (:method ((build build))
     (call-next-method)
+    (flet ((reset (timer)
+             (setf (end timer) NIL)
+             (setf (start timer) NIL)))
+      (reset build)
+      (loop for (key stage) on (stages build) by #'cddr
+            do (reset stage)))
     (setf (status build) :created)))
 
 (defgeneric coerce-build (thing &rest args)
