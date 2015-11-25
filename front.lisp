@@ -33,7 +33,7 @@
 
 (define-ab-api autobuild/project/build/stop (project build) ()
   (let ((build (build build project)))
-    (when (and build (eql :running (status build)))
+    (when build
       (simple-tasks:interrupt-task build NIL)))
   NIL)
 
