@@ -22,9 +22,9 @@
     (when (start timed-task)
       (cond
         ((eql (status timed-task) :running)
-         (- (start timed-task) (get-universal-time)))
+         (- (get-universal-time) (start timed-task)))
         ((end timed-task)
-         (- (start timed-task) (end timed-task)))
+         (- (end timed-task) (start timed-task)))
         (T
          NIL)))))
 
