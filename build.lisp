@@ -74,6 +74,12 @@
     ((:running :stopping) NIL)
     ((:stopped :completed :errored :created :scheduled) T)))
 
+(defmethod interrupt-task ((build build) (null null))
+  (when (current-stage build)
+    (setf (status (current-stage build)) :stopped))
+  (when (find-restart 'stop-build)
+    (invoke-restart 'stop-build)))
+
 (defun discover-state-from-logfile (logfile)
   (let ((status :created)
         (start NIL)
@@ -148,10 +154,10 @@
                       (maybe-restore build)
                       ;; Pass over into real build methods.
                       (call-next-method))
-                  (simple-tasks:stop ()
+                  (stop-build ()
                     (handle-build-stopped build)
-                    (if (find-restart 'simple-tasks:stop)
-                        (invoke-restart 'simple-tasks:stop)
+                    (if (find-restart 'stop)
+                        (invoke-restart 'stop)
                         (abort))))
               (handle-build-complete build))))))))
 
