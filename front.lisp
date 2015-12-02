@@ -34,7 +34,7 @@
 (define-ab-api autobuild/project/build/stop (project build) ()
   (let ((build (build build project)))
     (when build
-      (simple-tasks:interrupt-task build NIL)))
+      (simple-tasks:interrupt-task build T)))
   NIL)
 
 (define-ab-api autobuild/project/build/rejuvenate (project build) ()
