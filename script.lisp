@@ -7,9 +7,9 @@
 (in-package #:org.shirakumo.autobuild)
 
 (defun $ (cmd)
-  (legit:run "bash" (list "-c" cmd)
-             :output *build-output* :error *build-output*
-             :on-non-zero-exit :error))
+  (run "bash" (list "-c" cmd)
+       :output *build-output* :error *build-output*
+       :on-non-zero-exit :error))
 
 (defun -> (file contents)
   (with-open-file (stream (merge-pathnames file *cwd*)

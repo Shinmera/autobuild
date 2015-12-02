@@ -30,7 +30,7 @@
 (defmethod update-instance-for-different-class :after (prev (build build) &key (stages NIL s-p) &allow-other-keys)
   (when s-p (setf (stages build) stages)))
 
-(defmethod initialize-instance :after ((build build) &rest initargs &key stages)
+(defmethod initialize-instance :after ((build build) &rest initargs &key (stages NIL s-p))
   (declare (ignore stages))
   (when (and (project build) (not (location build)))
     (setf (location build) (location (project build))))
