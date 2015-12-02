@@ -75,9 +75,10 @@
     ((:stopped :completed :errored :created :scheduled) T)))
 
 (defmethod interrupt-task ((build build) (null null))
-  (when (current-stage build)
-    (setf (status (current-stage build)) :stopped))
   (when (find-restart 'stop-build)
+    (setf (status build) :stopping)
+    (when (current-stage build)
+      (setf (status (current-stage build)) :stopped))
     (invoke-restart 'stop-build)))
 
 (defun discover-state-from-logfile (logfile)
