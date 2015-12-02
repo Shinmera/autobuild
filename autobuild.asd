@@ -28,6 +28,7 @@
                :verbose
                :legit
                :bordeaux-threads
+               :simple-inferiors
                :simple-tasks
                :trivial-gray-streams
                :redirect-stream

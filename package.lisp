@@ -7,7 +7,7 @@
 (in-package #:cl-user)
 (defpackage #:autobuild
   (:nicknames #:org.shirakumo.autobuild)
-  (:use #:cl #:legit #:simple-tasks)
+  (:use #:cl #:legit #:simple-inferiors #:simple-tasks)
   ;; autobuild.lisp
   (:export
    #:*projects*
