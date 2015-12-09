@@ -29,19 +29,19 @@
                 (not location))
            (error "At least one of NAME, REMOTE, or LOCATION must be given."))
           (location
-           (init project :if-does-not-exist :create :branch branch)
+           (init project :if-does-not-exist :create :branch branch :bare T)
            (unless name
              (setf name (parse-directory-name location))))
           ((and remote name)
            (setf location (relative-dir *base-project-dir* name))
-           (init project :if-does-not-exist :clone :remote remote :branch branch))
+           (init project :if-does-not-exist :clone :remote remote :branch branch :bare T))
           (remote
            (setf name (parse-remote-name remote))
            (setf location (relative-dir *base-project-dir* name))
-           (init project :if-does-not-exist :clone :remote remote  :branch branch))
+           (init project :if-does-not-exist :clone :remote remote  :branch branch :bare T))
           (name
            (setf location (relative-dir *base-project-dir* name))
-           (init project :if-does-not-exist :create :branch branch)))))
+           (init project :if-does-not-exist :create :branch branch :bare T)))))
 
 (defun parse-directory-name (pathname)
   (car (last (pathname-directory pathname))))
