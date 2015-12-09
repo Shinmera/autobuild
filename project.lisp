@@ -65,19 +65,19 @@
   (setf (slot-value project 'builds)
         (sort builds #'> :key #'current-age)))
 
-(defgeneric project-config-file (project)
+(defgeneric builds-dir (project)
   (:method ((project project))
-    (make-pathname :name ".autobuild" :type "lisp" :defaults (location project))))
+    (relative-dir (location project) (if (bare-p project) "autobuild" ".autobuild"))))
 
 (defgeneric scan-for-builds (project)
   (:method ((project project))
     (mapcar (lambda (dir) (coerce-build 'build :location dir :project project :restore :if-newer))
-            (uiop:subdirectories (relative-dir (location project) ".autobuild")))))
+            (uiop:subdirectories (builds-dir project)))))
 
 (defgeneric build-dir (project &optional commit)
   (:method ((project project) &optional (commit (current-commit project)))
     (let ((name (git-value project `(rev-parse ,commit) (git-rev-parse commit))))
-      (relative-dir (location project) ".autobuild" name))))
+      (relative-dir (builds-dir project) name))))
 
 (defgeneric ensure-build (project commit &rest args)
   (:method ((project project) commit &rest args)
