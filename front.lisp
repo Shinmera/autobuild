@@ -94,9 +94,7 @@
 (define-ab-api autobuild/project/pull (project) ()
   (let ((project (project project)))
     (when project
-      (pull project)
-      (ensure-build project (current-commit project)
-                    :restore :if-newer)))
+      (ensure-build project (update project) :restore :if-newer)))
   NIL)
 
 (define-ab-api autobuild/project/delete (project) ()

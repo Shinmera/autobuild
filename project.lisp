@@ -107,3 +107,10 @@
 (defmethod clean ((project project) &key)
   (dolist (build (copy-list (nthcdr 5 (builds project))))
     (destroy build)))
+
+(defgeneric update (project)
+  (:method ((repository repository))
+    (if (bare-p repository)
+        (fetch repository)
+        (pull repository))
+    (current-commit repository)))

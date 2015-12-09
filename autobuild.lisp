@@ -90,7 +90,7 @@
     (when (watch project)
       (v:info :watcher "Watching project ~a for changes." project)
       (let ((old-commit (current-commit project))
-            (new-commit (progn (pull project) (current-commit project))))
+            (new-commit (update project)))
         (when (string/= old-commit new-commit)
           (v:info :watcher "~a has changed. Performing build." project)
           (let ((build (ensure-build project new-commit :restore :if-newer)))

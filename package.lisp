@@ -55,7 +55,8 @@
    #:ensure-build
    #:build
    #:status
-   #:clean)
+   #:clean
+   #:update)
   ;; script.lisp
   (:export
    #:$
