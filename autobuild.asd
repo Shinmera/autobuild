@@ -18,9 +18,9 @@
                (:file "script")
                (:file "stage")
                (:file "synchronized-repository")
+               (:file "project")
                (:file "build")
                (:file "standard-builds")
-               (:file "project")
                (:file "autobuild"))
   :depends-on (:alexandria
                :bordeaux-threads
