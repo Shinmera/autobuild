@@ -114,3 +114,9 @@
         (fetch repository)
         (pull repository))
     (current-commit repository)))
+
+(defmethod discover-recipe ((project project) &key default)
+  (let ((pathname (call-next-method project :default T)))
+    (when (bare-p project)
+      (setf pathname (make-pathname :name (subseq (pathname-name pathname) 1) :defaults pathname)))
+    (or (probe-file pathname) (and default pathname))))
