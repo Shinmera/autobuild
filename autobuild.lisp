@@ -39,7 +39,7 @@
 
 (defun make-build-project (name remote &key branch)
   (when (project name)
-    (cerror "Name ~s is already taken by ~a." name (project name)))
+    (cerror "Ignore and replace it." "Name ~s is already taken by ~a." name (project name)))
   (let ((project (or (cl-ppcre:register-groups-bind (project NIL build) ("^autobuild://(.*?)(/(.*))?$" remote)
                        (make-build-project-from-other name branch project build))
                      (make-instance 'project :name name :remote remote :branch branch))))
