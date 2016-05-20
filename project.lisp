@@ -98,6 +98,8 @@
   (perform-build (ensure-build project (current-commit project))))
 
 (defgeneric build (id project)
+  (:method ((id (eql :latest)) (project project))
+    (first (builds project)))
   (:method (id (project project))
     (find id (builds project) :key #'current-commit
                               :test (lambda (id hash) (search id hash :test #'char-equal))))
