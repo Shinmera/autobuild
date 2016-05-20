@@ -6,8 +6,24 @@
 
 (in-package #:org.shirakumo.autobuild)
 
+(defun %replace-vars (target start end match-start match-end reg-starts reg-ends)
+  (declare (ignore start end match-start match-end))
+  (let ((op (subseq target (aref reg-starts 0) (aref reg-ends 0)))
+        (args (cl-ppcre:split " +" (string-trim " " (subseq target (aref reg-starts 1) (aref reg-ends 1))))))
+    (cond ((string= op "path")
+           (let* ((project (or (project (first args))
+                               (error "No such project ~s" (first args))))
+                  (id (if (string= (second args) "latest") :latest (second args)))
+                  (build (or (build id project)
+                             (error "No such build ~s" id))))
+             (uiop:native-namestring (location build))))
+          (T (error "Unknown op ~s." op)))))
+
+(defun replace-vars (string)
+  (cl-ppcre:regex-replace-all "\\$\\{([^ ]*)(.*?)\\}" string #'%replace-vars))
+
 (defun $ (cmd)
-  (run "bash" (list "-c" cmd)
+  (run "bash" (list "-c" (replace-vars cmd))
        :output *build-output* :error *build-output*
        :on-non-zero-exit :error))
 
@@ -16,7 +32,7 @@
                           :direction :output
                           :if-exists :rename-and-delete
                           :if-does-not-exist :create)
-    (write-string contents stream)
+    (write-string (replace-vars contents) stream)
     (terpri stream)))
 
 (defun >> (file contents)
@@ -24,7 +40,7 @@
                           :direction :output
                           :if-exists :append
                           :if-does-not-exist :create)
-    (write-string contents stream)
+    (write-string (replace-vars contents) stream)
     (terpri stream)))
 
 (defun s/r (file search replace &key (all T) case-insensitive single-line multi-line)
@@ -34,8 +50,8 @@
         (text (alexandria:read-file-into-string (merge-pathnames file *cwd*))))
     (alexandria:write-string-into-file
      (if all
-         (cl-ppcre:regex-replace-all regex text replace :preserve-case T)
-         (cl-ppcre:regex-replace regex text replace :preserve-case T))
+         (cl-ppcre:regex-replace-all regex text (replace-vars replace) :preserve-case T)
+         (cl-ppcre:regex-replace regex text (replace-vars replace) :preserve-case T))
      (merge-pathnames file *cwd*) :if-exists :rename-and-delete)))
 
 (defvar *script-read-table* (copy-readtable))
