@@ -112,9 +112,7 @@
 
 (defgeneric update (project)
   (:method ((repository repository))
-    (if (bare-p repository)
-        (fetch repository)
-        (pull repository))
+    (pull repository)
     (current-commit repository)))
 
 (defmethod discover-recipe ((project project) &key default)
