@@ -8,6 +8,7 @@
 (defpackage #:autobuild
   (:nicknames #:org.shirakumo.autobuild)
   (:use #:cl #:legit #:simple-inferiors #:simple-tasks)
+  (:shadowing-import-from #:legit #:push)
   ;; autobuild.lisp
   (:export
    #:*projects*
@@ -104,4 +105,5 @@
 
 (defpackage #:autobuild-script-user
   (:nicknames #:org.shirakumo.autobuild.script.user #:as-user)
-  (:use #:cl #:legit #:autobuild))
+  (:use #:cl #:legit #:autobuild)
+  (:shadowing-import-from #:legit #:push))
