@@ -51,6 +51,7 @@
   (setf *projects* (delete project *projects*)))
 
 (defun scan-for-projects (&optional (dir *base-project-dir*))
+  (v:info :autobuild "Scanning for projects...")
   (mapcar (lambda (dir)
             (let ((project (make-instance 'project :location dir)))
               (setf (builds project) (scan-for-builds project))

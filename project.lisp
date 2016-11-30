@@ -70,8 +70,19 @@
     (relative-dir (location project) (if (bare-p project) "autobuild" ".autobuild"))))
 
 (defgeneric scan-for-builds (project)
+  (:method :before (project)
+    (v:info :autobuild "Scanning for builds in ~a" project))
   (:method ((project project))
-    (mapcar (lambda (dir) (coerce-build 'build :location dir :project project :restore :if-newer))
+    (mapcar (lambda (dir)
+              (v:info :autobuild "Found build in ~a" dir)
+              (let ((build (coerce-build 'build :location dir
+                                                :project project
+                                                :restore :if-newer)))
+                (current-commit build)
+                (current-commit build :short T)
+                (current-message build)
+                (legit:current-age build)
+                build))
             (uiop:subdirectories (builds-dir project)))))
 
 (defgeneric build-dir (project &optional commit)
