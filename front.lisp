@@ -139,7 +139,7 @@
       :mem-free ,(system-load:mem-free)))))
 
 (defun permitted ()
-  (or (radiance:config-tree :standalone)
+  (or (radiance:config :standalone)
       (let ((user (auth:current)))
         (and user (user:check user (perm :autobuild :admin))))))
 
@@ -232,22 +232,19 @@
      (name stage))
     (T (call-next-method))))
 
-(define-page builds #@"/^$" (:lquery (template "projects.ctml"))
+(define-page builds "/^$" (:lquery "projects.ctml")
   (let ((*package* (find-package :org.shirakumo.autobuild.server)))
     (clip:process lquery:*lquery-master-document* :projects *projects*)))
 
-(define-page build #@"/project/([^/]+)/build/([a-z0-9]{40})" (:uri-groups (project hash) :lquery (template "build.ctml"))
+(define-page build "/project/([^/]+)/build/([a-z0-9]{40})" (:uri-groups (project hash) :lquery "build.ctml")
   (let ((*package* (find-package :org.shirakumo.autobuild.server)))
     (clip:with-clipboard-bound ((build hash (project project)))
       (clip:process-node lquery:*lquery-master-document*))))
 
-(define-page web-fonts (#@"/static/autobuild-server/wf/(.+)" 1001) (:uri-groups (path))
+(define-page web-fonts ("/static/autobuild-server/wf/(.+)" 1001) (:uri-groups (path))
   (setf (header "Cache-Control") "public, max-age=31536000")
   (setf (header "Access-Control-Allow-Origin") (string-right-trim "/" (uri-to-url #@"autobuild/" :representation :external)))
-  (serve-file (static-file (format NIL "wf/~a" path))))
+  (serve-file (@static (format NIL "wf/~a" path))))
 
 (define-trigger radiance:startup ()
   (initialize-autobuild))
-
-(radiance:remove-uri-dispatcher 'radiance:welcome)
-(user:add-default-permission (perm :autobuild :admin))

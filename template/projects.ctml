@@ -41,14 +41,14 @@
           <span class="branch" lquery="(text branch)">Branch</span>
           <nav>
             <c:when test="(permitted)">
-              <a href="#" title="Pull" @href='(#?"/api/autobuild/project/pull?browser=true&project={0}" name)'><i class="fa fa-download"></i></a>
-              <a href="#" title="Populate builds (create builds for the most recent 20)" class="confirm" @href='(#?"/api/autobuild/project/populate?browser=true&project={0}" name)'>
+              <a href="#" title="Pull" @href='/api/autobuild/project/pull?browser=true&project={0} name'><i class="fa fa-download"></i></a>
+              <a href="#" title="Populate builds (create builds for the most recent 20)" class="confirm" @href='/api/autobuild/project/populate?browser=true&project={0} name'>
                 <i class="fa fa-history"></i></a>
-              <a href="#" title="Clean out old builds (delete all but the most recent 5)" class="confirm" @href='(#?"/api/autobuild/project/clean?browser=true&project={0}" name)'>
+              <a href="#" title="Clean out old builds (delete all but the most recent 5)" class="confirm" @href='/api/autobuild/project/clean?browser=true&project={0} name'>
                 <i class="fa fa-recycle"></i></a>
-              <a href="#" title="Delete this project" class="confirm" @href='(#?"/api/autobuild/project/delete?browser=true&project={0}" name)'>
+              <a href="#" title="Delete this project" class="confirm" @href='/api/autobuild/project/delete?browser=true&project={0} name'>
                 <i class="fa fa-trash"></i></a>
-              <a href="#" title="Start/stop automatic building" @href='(#?"/api/autobuild/project/toggle-watch?browser=true&project={0}" name)' class="watch" lquery='(add-class (if watch "watching" "not-watching"))'>
+              <a href="#" title="Start/stop automatic building" @href='/api/autobuild/project/toggle-watch?browser=true&project={0} name' class="watch" lquery='(add-class (if watch "watching" "not-watching"))'>
                 <i class="fa fa-circle"></i>
               </a>
             </c:when>
@@ -65,17 +65,17 @@
           </header>
           <ul iterate="builds">
             <li class="build" lquery="(data :commit commit) (data :project (name project)) (data :status status)">
-              <a class="status" href="#" @href='(#?"/project/{0}/build/{1}" (name project) commit)' lquery="(add-class (string-downcase status)) (attr :title status)"><i class="fa" lquery="(add-class status-icon)"></i></a>
-              <a class="commit" href="#" @href='(#?"/project/{0}/build/{1}" (name project) commit)' lquery="(text short-commit)">c0mm1t</a>
+              <a class="status" href="#" @href='/project/{0}/build/{1} (name project) commit' lquery="(add-class (string-downcase status)) (attr :title status)"><i class="fa" lquery="(add-class status-icon)"></i></a>
+              <a class="commit" href="#" @href='/project/{0}/build/{1} (name project) commit' lquery="(text short-commit)">c0mm1t</a>
               <p class="message short" lquery="(text short-message)">Something Descriptive</p>
               <time class="duration" lquery="(text duration-formatted) (data :stamp duration)">2:00:14</time>
               <time class="start" lquery="(text start-formatted) (attr :datetime start-formatted) (data :stamp start)">2015.09.27 13:19:38</time>
               <nav class="actions">
                 <c:when test="(permitted)">
-                  <a href="#" title="Start build" @href='(#?"/api/autobuild/project/build/start?browser=true&project={0}&build={1}" (name project) commit)'><i class="fa fa-arrow-circle-right"></i></a>
-                  <a href="#" title="Stop build" @href='(#?"/api/autobuild/project/build/stop?browser=true&project={0}&build={1}" (name project) commit)'><i class="fa fa-times-circle"></i></a>
-                  <a href="#" title="Reset this build" class="confirm" @href='(#?"/api/autobuild/project/build/rejuvenate?browser=true&project={0}&build={1}" (name project) commit)'><i class="fa fa-history"></i></a>
-                  <a href="#" title="Delete this build" class="confirm" @href='(#?"/api/autobuild/project/build/delete?browser=true&project={0}&build={1}" (name project) commit)'><i class="fa fa-trash"></i></a>
+                  <a href="#" title="Start build" @href='/api/autobuild/project/build/start?browser=true&project={0}&build={1} (name project) commit'><i class="fa fa-arrow-circle-right"></i></a>
+                  <a href="#" title="Stop build" @href='/api/autobuild/project/build/stop?browser=true&project={0}&build={1} (name project) commit'><i class="fa fa-times-circle"></i></a>
+                  <a href="#" title="Reset this build" class="confirm" @href='/api/autobuild/project/build/rejuvenate?browser=true&project={0}&build={1} (name project) commit'><i class="fa fa-history"></i></a>
+                  <a href="#" title="Delete this build" class="confirm" @href='/api/autobuild/project/build/delete?browser=true&project={0}&build={1} (name project) commit'><i class="fa fa-trash"></i></a>
                 </c:when>
                 <a href="#" title="View on GitHub" lquery="(attr :href remote)"><i class="fa fa-github"></i></a>
               </nav>
