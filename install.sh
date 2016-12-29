@@ -77,9 +77,7 @@ function write-radiance-config(){
   (:auth . "r-simple-auth")
   (:session . "r-simple-sessions")
   (:server . "i-hunchentoot"))
- (:server
-  (:domains . ($LISP_DOMAINS))
-  (:instances . (((:port . 2015)))))
+ (:domains . ($LISP_DOMAINS))
  (:startup :r-simple-errors :autobuild-server))
 EOF
 }

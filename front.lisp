@@ -6,6 +6,12 @@
 
 (in-package #:autobuild-server)
 
+(defun cut-get-part (url)
+  (let ((p (position #\? url)))
+    (if p
+        (subseq url 0 p)
+        url)))
+
 (defmacro define-ab-api (name args opts &body body)
   `(define-api ,name ,args ,opts
      (cond ((permitted)
@@ -15,7 +21,7 @@
                     (api-output NIL))))
            (T
             (if (string= (post/get "browser") "true")
-                (redirect (format NIL "~a?error=Not permitted." (cut-get-part (referer))))
+                (redirect (format NIL "~a?error=Not%20permitted." (cut-get-part (referer))))
                 (api-output T :status 403 :message "Not permitted."))))))
 
 (define-ab-api autobuild/project/build/add (project commit) ()
@@ -232,14 +238,14 @@
      (name stage))
     (T (call-next-method))))
 
-(define-page builds "/^$" (:lquery "projects.ctml")
+(define-page builds "/^$" (:clip "projects.ctml")
   (let ((*package* (find-package :org.shirakumo.autobuild.server)))
-    (clip:process lquery:*lquery-master-document* :projects *projects*)))
+    (clip:process r-clip:*document* :projects *projects*)))
 
-(define-page build "/project/([^/]+)/build/([a-z0-9]{40})" (:uri-groups (project hash) :lquery "build.ctml")
+(define-page build "/project/([^/]+)/build/([a-z0-9]{40})" (:uri-groups (project hash) :clip "build.ctml")
   (let ((*package* (find-package :org.shirakumo.autobuild.server)))
     (clip:with-clipboard-bound ((build hash (project project)))
-      (clip:process-node lquery:*lquery-master-document*))))
+      (clip:process-node r-clip:*document*))))
 
 (define-page web-fonts ("/static/autobuild-server/wf/(.+)" 1001) (:uri-groups (path))
   (setf (header "Cache-Control") "public, max-age=31536000")
