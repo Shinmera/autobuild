@@ -90,7 +90,7 @@ EOF
 function write-hunchentoot-config(){
     mkdir -p $(dirname "$1")
     cat >"$1" <<EOF
-((:default (:port ${LISP_PORT} :address "0.0.0.0")))
+[hash-table equal (:default (:port ${LISP_PORT} :address "0.0.0.0"))]
 EOF
 }
 
