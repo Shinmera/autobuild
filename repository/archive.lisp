@@ -1,5 +1,5 @@
 #|
- This file is a part of autobuild
+ This file is a part of Autobuild
  (c) 2017 Shirakumo http://tymoon.eu (shinmera@tymoon.eu)
  Author: Nicolas Hafner <shinmera@tymoon.eu>
 |#
