@@ -10,6 +10,7 @@
   (:use #:cl)
   ;; interface.lisp
   (:export
+   #:*repository-types*
    #:remote-ish
    #:permalink
    #:located

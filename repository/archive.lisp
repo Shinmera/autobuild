@@ -87,3 +87,5 @@
 (defmethod clean ((checkout checkout))
   (delete checkout)
   (prepare checkout))
+
+(pushnew :archive *repository-types*)

@@ -69,3 +69,5 @@
 (defmethod clean ((checkout checkout))
   (legit:reset checkout :hard T :to "HEAD")
   (legit:clean checkout :force T :directories T :ignored T))
+
+(pushnew :git *repository-types*)

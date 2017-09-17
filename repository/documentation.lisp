@@ -7,6 +7,11 @@
 (in-package #:org.shirakumo.autobuild.repository)
 
 (docs:define-docs
+  (variable *repository-types*
+    "List holding the available types of repositories to use with CREATE.
+
+See CREATE")
+    
   (type remote-ish
     "Class representing an object tied to a remote location somehow.
 

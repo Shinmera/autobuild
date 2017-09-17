@@ -6,6 +6,8 @@
 
 (in-package #:org.shirakumo.autobuild.repository)
 
+(defvar *repository-types* ())
+
 (defclass remote-ish () ())
 (defgeneric permalink (remote-ish))
 
