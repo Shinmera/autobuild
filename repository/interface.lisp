@@ -39,6 +39,10 @@
 (defgeneric list-commits (repository))
 (defgeneric find-commit (commit-id repository &optional error))
 
+(defmethod find-commit ((commit-id (eql :latest)) (repository repository) &optional error)
+  (or (first (list-commits repository))
+      (error "There is no latest commit on ~a." repository)))
+
 (defclass commit (remote-ish) ())
 (defgeneric repository (commit))
 (defgeneric id (commit))
