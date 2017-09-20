@@ -16,6 +16,7 @@
                (:file "interface")
                (:file "git")
                (:file "archive")
+               (:file "local")
                (:file "documentation"))
   :depends-on (:documentation-utils
                :legit))

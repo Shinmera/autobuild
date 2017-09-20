@@ -41,3 +41,9 @@
   (:use #:cl #:org.shirakumo.autobuild.repository)
   (:shadow #:repository #:commit #:checkout)
   (:export))
+
+(defpackage #:autobuild-local-repository
+  (:nicknames #:org.shirakumo.autobuild.repository.local)
+  (:use #:cl #:org.shirakumo.autobuild.repository)
+  (:shadow #:repository)
+  (:export))
