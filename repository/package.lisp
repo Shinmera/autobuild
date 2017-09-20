@@ -28,7 +28,7 @@
    #:checkout
    #:checkout
    #:clean
-   #:delete))
+   #:destroy))
 
 (defpackage #:autobuild-git-repository
   (:nicknames #:org.shirakumo.autobuild.repository.git)

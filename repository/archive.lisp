@@ -6,9 +6,10 @@
 
 (in-package #:org.shirakumo.autobuild.repository.archive)
 
-(defmethod create ((type (eql :archive)) location remote &key branch)
-  (update (make-instance 'repository :location location
-                                     :remote remote)))
+(defmethod create ((type (eql :archive)) location remote &key branch clone)
+  (let ((repository (make-instance 'repository :location location
+                                               :remote remote)))
+    (if clone (update repository) repository)))
 
 (defclass repository (autobuild-repository:repository)
   ((commits :initform () :accessor commits)
@@ -42,7 +43,8 @@
     (let ((file (pathname-filename file)))
       (unless (find file (commits repo) :key #'file :test #'string=)
         (push (make-instance 'commit :repo repo
-                                     :file file))))))
+                                     :file file)
+              (commits repo))))))
 
 (defmethod list-commits ((repo repository))
   (commits repo))

@@ -26,14 +26,14 @@ See REMOTE-ISH")
     "Class representing an object tied to a file-system location.
 
 See LOCATION
-See DELETE")
+See DESTROY")
 
   (function location
     "Returns a pathname of the location the object is tied to.
 
 See LOCATED")
 
-  (function delete
+  (function destroy
     "Deletes the file system resources represented by the object.
 
 This always returns the object that was passed as argument.
@@ -52,6 +52,10 @@ REMOTE    --- Some kind of object that represents a remote repository
               to clone from.
 BRANCH    --- The branch of the repository to clone. This might not
               have an effect for types that don't have branches.
+CLONE     --- Whether to clone the repository at all. If this is NIL,
+              the repository will simply be instantiated from the
+              given data. This is useful if the location already has
+              a populated clone.
 
 Returns a REPOSITORY instance.
 

@@ -6,11 +6,9 @@
 
 (in-package #:org.shirakumo.autobuild.build)
 
-(defvar *build*)
-
 (defclass build ()
   ((status :initform :created :accessor status)
-   (recipe :initarg :recipe :accessor recipe)
+   (plan :initarg :plan :accessor plan)
    (current-stage :initform NIL :accessor current-stage)
    (metrics :initform () :accessor metrics)
    (thread :initform NIL :accessor thread)))
@@ -22,8 +20,7 @@
   (setf (status build) :completed))
 
 (defmethod execute :around ((build build))
-  (let ((finished NIL)
-        (*build* build))
+  (let ((finished NIL))
     (unwind-protect
          (multiple-value-prog1
              (restart-case (call-next-method)
@@ -35,15 +32,16 @@
         (setf (Status build) :failed)))))
 
 (defmethod execute ((build build))
-  (execute (recipe build)))
+  (dolist (stage (plan build))
+    (run-stage stage build)))
 
-(defmethod execute :before ((stage stage))
-  (setf (current-stage *build*) stage))
+(defmethod run-stage :before ((stage stage) (build build))
+  (setf (current-stage build) stage))
 
-(defmethod execute :after ((stage stage))
-  (setf (current-stage *build*) NIL))
+(defmethod run-stage :after ((stage stage) (build build))
+  (setf (current-stage build) NIL))
 
-(defmethod execute ((stage stage))
+(defmethod run-stage ((stage stage) (build build))
   (let ((start-time (get-internal-real-time)))
     (execute stage)
     (setf (getf (gethash stage (metrics *build*)) :time)
@@ -58,7 +56,7 @@
                           (unwind-protect (execute build)
                             (setf (thread build) NIL))))))
 
-(defmethod abort ((build build))
+(defmethod cancel ((build build))
   (unless (eql (status build) :running)
     (error "The build is not currently running."))
   (bt:interrupt-thread (thread build) (lambda () (invoke-restart 'abort-build))))

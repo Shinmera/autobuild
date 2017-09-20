@@ -13,22 +13,22 @@
 
 (defclass located () ())
 (defgeneric location (located))
-(defgeneric delete (located))
+(defgeneric destroy (located))
 
 (defmethod print-object ((located located) stream)
   (print-unreadable-object (located stream :type T)
     (format stream "~a" (location located))))
 
-(defmethod delete ((located located))
+(defmethod destroy ((located located))
   (uiop:delete-directory-tree
    (location located)
    :validate (constantly T)))
 
-(defmethod delete :around ((located located))
+(defmethod destroy :around ((located located))
   (call-next-method)
   located)
 
-(defgeneric create (type location remote &key branch))
+(defgeneric create (type location remote &key branch clone))
 (defclass repository (remote-ish located) ())
 (defgeneric update (repository))
 

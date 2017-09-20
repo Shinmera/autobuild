@@ -6,8 +6,10 @@
 
 (in-package #:org.shirakumo.autobuild.repository.git)
 
-(defmethod create ((type (eql :git)) location remote &key branch)
-  (change-class (legit:clone remote location :branch branch :bare T)
+(defmethod create ((type (eql :git)) location remote &key branch clone)
+  (change-class (if clone
+                    (legit:clone remote location :branch branch :bare T)
+                    (make-instance 'legit:repository :location location))
                 'repository))
 
 (defclass repository (autobuild-repository:repository legit:repository)

@@ -13,6 +13,9 @@
   :homepage "https://github.com/Shinmera/autobuild"
   :serial T
   :components ((:file "package")
+               (:file "recipe")
+               (:file "filesystem")
+               (:file "build")
                (:file "documentation"))
   :depends-on (:autobuild-repository
                :documentation-utils

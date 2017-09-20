@@ -6,15 +6,17 @@
 
 (in-package #:org.shirakumo.autobuild.build)
 
-(defgeneric ensure-repository (type remote branch))
-(defgeneric commit-location (commit recipe))
-
 (defclass stage ()
   ((name :initarg :name :accessor name)
    (dependencies :initarg :dependencies :accessor dependencies)))
 
 (defgeneric execute (stage))
 (defgeneric compute-plan (stage))
+
+(defmethod execute :around ((stage stage))
+  (with-simple-restart (skip "Skip executing stage ~a." stage)
+    (call-next-method)
+    stage))
 
 (defmethod compute-plan ((stage stage))
   (let ((sorted ())
@@ -32,16 +34,28 @@
       (visit stage))
     sorted))
 
+(defclass finish-stage (stage)
+  ())
+
+(defmethod execute ((stage finish-stage)))
+
 (defclass recipe (stage)
   ((commit :initarg :commit :accessor commit)
    (stages :initarg :stages :accessor stages)))
 
+(defmethod compute-plan ((recipe recipe))
+  (let ((depends-plan (call-next-method))
+        (finish (make-instance 'finish-stage :dependencies (stages recipe))))
+    (append depends-plan
+            (compute-plan finish))))
+
 (defmethod execute ((recipe recipe))
-  (destructuring-bind (type remote branch commit-id)
+  (destructuring-bind (&key commit &allow-other-keys)
       (commit recipe)
-    (let* ((repo (ensure-repository type remote branch))
-           (commit (find-commit commit-id repo))
-           (checkout (checkout commit (commit-location commit recipe))))
-      (simple-inferiors:with-chdir ((location checkout))
-        (dolist (stage (stages recipe))
-          (execute stage))))))
+    ;; FIXME: ensure checkout is cleaned if already exists
+    (let* ((repo (ensure-repository recipe))
+           (checkout (autobuild-repository:checkout
+                      (autobuild-repository:find-commit commit-id repo)
+                      (commit-location commit recipe))))
+      ;; FIXME: pin location
+      (autobuild-repository:location checkout))))
