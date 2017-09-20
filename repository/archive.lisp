@@ -30,6 +30,7 @@
         (uiop:copy-file file other)))))
 
 (defun update-remotely (url target)
+  ;; FIXME: actually implement the download and search logic.
   )
 
 (defmethod update ((repo repository))
