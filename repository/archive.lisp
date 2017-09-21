@@ -6,10 +6,12 @@
 
 (in-package #:org.shirakumo.autobuild.repository.archive)
 
-(defmethod create ((type (eql :archive)) location remote &key branch clone)
+(defmethod create ((type (eql :archive)) location remote &key branch)
   (let ((repository (make-instance 'repository :location location
                                                :remote remote)))
-    (if clone (update repository) repository)))
+    (unless (uiop:directory-exists-p location)
+      (update repository))
+    repository))
 
 (defclass repository (autobuild-repository:repository)
   ((commits :initform () :accessor commits)

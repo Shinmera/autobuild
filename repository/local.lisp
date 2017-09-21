@@ -6,20 +6,21 @@
 
 (in-package #:org.shirakumo.autobuild.repository.local)
 
-(defmethod create ((type (eql :local)) location remote &key branch clone)
-  (make-instance 'repository :remote remote
-                             :location location))
+(defmethod create ((type (eql :local)) location remote &key branch)
+  (let ((repository (make-instance 'repository :remote remote
+                                               :location location)))
+    (unless (uiop:directory-exists-p location)
+      (update repository))
+    repository))
 
 (defclass repository (autobuild-repository:repository
                       autobuild-repository:checkout)
   ())
 
-(defmethod initialize-instance :after ((repository repository) &key remote location)
+(defmethod update ((repository repository))
   (when (string/= remote location)
     ;; FIXME: Copy tree
     ))
-
-(defmethod update ((repository repository)))
 
 (defmethod list-commits ((repository repository))
   (list repository))

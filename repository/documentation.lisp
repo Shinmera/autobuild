@@ -52,10 +52,9 @@ REMOTE    --- Some kind of object that represents a remote repository
               to clone from.
 BRANCH    --- The branch of the repository to clone. This might not
               have an effect for types that don't have branches.
-CLONE     --- Whether to clone the repository at all. If this is NIL,
-              the repository will simply be instantiated from the
-              given data. This is useful if the location already has
-              a populated clone.
+
+If the given location already exists, the repository is /not/ copied
+and is instead instantiated from the existing data at the location.
 
 Returns a REPOSITORY instance.
 

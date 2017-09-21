@@ -28,7 +28,7 @@
   (call-next-method)
   located)
 
-(defgeneric create (type location remote &key branch clone))
+(defgeneric create (type location remote &key branch))
 (defclass repository (remote-ish located) ())
 (defgeneric update (repository))
 
