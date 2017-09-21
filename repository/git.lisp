@@ -58,9 +58,16 @@
   (legit:commit-age (repo commit) (hash commit)))
 
 (defmethod autobuild-repository:checkout ((commit commit) location)
-  (change-class (legit:clone (repo commit) location :branch (hash commit))
-                'checkout :repo (repo commit)
-                          :hash (hash commit)))
+  (let* ((existing (uiop:directory-exists-p location))
+         (repository (if existing
+                         (make-instance 'legit:repository :location location)
+                         (legit:clone (repo commit) location :branch (hash commit)))))
+    (change-class repository
+                  'checkout :repo (repo commit)
+                            :hash (hash commit))
+    (when existing
+      (clean repository))
+    repository))
 
 (defclass checkout (commit legit:repository autobuild-repository:checkout)
   ())

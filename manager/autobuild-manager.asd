@@ -4,7 +4,7 @@
  Author: Nicolas Hafner <shinmera@tymoon.eu>
 |#
 
-(asdf:defsystem autobuild-client
+(asdf:defsystem autobuild-manager
   :version "1.0.0"
   :license "Artistic"
   :author "Nicolas Hafner <shinmera@tymoon.eu>"
@@ -13,7 +13,13 @@
   :homepage "https://github.com/Shinmera/autobuild"
   :serial T
   :components ((:file "package")
+               (:file "line-stream")
+               (:file "builds")
+               (:file "recipes")
                (:file "documentation"))
   :depends-on (:autobuild-repository
                :autobuild-build
-               :documentation-utils))
+               :documentation-utils
+               :deeds
+               :verbose
+               :trivial-gray-streams))

@@ -6,6 +6,10 @@
 
 (in-package #:org.shirakumo.autobuild.repository.archive)
 
+(defun extract (archive destination)
+  ;; FIXME
+  )
+
 (defmethod create ((type (eql :archive)) location remote &key branch)
   (let ((repository (make-instance 'repository :location location
                                                :remote remote)))
@@ -85,6 +89,8 @@
   ((location :initarg :location :accessor location)))
 
 (defmethod prepare ((checkout checkout))
+  (when (uiop:directory-exists-p (location checkout))
+    (delete checkout))
   (extract (merge-pathnames (file commit) (location (repo commit)))
            (location checkout))
   checkout)

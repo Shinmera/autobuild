@@ -10,9 +10,6 @@
   ((name :initarg :name :accessor name)
    (dependencies :initarg :dependencies :accessor dependencies)))
 
-(defgeneric execute (stage))
-(defgeneric compute-plan (stage))
-
 (defmethod execute :around ((stage stage))
   (with-simple-restart (skip "Skip executing stage ~a." stage)
     (call-next-method)
@@ -34,6 +31,12 @@
       (visit stage))
     sorted))
 
+(defclass function-stage (stage)
+  ((func :initarg :function :accessor func)))
+
+(defmethod execute ((stage function-stage))
+  (funcall (func stage)))
+
 (defclass finish-stage (stage)
   ())
 
@@ -52,10 +55,9 @@
 (defmethod execute ((recipe recipe))
   (destructuring-bind (&key commit &allow-other-keys)
       (commit recipe)
-    ;; FIXME: ensure checkout is cleaned if already exists
     (let* ((repo (ensure-repository recipe))
            (checkout (autobuild-repository:checkout
                       (autobuild-repository:find-commit commit-id repo)
                       (commit-location commit recipe))))
-      ;; FIXME: pin location
-      (autobuild-repository:location checkout))))
+      (setf simple-inferiors:*cwd*
+            (autobuild-repository:location checkout)))))

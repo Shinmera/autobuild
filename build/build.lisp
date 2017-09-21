@@ -11,10 +11,12 @@
    (plan :initarg :plan :accessor plan)
    (current-stage :initform NIL :accessor current-stage)
    (metrics :initform () :accessor metrics)
-   (thread :initform NIL :accessor thread)))
+   (thread :initform NIL :accessor thread))
+  (:default-initargs
+   :plan ()))
 
 (defmethod execute :before ((build build))
-  (setf (status build) :running))
+  (setf (status build) :started))
 
 (defmethod execute :after ((build build))
   (setf (status build) :completed))
@@ -24,16 +26,17 @@
     (unwind-protect
          (multiple-value-prog1
              (restart-case (call-next-method)
-               (abort-build ()
-                 :report "Abort the build."
-                 (setf (status build) :aborted)))
+               (cancel-build ()
+                 :report "Cancel the build."
+                 (setf (status build) :cancelled)))
            (setf finished T))
       (unless finished
-        (setf (Status build) :failed)))))
+        (setf (status build) :failed)))))
 
 (defmethod execute ((build build))
-  (dolist (stage (plan build))
-    (run-stage stage build)))
+  (let ((simple-inferiors:*cwd* simple-inferiors:*cwd*))
+    (dolist (stage (plan build))
+      (run-stage stage build))))
 
 (defmethod run-stage :before ((stage stage) (build build))
   (setf (current-stage build) stage))
@@ -57,6 +60,8 @@
                             (setf (thread build) NIL))))))
 
 (defmethod cancel ((build build))
-  (unless (eql (status build) :running)
+  (unless (eql (status build) :started)
     (error "The build is not currently running."))
-  (bt:interrupt-thread (thread build) (lambda () (invoke-restart 'abort-build))))
+  (if (eql (bt:current-thread) (thread build))
+      (invoke-restart 'cancel-build)
+      (bt:interrupt-thread (thread build) (lambda () (invoke-restart 'cancel-build)))))

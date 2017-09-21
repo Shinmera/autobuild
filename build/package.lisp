@@ -8,4 +8,33 @@
 (defpackage #:autobuild-build
   (:nicknames #:org.shirakumo.autobuild.build)
   (:use #:cl)
-  (:export))
+  ;; build.lisp
+  (:export
+   #:build
+   #:status
+   #:plan
+   #:current-stage
+   #:metrics
+   #:thread
+   #:execute
+   #:run-stage
+   #:start
+   #:cancel)
+  ;; filesystem.lisp
+  (:export
+   #:*root*
+   #:*repositories*
+   #:recipe-location
+   #:commit-location
+   #:ensure-repository)
+  ;; recipe.lisp
+  (:export
+   #:stage
+   #:name
+   #:dependencies
+   #:execute
+   #:compute-plan
+   #:function-stage
+   #:func
+   #:finish-stage
+   #:recipe))
