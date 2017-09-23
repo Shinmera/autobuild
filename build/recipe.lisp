@@ -37,27 +37,11 @@
 (defmethod execute ((stage function-stage))
   (funcall (func stage)))
 
-(defclass finish-stage (stage)
-  ())
-
-(defmethod execute ((stage finish-stage)))
-
 (defclass recipe (stage)
-  ((commit :initarg :commit :accessor commit)
-   (stages :initarg :stages :accessor stages)))
+  ((repository :initarg :repository :accessor repository)
+   (dependencies :initarg :stages :accessor stages)))
 
-(defmethod compute-plan ((recipe recipe))
-  (let ((depends-plan (call-next-method))
-        (finish (make-instance 'finish-stage :dependencies (stages recipe))))
-    (append depends-plan
-            (compute-plan finish))))
+(defmethod initialize-instance :after ((recipe recipe) &key)
+  (check-type (repository build) autobuild-repository:repository))
 
-(defmethod execute ((recipe recipe))
-  (destructuring-bind (&key commit &allow-other-keys)
-      (commit recipe)
-    (let* ((repo (ensure-repository recipe))
-           (checkout (autobuild-repository:checkout
-                      (autobuild-repository:find-commit commit-id repo)
-                      (commit-location commit recipe))))
-      (setf simple-inferiors:*cwd*
-            (autobuild-repository:location checkout)))))
+(defmethod execute ((recipe recipe)))

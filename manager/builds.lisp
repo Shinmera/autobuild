@@ -16,12 +16,9 @@
   ((build :initform NIL :accessor build)))
 
 (defclass build (autobuild-build:build)
-  ((recipe :initarg :recipe :accessor recipe))
-  (:default-initargs
-   :recipe (error "RECIPE required.")))
+  ())
 
 (defmethod initialize-instance :after ((build build) &key recipe)
-  (setf (plan build) (autobuild-build:compute-plan recipe))
   (setf (gethash recipe *builds*) build))
 
 (deeds:define-event build-event ()

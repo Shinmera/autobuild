@@ -8,12 +8,20 @@
 
 (defclass build ()
   ((status :initform :created :accessor status)
-   (plan :initarg :plan :accessor plan)
+   (recipe :initarg :recipe :accessor recipe)
+   (commit :initarg :commit :accessor commit)
+   (location :initarg :location :accessor location)
    (current-stage :initform NIL :accessor current-stage)
    (metrics :initform () :accessor metrics)
    (thread :initform NIL :accessor thread))
   (:default-initargs
-   :plan ()))
+   :recipe (error "RECIPE required.")
+   :commit :latest
+   :location (error "LOCATION required.")))
+
+(defmethod initialize-instance :after ((build build) &key)
+  (check-type (recipe build) recipe)
+  (check-type (location build) pathname))
 
 (defmethod execute :before ((build build))
   (setf (status build) :started))
@@ -34,8 +42,13 @@
         (setf (status build) :failed)))))
 
 (defmethod execute ((build build))
-  (let ((simple-inferiors:*cwd* simple-inferiors:*cwd*))
-    (dolist (stage (plan build))
+  (autobuild-repository:checkout
+   (autobuild-repository:find-commit
+    (commit build)
+    (repository (recipe build)))
+   (location build))
+  (simple-inferiors:with-chdir (location)
+    (dolist (stage (compute-plan recipe))
       (run-stage stage build))))
 
 (defmethod run-stage :before ((stage stage) (build build))

@@ -14,7 +14,6 @@
   :serial T
   :components ((:file "package")
                (:file "recipe")
-               (:file "filesystem")
                (:file "build")
                (:file "documentation"))
   :depends-on (:autobuild-repository
