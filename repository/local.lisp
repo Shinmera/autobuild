@@ -7,7 +7,8 @@
 (in-package #:org.shirakumo.autobuild.repository.local)
 
 (defmethod create ((type (eql :local)) location remote &key branch)
-  (let ((repository (make-instance 'repository :remote remote
+  (declare (ignore branch))
+  (let ((repository (make-instance 'repository :remote (or remote location)
                                                :location location)))
     (unless (uiop:directory-exists-p location)
       (update repository))
@@ -15,7 +16,8 @@
 
 (defclass repository (autobuild-repository:repository
                       autobuild-repository:checkout)
-  ())
+  ((location :initarg :location :accessor location)
+   (remote :initarg :remote :accessor remote)))
 
 (defmethod update ((repository repository))
   (when (string/= remote location)

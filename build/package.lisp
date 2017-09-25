@@ -12,7 +12,9 @@
   (:export
    #:build
    #:status
-   #:plan
+   #:recipe
+   #:commit
+   #:location
    #:current-stage
    #:metrics
    #:thread
@@ -20,13 +22,6 @@
    #:run-stage
    #:start
    #:cancel)
-  ;; filesystem.lisp
-  (:export
-   #:*root*
-   #:*repositories*
-   #:recipe-location
-   #:commit-location
-   #:ensure-repository)
   ;; recipe.lisp
   (:export
    #:stage
@@ -34,7 +29,9 @@
    #:dependencies
    #:execute
    #:compute-plan
+   #:announce-stage
    #:function-stage
    #:func
-   #:finish-stage
-   #:recipe))
+   #:recipe
+   #:repository
+   #:stages))

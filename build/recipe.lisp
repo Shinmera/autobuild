@@ -8,7 +8,14 @@
 
 (defclass stage ()
   ((name :initarg :name :accessor name)
-   (dependencies :initarg :dependencies :accessor dependencies)))
+   (dependencies :initarg :dependencies :accessor dependencies))
+  (:default-initargs
+   :name (error "NAME required.")
+   :dependencies ()))
+
+(defmethod print-object ((stage stage) stream)
+  (print-unreadable-object (stage stream :type T)
+    (format stream "~a" (name stage))))
 
 (defmethod execute :around ((stage stage))
   (with-simple-restart (skip "Skip executing stage ~a." stage)
@@ -29,19 +36,29 @@
                   (setf (gethash stage visited) :permanently)
                   (push stage sorted)))))
       (visit stage))
-    sorted))
+    (nreverse sorted)))
+
+(defclass announce-stage (stage)
+  ())
+
+(defmethod execute ((stage announce-stage))
+  (format T "~&> Running stage ~s.~%" (name stage)))
 
 (defclass function-stage (stage)
-  ((func :initarg :function :accessor func)))
+  ((func :initarg :function :accessor func))
+  (:default-initargs
+   :func (lambda ())))
 
 (defmethod execute ((stage function-stage))
   (funcall (func stage)))
 
 (defclass recipe (stage)
   ((repository :initarg :repository :accessor repository)
-   (dependencies :initarg :stages :accessor stages)))
+   (dependencies :initarg :stages :accessor stages))
+  (:default-initargs
+   :repository (error "REPOSITORY required.")))
 
 (defmethod initialize-instance :after ((recipe recipe) &key)
-  (check-type (repository build) autobuild-repository:repository))
+  (check-type (repository recipe) autobuild-repository:repository))
 
 (defmethod execute ((recipe recipe)))
