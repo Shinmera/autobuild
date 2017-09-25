@@ -6,6 +6,8 @@
 
 (in-package #:org.shirakumo.autobuild.repository.archive)
 
+(defvar *archive-types* #("gz" "tar" "zip"))
+
 (defun extract (archive destination)
   ;; FIXME
   )
@@ -29,11 +31,12 @@
 
 (defun update-locally (path target)
   (dolist (file (uiop:directory-files path))
-    (let ((other (make-pathname :name (pathname-name file)
-                                :type (pathname-type file)
-                                :defaults target)))
-      (unless (uiop:file-exists-p other)
-        (uiop:copy-file file other)))))
+    (when (find (pathname-type file) *archive-types* :test #'string-equal)
+      (let ((other (make-pathname :name (pathname-name file)
+                                  :type (pathname-type file)
+                                  :defaults target)))
+        (unless (uiop:file-exists-p other)
+          (uiop:copy-file file other))))))
 
 (defun update-remotely (url target)
   ;; FIXME: actually implement the download and search logic.
