@@ -8,6 +8,9 @@
 
 (defvar *recipes* (make-hash-table :test 'eql))
 
+(defclass recipe (autobuild-build:recipe)
+  ((build :initform NIL :accessor build)))
+
 (defun recipe (name &key error)
   (or (gethash name *recipes*)
       (when error (error "No recipe with name ~s known." name))))

@@ -14,6 +14,7 @@
   :serial T
   :components ((:file "package")
                (:file "line-stream")
+               (:file "events")
                (:file "builds")
                (:file "recipes")
                (:file "documentation"))
