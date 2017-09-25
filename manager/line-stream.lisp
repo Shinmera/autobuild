@@ -8,7 +8,7 @@
 
 (defclass line-stream (trivial-gray-streams:fundamental-character-output-stream)
   ((on-line :initarg :on-line :accessor on-line)
-   (buffer :iniform (make-string-output-stream) :accessor buffer)
+   (buffer :initform (make-string-output-stream) :accessor buffer)
    (column :initform 0 :accessor column))
   (:default-initargs
    :on-line #'print))
@@ -36,7 +36,7 @@
         do (%write-char stream (aref string i))))
 
 (defmethod trivial-gray-streams:stream-terpri ((stream line-stream))
-  (%write-char stream #\Linefeed)
+  (%write-char stream #\Linefeed))
 
 (defmethod trivial-gray-streams:stream-fresh-line ((stream line-stream))
   (unless (= 0 (column stream))

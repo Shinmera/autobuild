@@ -23,6 +23,11 @@
   (check-type (recipe build) recipe)
   (check-type (location build) pathname))
 
+(defmethod print-object ((build build) stream)
+  (print-unreadable-object (build stream :type T)
+    (format stream "~a/~a ~a"
+            (name (recipe build)) (commit build) (status build))))
+
 (defmethod execute :before ((build build))
   (setf (status build) :started))
 
