@@ -8,7 +8,10 @@ Autobuild is divided up into multiple components to separate concerns and make t
 Provides the low-level build and recipe constructs and operations. This can be used to manually assemble recipes and builds.
 
 ### Client
-Allows the running of recipes standalone or as a build machine tied to a managing server.
+Allows the running of recipes as a build machine tied to a managing server.
+
+### CLI
+Allows the running of recipes standalone on the command line.
 
 ### Manager
 Manages builds and recipes and ties them into an event system to allow integration with extensions.
