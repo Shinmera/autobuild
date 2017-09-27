@@ -36,11 +36,16 @@
 (deeds:define-command build-recipe (ev recipe commit location)
   :superclasses (recipe-event)
   :class 'deeds:locally-blocking-handler
-  (autobuild-build:start (make-instance 'build :recipe (ensure-recipe recipe)
-                                               :commit commit
-                                               :location location)))
+  (start (make-instance 'build :recipe (ensure-recipe recipe)
+                               :commit commit
+                               :location location)))
 
 (deeds:define-command cancel-build (ev build)
   :superclasses (build-event)
   :class 'deeds:locally-blocking-handler
-  (autobuild-build:cancel build))
+  (cancel build))
+
+(deeds:define-command destroy-build (ev build)
+  :superclasses (build-event)
+  :class 'deeds:locally-blocking-handler
+  (destroy build))

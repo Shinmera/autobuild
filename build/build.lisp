@@ -126,3 +126,8 @@
       (invoke-restart 'cancel-build)
       (bt:interrupt-thread (thread build) (lambda () (invoke-restart 'cancel-build))))
   build)
+
+(defmethod destroy ((build build))
+  (bt:with-lock-held (*builds-lock*)
+    (setf *builds* (remove build *builds*)))
+  (uiop:delete-directory-tree (location build) :validate (constantly T)))
