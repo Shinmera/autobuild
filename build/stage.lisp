@@ -10,7 +10,7 @@
   ((name :initarg :name :accessor name)
    (dependencies :initarg :dependencies :accessor dependencies))
   (:default-initargs
-   :name (error "NAME required.")
+   :name (gensym (string :stage-))
    :dependencies ()))
 
 (defmethod print-object ((stage stage) stream)
@@ -42,7 +42,7 @@
   ())
 
 (defmethod execute ((stage announce-stage))
-  (v:info :announce "~&> Running stage ~s.~%" (name stage)))
+  (v:info :announce "Running stage ~s." (name stage)))
 
 (defclass function-stage (stage)
   ((func :initarg :function :accessor func))

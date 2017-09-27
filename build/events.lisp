@@ -33,17 +33,14 @@
   (:default-initargs
    :recipe (error "RECIPE required.")))
 
-(deeds:define-command build-recipe (recipe)
+(deeds:define-command build-recipe (ev recipe commit location)
   :superclasses (recipe-event)
   :class 'deeds:locally-blocking-handler
-  (cond ((build recipe)
-         (v:warn "Cannot launch a build for a recipe: already building." recipe))
-        (T
-         (autobuild-build:start (make-instance 'build :recipe recipe)))))
+  (autobuild-build:start (make-instance 'build :recipe (ensure-recipe recipe)
+                                               :commit commit
+                                               :location location)))
 
-(deeds:define-command cancel-recipe (recipe)
-  :superclasses (recipe-event)
+(deeds:define-command cancel-build (ev build)
+  :superclasses (build-event)
   :class 'deeds:locally-blocking-handler
-  (if (build recipe)
-      (autobuild-build:cancel (build recipe))
-      (v:warn "Cannot cancel the recipe ~a: no build." recipe)))
+  (autobuild-build:cancel build))
