@@ -4,7 +4,7 @@
  Author: Nicolas Hafner <shinmera@tymoon.eu>
 |#
 
-(in-package #:org.shirakumo.autobuild.manager)
+(in-package #:org.shirakumo.autobuild.build)
 
 (defclass line-stream (trivial-gray-streams:fundamental-character-output-stream)
   ((on-line :initarg :on-line :accessor on-line)

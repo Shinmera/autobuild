@@ -4,7 +4,7 @@
  Author: Nicolas Hafner <shinmera@tymoon.eu>
 |#
 
-(in-package #:org.shirakumo.autobuild.manager)
+(in-package #:org.shirakumo.autobuild.build)
 
 (deeds:define-event build-event ()
   ((build :initarg :build :reader build))
@@ -39,11 +39,7 @@
   (cond ((build recipe)
          (v:warn "Cannot launch a build for a recipe: already building." recipe))
         (T
-         (let ((build (make-instance 'build :recipe recipe)))
-           (setf (build recipe) build)
-           (bt:with-lock-held (*builds-lock*)
-             (push build *builds*))
-           (autobuild-build:start build)))))
+         (autobuild-build:start (make-instance 'build :recipe recipe)))))
 
 (deeds:define-command cancel-recipe (recipe)
   :superclasses (recipe-event)

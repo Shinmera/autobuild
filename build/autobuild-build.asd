@@ -13,9 +13,15 @@
   :homepage "https://github.com/Shinmera/autobuild"
   :serial T
   :components ((:file "package")
+               (:file "line-stream")
+               (:file "stage")
                (:file "recipe")
                (:file "build")
+               (:file "events")
                (:file "documentation"))
   :depends-on (:autobuild-repository
                :documentation-utils
-               :simple-inferiors))
+               :simple-inferiors
+               :trivial-gray-streams
+               :verbose
+               :deeds))

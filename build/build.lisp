@@ -6,6 +6,12 @@
 
 (in-package #:org.shirakumo.autobuild.build)
 
+(defvar *builds* ())
+(defvar *builds-lock* (bt:make-lock "builds-list lock"))
+
+(defun list-builds ()
+  (copy-list *builds*))
+
 (defclass build ()
   ((status :initform :created :accessor status)
    (recipe :initarg :recipe :accessor recipe)
@@ -19,9 +25,32 @@
    :commit :latest
    :location (error "LOCATION required.")))
 
+(defmethod initialize-instance :around ((build build) &rest initargs)
+  (let ((initargs (copy-list initargs)))
+    (setf (getf initargs :recipe) (etypecase (getf initargs :recipe)
+                                    (recipe (getf initargs :recipe))
+                                    (T (find-recipe (getf initargs :recipe) :error T))))
+    (apply #'call-next-method build initargs)))
+
 (defmethod initialize-instance :after ((build build) &key)
   (check-type (recipe build) recipe)
-  (check-type (location build) pathname))
+  (check-type (location build) pathname)
+  (bt:with-lock-held (*builds-lock*)
+    (push build *builds*)))
+
+(defmethod (setf status) :before (status (build build))
+  (v:info :autobuild.manager "~a changing status to ~a." build status))
+
+(defmethod (setf status) :after (status (build build))
+  (deeds:issue
+   (make-instance
+    (ecase status
+      (:started 'build-started)
+      (:completed 'build-completed)
+      (:cancelled 'build-cancelled)
+      (:failed 'build-failed))
+    :build build)
+   deeds:*standard-event-loop*))
 
 (defmethod print-object ((build build) stream)
   (print-unreadable-object (build stream :type T)
@@ -35,16 +64,19 @@
   (setf (status build) :completed))
 
 (defmethod execute :around ((build build))
-  (let ((finished NIL))
-    (unwind-protect
-         (multiple-value-prog1
-             (restart-case (call-next-method)
-               (cancel-build ()
-                 :report "Cancel the build."
-                 (setf (status build) :cancelled)))
-           (setf finished T))
-      (unless finished
-        (setf (status build) :failed)))))
+  (flet ((w (line)
+           (deeds:do-issue build-output :output line)))
+    (let ((finished NIL)
+          (*standard-output* (make-instance 'line-stream :on-line #'w)))
+      (unwind-protect
+           (multiple-value-prog1
+               (restart-case (call-next-method)
+                 (cancel-build ()
+                   :report "Cancel the build."
+                   (setf (status build) :cancelled)))
+             (setf finished T))
+        (unless finished
+          (setf (status build) :failed))))))
 
 (defmethod execute ((build build))
   (autobuild-repository:checkout
@@ -57,7 +89,9 @@
       (run-stage stage build))))
 
 (defmethod run-stage :before ((stage stage) (build build))
-  (setf (current-stage build) stage))
+  (setf (current-stage build) stage)
+  (v:info :autobuild.manager "~a entering stage ~a."
+          build (name stage)))
 
 (defmethod run-stage :after ((stage stage) (build build))
   (setf (current-stage build) NIL))
