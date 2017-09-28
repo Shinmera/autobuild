@@ -6,6 +6,7 @@
 
 (in-package #:org.shirakumo.autobuild.build)
 
+(defvar *build*)
 (defvar *builds* ())
 (defvar *builds-lock* (bt:make-lock "builds-list lock"))
 
@@ -16,6 +17,7 @@
   ((status :initform :created :accessor status)
    (recipe :initarg :recipe :accessor recipe)
    (commit :initarg :commit :accessor commit)
+   (arguments :initarg :arguments :accessor arguments)
    (location :initarg :location :accessor location)
    (current-stage :initform NIL :accessor current-stage)
    (metrics :initform (make-hash-table) :accessor metrics)
@@ -23,6 +25,7 @@
   (:default-initargs
    :recipe (error "RECIPE required.")
    :commit :latest
+   :arguments ()
    :location (error "LOCATION required.")))
 
 (defmethod initialize-instance :around ((build build) &rest initargs)
@@ -67,6 +70,7 @@
   (flet ((w (line)
            (deeds:do-issue build-output :output line)))
     (let ((finished NIL)
+          (*build* build)
           (*standard-output* (make-instance 'line-stream :on-line #'w)))
       (unwind-protect
            (multiple-value-prog1
@@ -131,3 +135,7 @@
   (bt:with-lock-held (*builds-lock*)
     (setf *builds* (remove build *builds*)))
   (uiop:delete-directory-tree (location build) :validate (constantly T)))
+
+(defun argument (name &optional (build *build*))
+  (getf (intern (string-upcase name) :keyword)
+        (arguments build)))

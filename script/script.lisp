@@ -6,6 +6,13 @@
 
 (in-package #:org.shirakumo.autobuild.script)
 
+(defvar *script-readtable* (copy-readtable))
+
+(set-macro-character #\$ (lambda (s c)
+                           (declare (ignore c))
+                           `(autobuild-build:argument ',(read s)))
+                     T *script-readtable*)
+
 (defmethod parse-body-for-class ((class symbol) body)
   (parse-body-for-class (find-class class) body))
 
@@ -48,7 +55,8 @@
 (defun read-script-file (file)
   (with-open-file (stream file :direction :input
                                :if-does-not-exist :error)
-    (let ((*package* (find-package '#:org.shirakumo.autobuild.script.user)))
+    (let ((*package* (find-package '#:org.shirakumo.autobuild.script.user))
+          (*readtable* *script-readtable*))
       (loop with eof = (gensym)
             for token = (read stream NIL eof)
             until (eq token eof)

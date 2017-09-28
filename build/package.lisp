@@ -10,10 +10,13 @@
   (:use #:cl)
   ;; build.lisp
   (:export
+   #:*build*
+   #:list-builds
    #:build
    #:status
    #:recipe
    #:commit
+   #:arguments
    #:location
    #:current-stage
    #:metrics
@@ -21,7 +24,9 @@
    #:execute
    #:run-stage
    #:start
-   #:cancel)
+   #:cancel
+   #:destroy
+   #:argument)
   ;; events.lisp
   (:export
    #:build-event
