@@ -22,7 +22,35 @@
    #:run-stage
    #:start
    #:cancel)
+  ;; events.lisp
+  (:export
+   #:build-event
+   #:build
+   #:build-output
+   #:output
+   #:build-started
+   #:build-completed
+   #:build-cancelled
+   #:build-failed
+   #:recipe-event
+   #:recipe
+   #:build-recipe
+   #:cancel-build
+   #:destroy-build)
+  ;; line-stream.lisp
+  (:export
+   #:line-stream
+   #:on-line)
   ;; recipe.lisp
+  (:export
+   #:ensure-recipe
+   #:find-recipe
+   #:remove-recipe
+   #:list-recipes
+   #:recipe
+   #:repository
+   #:stages)
+  ;; stage.lisp
   (:export
    #:stage
    #:name
@@ -31,7 +59,4 @@
    #:compute-plan
    #:announce-stage
    #:function-stage
-   #:func
-   #:recipe
-   #:repository
-   #:stages))
+   #:func))

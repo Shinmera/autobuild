@@ -40,7 +40,7 @@
 
 (defclass recipe (stage)
   ((repository :initarg :repository :accessor repository)
-   (stage :initarg :stages :accessor stages))
+   (stages :initarg :stages :accessor stages))
   (:default-initargs
    :repository (error "REPOSITORY required.")))
 
