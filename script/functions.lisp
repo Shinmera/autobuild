@@ -20,14 +20,6 @@
   (dolist (content contents)
     (resolve-arg content T)))
 
-(defun > (file &rest contents)
-  (with-open-file (stream (rpath file)
-                          :direction :output
-                          :if-exists :supersede
-                          :if-does-not-not-exist :create)
-    (dolist (content contents)
-      (resolve-arg content stream))))
-
 (defun >> (file &rest contents)
   (with-open-file (stream (rpath file)
                           :direction :output

@@ -11,7 +11,6 @@
   ;; functions.lisp
   (:export
    #:--
-   #:>
    #:>>
    #:./
    #:sed
