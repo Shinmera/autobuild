@@ -64,4 +64,6 @@
    #:compute-plan
    #:announce-stage
    #:function-stage
-   #:func))
+   #:func
+   #:eval-stage
+   #:form))

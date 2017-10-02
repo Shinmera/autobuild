@@ -51,3 +51,11 @@
 
 (defmethod execute ((stage function-stage))
   (funcall (func stage)))
+
+(defclass eval-stage (stage)
+  ((form :initarg :form :accessor form))
+  (:default-initargs
+   :form ()))
+
+(defmethod execute ((stage eval-stage))
+  (funcall (compile NIL `(lambda () ,(form stage)))))
