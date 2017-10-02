@@ -16,14 +16,14 @@
 (defmethod parse-body-for-class ((class symbol) body)
   (parse-body-for-class (find-class class) body))
 
-(defmethod parse-body-for-class ((class (eql (find-class 'autobuild-build:function-stage))) body)
-  (list :func (compile NIL `(lambda () ,@body))))
+(defmethod parse-body-for-class ((class (eql (find-class 'autobuild-build:eval-stage))) body)
+  (list :form `(progn ,@body)))
 
 (defun parse-stage (stagedef)
   (destructuring-bind (name &rest stagedef) stagedef
     (form-fiddle:with-body-options (body other
                                          depends-on
-                                         (class 'autobuild-build:function-stage))
+                                         (class 'autobuild-build:eval-stage))
                                    stagedef
       (apply #'allocate-instance class
              :name name
@@ -47,7 +47,7 @@
           (initialize-instance stage :dependencies deps)))
       (apply #'make-instance class
              :name name
-             :repository repository
+             :repository repository ;; FIXME: must be repository instance. Where do we get location?
              :dependencies depends-on
              :stages stages
              other))))
