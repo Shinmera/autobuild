@@ -19,6 +19,9 @@
 (defmethod parse-body-for-class ((class (eql (find-class 'autobuild-build:eval-stage))) body)
   (list :form `(progn ,@body)))
 
+(defun resolve-repository (recipe-name repospec)
+  (error "RESOLVE-REPOSITORY has not been implemented."))
+
 (defun parse-stage (stagedef)
   (destructuring-bind (name &rest stagedef) stagedef
     (form-fiddle:with-body-options (body other
@@ -47,7 +50,7 @@
           (initialize-instance stage :dependencies deps)))
       (apply #'make-instance class
              :name name
-             :repository repository ;; FIXME: must be repository instance. Where do we get location?
+             :repository (resolve-repository name repository)
              :dependencies depends-on
              :stages stages
              other))))
