@@ -12,6 +12,7 @@
   (:export
    #:*build*
    #:list-builds
+   #:find-build
    #:build
    #:status
    #:recipe

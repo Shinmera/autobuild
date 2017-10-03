@@ -13,6 +13,27 @@
 (defun list-builds ()
   (copy-list *builds*))
 
+(defmethod find-build (recipe-ish commit)
+  (find-build (find-recipe recipe-ish :error T) commit))
+
+(defmethod find-build ((recipe recipe) commit)
+  (dolist (build *builds*)
+    (when (and (eq recipe (recipe build))
+               (equal commit (commit build)))
+      (return build))))
+
+(defmethod find-build ((recipe recipe) (latest (eql :latest)))
+  (let ((latest NIL))
+    (flet ((tt (build)
+             (autobuild-repository:timestamp
+              (autobuild-repository:find-commit
+               (commit build) (repository recipe)))))
+      (dolist (build *builds* latest)
+        (when (and (eq recipe (recipe build))
+                   (or (not latest))
+                   (< (tt latest) (tt build)))
+          (setf latest build))))))
+
 (defclass build ()
   ((status :initform :created :accessor status)
    (recipe :initarg :recipe :accessor recipe)
