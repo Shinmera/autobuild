@@ -16,4 +16,6 @@
                (:file "documentation"))
   :depends-on (:autobuild-repository
                :autobuild-build
+               :autobuild-script
+               :command-line-arguments
                :documentation-utils))

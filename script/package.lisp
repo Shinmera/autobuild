@@ -20,7 +20,7 @@
   (:export
    #:parse-body-for-class
    #:resolve-repository
-   #:load-script))
+   #:load-recipe))
 
 (defpackage #:autobuild-script-user
   (:nicknames #:org.shirakumo.autobuild.script.user)

@@ -55,7 +55,7 @@
              :stages stages
              other))))
 
-(defun read-script-file (file)
+(defun read-recipe-file (file)
   (with-open-file (stream file :direction :input
                                :if-does-not-exist :error)
     (let ((*package* (find-package '#:org.shirakumo.autobuild.script.user))
@@ -65,8 +65,8 @@
             until (eq token eof)
             collect token))))
 
-(defun load-script (file &key (register T))
-  (let ((recipe (parse-recipe (read-script-file file))))
+(defun load-recipe (file &key (register T))
+  (let ((recipe (parse-recipe (read-recipe-file file))))
     (when register
       (setf (autobuild-build:find-recipe (autobuild-build:name recipe) :force T) recipe))
     recipe))
