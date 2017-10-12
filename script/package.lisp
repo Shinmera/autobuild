@@ -19,7 +19,6 @@
   ;; script.lisp
   (:export
    #:parse-body-for-class
-   #:resolve-repository
    #:load-recipe))
 
 (defpackage #:autobuild-script-user

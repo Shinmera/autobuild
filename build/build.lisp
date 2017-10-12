@@ -37,7 +37,7 @@
 (defclass build ()
   ((status :initform :created :accessor status)
    (recipe :initarg :recipe :accessor recipe)
-   (commit :initarg :commit :accessor commit)
+   (commit :accessor commit)
    (arguments :initarg :arguments :accessor arguments)
    (location :initarg :location :accessor location)
    (current-stage :initform NIL :accessor current-stage)
@@ -56,11 +56,15 @@
                                     (T (find-recipe (getf initargs :recipe) :error T))))
     (apply #'call-next-method build initargs)))
 
-(defmethod initialize-instance :after ((build build) &key)
+(defmethod initialize-instance :after ((build build) &key commit)
   (check-type (recipe build) recipe)
   (check-type (location build) pathname)
+  (setf (commit build) commit)
   (bt:with-lock-held (*builds-lock*)
     (push build *builds*)))
+
+(defmethod (setf commit) ((commit string) (build build))
+  (setf (commit build) (autobuild-repository:find-commit commit (repository build))))
 
 (defmethod (setf status) :before (status (build build))
   (v:info :autobuild.manager "~a changing status to ~a." build status))
@@ -79,7 +83,10 @@
 (defmethod print-object ((build build) stream)
   (print-unreadable-object (build stream :type T)
     (format stream "~a/~a ~a"
-            (name (recipe build)) (commit build) (status build))))
+            (name (recipe build)) (autobuild-repository:id (commit build)) (status build))))
+
+(defmethod repository ((build build))
+  (repository (recipe build)))
 
 (defmethod execute :before ((build build))
   (setf (status build) :started))
@@ -89,7 +96,8 @@
 
 (defmethod execute :around ((build build))
   (flet ((w (line)
-           (deeds:do-issue build-output :output line)))
+           (v:info :autobuild.manager "~a: ~a" build line)
+           (deeds:do-issue build-output :output line :build build)))
     (let ((finished NIL)
           (*build* build)
           (*standard-output* (make-instance 'line-stream :on-line #'w)))
@@ -105,9 +113,7 @@
 
 (defmethod execute ((build build))
   (autobuild-repository:checkout
-   (autobuild-repository:find-commit
-    (commit build)
-    (repository (recipe build)))
+   (commit build)
    (location build))
   (simple-inferiors:with-chdir ((location build))
     (dolist (stage (compute-plan (recipe build)))

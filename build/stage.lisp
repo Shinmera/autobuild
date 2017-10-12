@@ -45,17 +45,35 @@
   (v:info :announce "Running stage ~s." (name stage)))
 
 (defclass function-stage (stage)
-  ((func :initarg :function :accessor func))
-  (:default-initargs
-   :func (lambda ())))
+  ((func :initarg :function :initform (lambda ()) :accessor func)))
 
 (defmethod execute ((stage function-stage))
   (funcall (func stage)))
 
 (defclass eval-stage (stage)
-  ((form :initarg :form :accessor form))
-  (:default-initargs
-   :form ()))
+  ((form :initarg :form :initform () :accessor form)))
 
 (defmethod execute ((stage eval-stage))
   (funcall (compile NIL `(lambda () ,(form stage)))))
+
+(defclass lisp-stage (stage)
+  ((inferior-lisp :initarg :inferior-lisp :initform (first (uiop:raw-command-line-arguments)) :accessor inferior-lisp)
+   (lisp-type :initarg :lisp-type :initform :SBCL :accessor lisp-type)
+   (form :initarg :form :initform () :accessor form)))
+
+(defmethod execute ((stage lisp-stage))
+  (let* ((form-string (let ((*package* (find-package "CL-USER")))
+                        (typecase (form stage)
+                          (string (form stage))
+                          (T (prin1-to-string (form stage))))))
+         (args (ecase (lisp-type stage)
+                 (:sbcl (list "--noinform" "--non-interactive" "--eval" form-string)))))
+    (simple-inferiors:run (inferior-lisp stage) args :output T :error T :on-non-zero-exit :error :copier :line)))
+
+(defclass asdf-system-stage (lisp-stage)
+  ((operation :initarg :operation :initform :load-op :accessor operation)
+   (system :initarg :system :initform (error "SYSTEM required.") :accessor system)))
+
+(defmethod execute :before ((stage asdf-system-stage))
+  (setf (form stage) `(progn (asdf:initialize-source-registry `(:source-registry (:tree ,(uiop:getcwd)) :inherit-configuration))
+                             (asdf:operate ,(operation stage) ,(system stage) :verbose T :force T))))

@@ -13,9 +13,11 @@
   :homepage "https://github.com/Shinmera/autobuild"
   :serial T
   :components ((:file "package")
+               (:file "cli")
                (:file "documentation"))
   :depends-on (:autobuild-repository
                :autobuild-build
                :autobuild-script
+               :pathname-utils
                :command-line-arguments
                :documentation-utils))

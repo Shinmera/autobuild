@@ -8,10 +8,8 @@
 
 (defvar *recipes* (make-hash-table :test 'equal))
 
-(defun ensure-recipe (recipe-ish)
-  (typecase recipe-ish
-    (recipe recipe-ish)
-    (T (find-recipe recipe-ish :error T))))
+(defmethod ensure-recipe (recipe-ish)
+  (find-recipe recipe-ish :error T))
 
 (defun find-recipe (name &key error)
   (or (gethash name *recipes*)
@@ -44,10 +42,12 @@
   (:default-initargs
    :repository (error "REPOSITORY required.")))
 
-(defmethod initialize-instance :before ((recipe recipe) &key stages dependencies repository)
+(defmethod initialize-instance :before ((recipe recipe) &key stages dependencies)
   (dolist (stage stages) (check-type stage stage))
-  (map-into dependencies #'ensure-recipe dependencies)
-  (check-type repository autobuild-repository:repository))
+  (map-into dependencies #'ensure-recipe dependencies))
+
+(defmethod ensure-recipe ((recipe recipe))
+  recipe)
 
 (defmethod compute-plan ((recipe recipe))
   (let ((deps (call-next-method))

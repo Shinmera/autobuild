@@ -19,8 +19,8 @@
 (defmethod parse-body-for-class ((class (eql (find-class 'autobuild-build:eval-stage))) body)
   (list :form `(progn ,@body)))
 
-(defun resolve-repository (recipe-name repospec)
-  (error "RESOLVE-REPOSITORY has not been implemented."))
+(defmethod parse-body-for-class ((class standard-class) body)
+  body)
 
 (defun parse-stage (stagedef)
   (destructuring-bind (name &rest stagedef) stagedef
@@ -28,10 +28,21 @@
                                          depends-on
                                          (class 'autobuild-build:eval-stage))
                                    stagedef
-      (apply #'allocate-instance class
+      (list* (allocate-instance (find-class class))
              :name name
              :dependencies depends-on
-             (append (parse-body-for-class class body)) other))))
+             (append (parse-body-for-class class body)
+                     other)))))
+
+(defun resolve-stages (stages)
+  (loop for (stage . initargs) in stages
+        for dependencies = (getf initargs dependencies)
+        do (setf (getf initargs :dependencies)
+                 (loop for dep in dependencies
+                       for stage = (find dep stages :test #'equal
+                                                    :key (lambda (a) (getf a :name)))
+                       collect (first stage)))
+        collect (apply #'initialize-instance stage initargs)))
 
 (defun parse-recipe (recipedef)
   (form-fiddle:with-body-options (body other
@@ -40,20 +51,12 @@
                                        depends-on
                                        (class 'autobuild-build:recipe))
                                  recipedef
-    (let ((stages (mapcar #'parse-stage body)))
-      (dolist (stage stages)
-        (let ((deps (loop for dep in (autobuild-build:dependencies stage)
-                          collect (or (find dep stages :key #'autobuild-build:name
-                                                       :test #'equal)
-                                      (error "~a cannot depend on ~a: no such stage."
-                                             stage dep)))))
-          (initialize-instance stage :dependencies deps)))
-      (apply #'make-instance class
-             :name name
-             :repository (resolve-repository name repository)
-             :dependencies depends-on
-             :stages stages
-             other))))
+    (apply #'make-instance class
+           :name name
+           :repository repository
+           :dependencies depends-on
+           :stages (resolve-stages (mapcar #'parse-stage body))
+           other)))
 
 (defun read-recipe-file (file)
   (with-open-file (stream file :direction :input

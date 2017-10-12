@@ -6,7 +6,7 @@
 
 (in-package #:org.shirakumo.autobuild.script)
 
-(defun rpath (pathname)
+(defun rpath (program)
   (merge-pathnames program simple-inferiors:*cwd*))
 
 (defun resolve-arg (arg &optional stream)
@@ -31,7 +31,7 @@
 
 (defun ./ (program &rest args)
   (simple-inferiors:run (rpath program) (mapcar #'resolve-arg args)
-                        :input T :error T
+                        :output T :error T
                         :on-non-zero-exit :error
                         :copier :line))
 

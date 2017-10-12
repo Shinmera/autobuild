@@ -67,4 +67,11 @@
    #:function-stage
    #:func
    #:eval-stage
-   #:form))
+   #:form
+   #:lisp-stage
+   #:inferior-lisp
+   #:lisp-type
+   #:form
+   #:asdf-system-stage
+   #:operation
+   #:system))

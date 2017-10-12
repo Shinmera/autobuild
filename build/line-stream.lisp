@@ -14,12 +14,12 @@
    :on-line #'print))
 
 (defun %write-char (stream character)
-  (write-char character (buffer stream))
   (case character
     (#\Linefeed
      (setf (column stream) 0)
      (funcall (on-line stream) (get-output-stream-string (buffer stream))))
     (T
+     (write-char character (buffer stream))
      (incf (column stream)))))
 
 (defmethod trivial-gray-streams:stream-write-char ((stream line-stream) character)

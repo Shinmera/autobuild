@@ -61,7 +61,9 @@
   (let* ((existing (uiop:directory-exists-p location))
          (repository (if existing
                          (make-instance 'legit:repository :location location)
-                         (legit:clone (repo commit) location :branch (hash commit)))))
+                         (legit:clone (repo commit) location :single-branch T))))
+    (legit:checkout repository (hash commit))
+    (legit:reset repository :hard T)
     (change-class repository
                   'checkout :repo (repo commit)
                             :hash (hash commit))
